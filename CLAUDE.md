@@ -117,8 +117,28 @@ cinza mas atravessa roxo e rosa, que não existem na paleta. Onde as duas precis
 conviver, mantenha o azul no corpo e o laranja num ponto isolado.
 
 **O laranja é raro de propósito.** Ele marca só: fim de bloco (o traço de 58° do
-`.rule`), numeração de serviço, marcador de lista e item ativo do menu. Se aparecesse
-em toda divisória, deixaria de significar alguma coisa.
+`.rule`), numeração de serviço, marcador de lista, item ativo do menu, o ponto
+final do título do hero e a decolagem no hover dos cards. Se aparecesse em toda
+divisória, deixaria de significar alguma coisa.
+
+**Estado se mostra pela forma, não só pela cor.** O status de projeto usa um glifo
+de trajetória (`StatusMark.astro`) em vez de bolinha colorida: ativo sobe e termina
+aberto, concluído sobe e assenta, arquivado é linha parada. Vale como regra geral —
+se um elemento distingue estados só por cor, quem não separa os matizes não lê a
+informação. Antes de escolher a cor, pergunte se a forma pode carregar o significado.
+
+**Metáfora emprestada é o que faz um elemento parecer templated.** A bolinha de
+status vinha de monitoramento de servidor (no ar / fora do ar), mas estes estados
+são estágio de vida, não saúde. Ao desenhar um elemento novo, cheque de onde a
+metáfora vem: o vocabulário desta marca é **trajetória** — linhas que sobem, o
+ângulo de 58°, níveis alcançados.
+
+**Efeito de hover deve ser um gesto da marca.** O card usa duas etapas encadeadas
+por `transition-delay`: uma linha percorre a borda inferior e um traço arremete em
+58° para fora do canto. Substituiu uma barra de degradê que qualquer site tem.
+Cuidado com a geometria: ancorar a decolagem como no `.rule` solto a joga para
+**baixo** do card — ela precisa nascer em `inset-inline-start: 100%` com
+`transform-origin: 0 100%` e crescer para fora. Confira no navegador, não no papel.
 
 **Divisórias usam `--hairline` via `border-image`**, o degradê direcional que é a
 assinatura visual do site. Duas restrições técnicas:

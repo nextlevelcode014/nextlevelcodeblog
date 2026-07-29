@@ -1,6 +1,7 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import StatusMark from '../../components/StatusMark.astro';
 
 export async function getStaticPaths() {
   const projetos = await getCollection('projetos', ({ data }) => !data.draft);
@@ -35,7 +36,7 @@ const { title, description, year, status, tags, repo, demo } = project.data;
           </div>
           <div>
             <dt class="eyebrow">Status</dt>
-            <dd>{status}</dd>
+            <dd><StatusMark status={status} /></dd>
           </div>
           {
             tags.length > 0 && (

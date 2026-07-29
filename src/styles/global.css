@@ -325,15 +325,39 @@
 
   /* Traço de 1px no topo que cresce da esquerda no hover — a "linha subindo"
      do logo, reduzida à sua forma mais simples. */
-  .card::before {
+  /* Hover: a base do card vira a régua ascendente da marca.
+     Uma linha percorre a borda inferior e, ao chegar no fim, um traço arremete
+     em 58° — o mesmo ângulo e o mesmo gesto do logo. É o `.rule` do site
+     acontecendo em duas etapas em vez de estar desenhado parado.
+     Substituiu uma barra de degradê no topo, que não dizia nada sobre a marca. */
+  .card::before,
+  .card::after {
     content: '';
     position: absolute;
-    inset-block-start: -1px;
+    inset-block-end: -1px;
+    pointer-events: none;
+  }
+
+  /* etapa 1 — a linha sobe pela base */
+  .card::before {
     inset-inline-start: -1px;
     inline-size: 0;
-    block-size: 2px;
-    background: linear-gradient(to right in oklab, var(--brand-blue), var(--brand-orange));
-    transition: inline-size var(--dur-slow) var(--ease-out);
+    block-size: 1px;
+    background: var(--brand-blue);
+    transition: inline-size 420ms var(--ease-out);
+  }
+
+  /* etapa 2 — a decolagem, no ângulo do traço do logo.
+     Ancorada NO canto inferior direito e crescendo para fora: a linha
+     abandona o card subindo, em vez de parar na borda. É o gesto do logo. */
+  .card::after {
+    inset-inline-start: 100%;
+    inline-size: 0;
+    block-size: 1px;
+    background: var(--brand-orange);
+    transform: rotate(calc(var(--angle) * -1));
+    transform-origin: 0 100%;
+    transition: inline-size 220ms var(--ease-out);
   }
 
   a.card:hover,
@@ -345,6 +369,28 @@
   a.card:hover::before,
   a.card:focus-visible::before {
     inline-size: calc(100% + 2px);
+  }
+
+  /* O atraso é o que faz as duas etapas lerem como um movimento só: a linha
+     chega ao fim e só então o traço sobe. */
+  a.card:hover::after,
+  a.card:focus-visible::after {
+    /* Curta o bastante para caber no respiro entre cards sem encostar no
+       vizinho: 1.75rem em 58° avança ~15px na horizontal, e o gap é 24px. */
+    inline-size: 1.75rem;
+    transition-delay: 300ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card::before,
+    .card::after {
+      transition-duration: 1ms;
+    }
+
+    a.card:hover::after,
+    a.card:focus-visible::after {
+      transition-delay: 0ms;
+    }
   }
 
   .card__title {

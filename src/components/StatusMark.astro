@@ -1,0 +1,72 @@
+---
+/**
+ * Estado de um projeto, desenhado como trajetória em vez de bolinha colorida.
+ *
+ * A bolinha vem de monitoramento de servidor — no ar / fora do ar. Mas estes
+ * três estados não são saúde, são estágio de vida, e a metáfora errada é o que
+ * fazia o elemento parecer emprestado de outro produto.
+ *
+ * O logo da marca é um N que se lê como linha ascendente, então a linguagem
+ * certa aqui é a mesma: cada estado é o formato de uma curva.
+ *
+ *   ativo      ┈╱╲╱  ainda subindo, termina aberto na borda
+ *   concluído  ┈╱───  subiu e estabilizou no seu nível
+ *   arquivado  ─────  linha parada
+ *
+ * A forma carrega o significado, então a cor deixa de ser a única portadora da
+ * informação — quem não distingue laranja de cinza continua lendo o estado.
+ */
+interface Props {
+  status: 'ativo' | 'concluído' | 'arquivado';
+  class?: string;
+}
+
+const { status, class: className } = Astro.props;
+
+const trajetorias = {
+  // sobe, recua, sobe mais — o zigue-zague do N, cortado pela borda direita
+  ativo: 'M1 10 L7 6 L13 8.5 L23 1',
+  // sobe e assenta: chegou ao nível e ficou
+  'concluído': 'M1 10 L9 4 L23 4',
+  // sem movimento
+  arquivado: 'M1 6.5 L23 6.5',
+} as const;
+---
+
+<span class:list={['marca', `marca--${status}`, className]}>
+  <svg viewBox="0 0 24 12" width="24" height="12" aria-hidden="true" fill="none">
+    <path
+      d={trajetorias[status]}
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="square"
+      stroke-linejoin="miter"></path>
+  </svg>
+  {status}
+</span>
+
+<style>
+  .marca {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    font-family: var(--font-heading);
+    font-size: var(--fs-2xs);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    white-space: nowrap;
+  }
+
+  /* Só o projeto em andamento ganha cor. Se todos brilhassem, nenhum
+     chamaria atenção — e o laranja deixaria de ser acento. */
+  .marca--ativo {
+    color: var(--hot);
+  }
+
+  .marca svg {
+    flex: none;
+    overflow: visible;
+  }
+</style>
