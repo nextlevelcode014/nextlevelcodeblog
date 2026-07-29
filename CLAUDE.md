@@ -56,6 +56,13 @@ quando mexer em texto com marcação no meio.
 caminho da fonte. Para ler arquivo do projeto (ex.: checar se `public/curriculo.pdf`
 existe), use `process.cwd()`, que é a raiz do projeto. Ver `src/pages/sobre.astro`.
 
+**`.prose` sobrescreve classes utilitárias por especificidade.** Um
+`<h2 class="eyebrow">` colocado dentro de `.prose` recebe as regras de
+`.prose h2` (0,1,1), que vencem `.eyebrow` (0,1,0) — a etiqueta renderizava com
+26px em vez de 11px e ganhava margem de título. Só coloque dentro de `.prose` o
+que é de fato texto do artigo; o resto vai fora. Nem o build nem o `astro check`
+detectam isto, porque é conflito de cascata e não erro de código.
+
 **View Transitions destroem o `<html>` e todos os elementos a cada navegação.**
 Consequências, ambas já resolvidas mas fáceis de reintroduzir:
 - Estado no `<html>` (o `data-theme`) precisa ser reaplicado em `astro:after-swap` —
@@ -97,6 +104,17 @@ abaixo do mínimo da WCAG. Por isso `--accent` e `--hot` têm valores diferentes
 tema, enquanto `--brand-blue` e `--brand-orange` (usados em preenchimento, onde
 contraste de texto não se aplica) são fixos. Ao introduzir cor de texto, verifique o
 contraste nos **dois** temas.
+
+Isso vale também para cor que não vem de token: o gradiente do título do hero
+usava `--brand-blue-lift` direto e dava **1,99:1** sobre branco, abaixo do mínimo
+de 3:1 até para texto grande. Virou `--hero-from`/`--hero-to`, sensíveis ao tema.
+Cor solta dentro de um `<style>` escapa da checagem que os tokens já passaram.
+
+**Não faça gradiente de azul para laranja.** As duas são quase complementares, então
+o caminho entre elas passa perto do neutro em qualquer espaço cartesiano — inclusive
+oklab — e o miolo do texto sai acinzentado. Interpolar por matiz (`oklch`) elimina o
+cinza mas atravessa roxo e rosa, que não existem na paleta. Onde as duas precisam
+conviver, mantenha o azul no corpo e o laranja num ponto isolado.
 
 **O laranja é raro de propósito.** Ele marca só: fim de bloco (o traço de 58° do
 `.rule`), numeração de serviço, marcador de lista e item ativo do menu. Se aparecesse
