@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import StatusMark from './StatusMark.astro';
 
 interface Props {
   project: CollectionEntry<'projetos'>;
@@ -14,7 +15,7 @@ const { title, description, year, status, tags } = project.data;
 <a href={`/projetos/${project.id}/`} class="card project">
   <div class="project__top">
     <span class="card__meta">{year}</span>
-    <span class="status" data-status={status}>{status}</span>
+    <StatusMark status={status} />
   </div>
 
   <Heading class="card__title">{title}</Heading>
@@ -42,29 +43,4 @@ const { title, description, year, status, tags } = project.data;
     padding-block-start: var(--space-xs);
   }
 
-  .status {
-    font-family: var(--font-heading);
-    font-size: var(--fs-2xs);
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45em;
-  }
-
-  .status::before {
-    content: '';
-    inline-size: 6px;
-    block-size: 6px;
-    border-radius: 50%;
-    background: currentColor;
-  }
-
-  /* Só projeto ativo ganha cor — o resto fica neutro. Se tudo brilha, nada
-     chama atenção. */
-  .status[data-status='ativo'] {
-    color: var(--hot);
-  }
 </style>
