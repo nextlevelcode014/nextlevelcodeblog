@@ -119,6 +119,28 @@ dependência de runtime, verifique:
 grep -rhoE '<(script|link|img|iframe)[^>]*(src|href)="https?://[^"]*"' dist --include="*.html" | grep -v nextlevelcode.pro
 ```
 
+## Navegador para verificação visual
+
+Esta máquina não tem Chrome nem Chromium — só Brave, ligado por symlink em
+`/opt/google/chrome/chrome`, que é onde os MCPs procuram.
+
+Use o servidor **`playwright-sandboxed`**, definido no `.mcp.json` deste
+repositório. O plugin `playwright` está desabilitado aqui de propósito: ele
+lança o navegador com `--no-sandbox`, e o sandbox do Chromium funciona
+perfeitamente nesta máquina — o flag era desvantagem pura. Nos outros projetos
+do usuário o plugin segue habilitado.
+
+O `chrome-devtools-mcp` também funciona, mas **não consegue redimensionar** a
+janela (`Restore window to normal state`). Para testar breakpoints, use o
+Playwright, que lança instância própria com viewport controlável.
+
+Vale rodar uma varredura antes de dar trabalho visual por concluído: navegar
+por todas as rotas em duas larguras e dois temas verificando rolagem
+horizontal, elementos estourando a viewport, `border-image` junto com
+`border-radius`, e — principalmente — **palavras coladas**, que é como o espaço
+descartado antes de tag inline se manifesta. Esse bug já apareceu seis vezes
+neste repositório e nenhuma verificação de build o detecta.
+
 ## Git e issues
 
 O remote é **Forgejo**, não GitHub — `gh` não funciona. Use o `tea`, já autenticado:
