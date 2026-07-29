@@ -1,0 +1,178 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionHead from '../components/SectionHead.astro';
+import { socials } from '../site.config';
+
+// Sem formulário: um <form> exigiria um backend ou um serviço de terceiros
+// recebendo os dados de quem escreve. E-mail direto mantém a conversa entre
+// duas partes, coerente com o que o site promete no rodapé.
+//
+// O RSS fica de fora: é um canal de leitura, não de conversa. E o e-mail vem
+// primeiro por ser o único em que eu de fato respondo.
+const ordem = ['E-mail', 'Forgejo', 'GitHub', 'Substack'];
+
+const channels = socials
+  .filter((s) => ordem.includes(s.label))
+  .sort((a, b) => ordem.indexOf(a.label) - ordem.indexOf(b.label))
+  .map((s) => ({
+    label: s.label,
+    // Mostra o endereço legível, sem o "https://" nem o "mailto:".
+    value: s.href.replace(/^(https?:\/\/|mailto:)/, ''),
+    href: s.href,
+    note: s.note,
+  }));
+---
+
+<Base
+  title="Contato"
+  description="Fale diretamente comigo por e-mail. Sem formulário, sem intermediário, sem coleta de dados."
+>
+  <section class="section">
+    <div class="wrap">
+      <SectionHead as="h1" eyebrow="Contato" title="Vamos conversar" />
+
+      <div class="layout">
+        <div>
+          <p class="lead">
+            Descreva o problema com suas palavras — não precisa saber o termo técnico
+            certo. Eu respondo com um diagnóstico honesto e, se for o caso, digo que
+            você não precisa contratar ninguém.
+          </p>
+
+          <ul class="channels">
+            {
+              channels.map((c) => (
+                <li>
+                  <a href={c.href} class="channel" rel="noopener">
+                    <span class="eyebrow">{c.label}</span>
+                    <span class="channel__value">{c.value}</span>
+                    <span class="channel__note">{c.note}</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <aside class="aside">
+          <h2 class="eyebrow">O que incluir na mensagem</h2>
+          <ul class="checklist">
+            <li>O que está acontecendo, e desde quando</li>
+            <li>Que equipamento ou sistema está envolvido</li>
+            <li>O que você já tentou</li>
+            <li>Qual seria o resultado ideal para você</li>
+          </ul>
+
+          <div class="privacy">
+            <h2 class="eyebrow">Sobre seus dados</h2>
+            <p>
+              Este site não tem formulário, cookies, analytics nem scripts de terceiros.
+              O que você me mandar por e-mail fica no e-mail — e nada além disso é
+              guardado.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .layout {
+    display: grid;
+    gap: var(--space-2xl);
+    margin-block-start: var(--space-lg);
+  }
+
+  @media (width >= 58rem) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr) 18rem;
+      gap: var(--space-3xl);
+    }
+  }
+
+  .channels {
+    list-style: none;
+    padding: 0;
+    margin-block-start: var(--space-xl);
+    border-block-start: 1px solid transparent;
+    border-image: var(--hairline) 1;
+  }
+
+  .channel {
+    display: grid;
+    gap: var(--space-3xs);
+    padding-block: var(--space-md);
+    border-block-end: 1px solid transparent;
+    border-image: var(--hairline) 1;
+    text-decoration: none;
+    transition: padding-inline-start var(--dur) var(--ease-out);
+  }
+
+  .channel:hover {
+    padding-inline-start: var(--space-xs);
+  }
+
+  .channel__value {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: var(--fs-lg);
+    letter-spacing: var(--tracking-tight);
+    /* Endereços longos não podem estourar a caixa no celular. */
+    overflow-wrap: anywhere;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .channel:hover .channel__value {
+    color: var(--accent);
+  }
+
+  .channel__note {
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  .aside {
+    display: grid;
+    gap: var(--space-lg);
+    align-content: start;
+  }
+
+  .checklist {
+    list-style: none;
+    padding: 0;
+    margin-block-start: var(--space-sm);
+    display: grid;
+    gap: var(--space-xs);
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  .checklist li {
+    position: relative;
+    padding-inline-start: 1.6rem;
+  }
+
+  .checklist li::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: 0.65em;
+    inline-size: 0.85rem;
+    block-size: 1px;
+    background: var(--brand-blue);
+    transform: rotate(calc(var(--angle) * -1));
+  }
+
+  .privacy {
+    padding-block-start: var(--space-md);
+    border-block-start: 1px solid transparent;
+    border-image: var(--hairline) 1;
+  }
+
+  .privacy p {
+    margin-block-start: var(--space-sm);
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+</style>

@@ -1,0 +1,126 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import PostCard from '../../components/PostCard.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  const projetos = await getCollection('projetos', ({ data }) => !data.draft);
+
+  // Set garante uma página por tag mesmo quando ela aparece em vários itens.
+  const tags = new Set<string>();
+  for (const post of posts) for (const tag of post.data.tags) tags.add(tag);
+  for (const project of projetos) for (const tag of project.data.tags) tags.add(tag);
+
+  return [...tags].map((tag) => ({
+    params: { tag },
+    props: {
+      tag,
+      posts: posts
+        .filter((p) => p.data.tags.includes(tag))
+        .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()),
+      projetos: projetos
+        .filter((p) => p.data.tags.includes(tag))
+        .sort((a, b) => a.data.order - b.data.order),
+    },
+  }));
+}
+
+interface Props {
+  tag: string;
+  posts: CollectionEntry<'blog'>[];
+  projetos: CollectionEntry<'projetos'>[];
+}
+
+const { tag, posts, projetos } = Astro.props;
+const total = posts.length + projetos.length;
+---
+
+<Base
+  title={`Tag: ${tag}`}
+  description={`Tudo que a NextLevelCode publicou sobre ${tag}.`}
+>
+  <section class="section">
+    <div class="wrap">
+      <a href="/tags/" class="back">← Todas as tags</a>
+
+      <SectionHead as="h1" eyebrow="Tag" title={tag} />
+
+      <p class="lead">
+        {total} {total === 1 ? 'item marcado' : 'itens marcados'} com <strong>{tag}</strong>.
+      </p>
+
+      {
+        projetos.length > 0 && (
+          <section class="block">
+            <h2 class="block__title">Projetos</h2>
+            <div class="grid">
+              {projetos.map((project) => (
+                <ProjectCard project={project} />
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      {
+        posts.length > 0 && (
+          <section class="block">
+            <h2 class="block__title">Posts</h2>
+            <div class="posts">
+              {posts.map((post) => (
+                <PostCard post={post} />
+              ))}
+            </div>
+          </section>
+        )
+      }
+    </div>
+  </section>
+</Base>
+
+<style>
+  .back {
+    display: inline-block;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    text-decoration: none;
+    margin-block-end: var(--space-lg);
+  }
+
+  .back:hover {
+    color: var(--accent);
+  }
+
+  .lead strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .block {
+    margin-block-start: var(--space-lg);
+  }
+
+  .block__title {
+    font-size: var(--fs-lg);
+    margin-block-end: var(--space-md);
+  }
+
+  .grid {
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  @media (width >= 48rem) {
+    .grid {
+      grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+    }
+  }
+
+  .posts {
+    border-block-start: 1px solid transparent;
+    border-image: var(--hairline) 1;
+  }
+</style>

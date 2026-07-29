@@ -1,0 +1,93 @@
+---
+/**
+ * Alternador de tema. O estado real vive no atributo `data-theme` do <html>,
+ * gravado pelo script inline do Base.astro antes da primeira pintura.
+ * Este componente só inverte esse atributo e persiste a escolha.
+ */
+---
+
+<button
+  type="button"
+  class="theme-toggle"
+  data-theme-toggle
+  aria-label="Alternar tema claro e escuro"
+  title="Alternar tema"
+>
+  <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none"
+    stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+    <!-- Sol (visível no tema escuro: clicar leva para o claro) -->
+    <g class="icon-sun">
+      <circle cx="12" cy="12" r="4.2"></circle>
+      <path d="M12 2.6v2.2M12 19.2v2.2M21.4 12h-2.2M4.8 12H2.6M18.6 5.4l-1.6 1.6M7 17l-1.6 1.6M18.6 18.6L17 17M7 7L5.4 5.4"></path>
+    </g>
+    <!-- Lua (visível no tema claro) -->
+    <path class="icon-moon" d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.4 8.4 0 1 0 10.2 10.2z"></path>
+  </svg>
+</button>
+
+<style>
+  .theme-toggle {
+    display: grid;
+    place-items: center;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out);
+  }
+
+  .theme-toggle:hover {
+    color: var(--text);
+    background: var(--bg-inset);
+    border-color: var(--line);
+  }
+
+  /* Um ícone por tema. `:root[data-theme]` decide qual desenhar. */
+  .icon-moon {
+    display: none;
+  }
+
+  :global(:root[data-theme='light']) .icon-sun {
+    display: none;
+  }
+
+  :global(:root[data-theme='light']) .icon-moon {
+    display: block;
+  }
+</style>
+
+<script>
+  // Delegação no `document` em vez de listener no botão: com View Transitions o
+  // botão é destruído e recriado a cada navegação, e um listener preso a ele
+  // morreria junto. O `document` sobrevive, então isto é registrado uma vez só.
+  //
+  // A trava abaixo é cinto de segurança: o Astro já evita reexecutar este
+  // script a cada navegação, mas se algum dia reexecutasse, o listener
+  // duplicado inverteria o tema duas vezes por clique — ou seja, o botão
+  // pareceria não fazer nada, que é um bug irritante de diagnosticar.
+  const w = window as typeof window & { __nlcThemeBound?: boolean };
+
+  if (!w.__nlcThemeBound) {
+    w.__nlcThemeBound = true;
+
+    document.addEventListener('click', (event) => {
+      const target = event.target as Element | null;
+      if (!target?.closest('[data-theme-toggle]')) return;
+
+      const root = document.documentElement;
+      const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+      root.dataset.theme = next;
+
+      try {
+        localStorage.setItem('theme', next);
+      } catch {
+        // localStorage bloqueado (modo privado estrito): o tema ainda muda,
+        // só não sobrevive ao recarregamento. Falhar aqui seria pior.
+      }
+    });
+  }
+</script>

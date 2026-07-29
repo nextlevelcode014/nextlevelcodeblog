@@ -1,0 +1,402 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+import SectionHead from '../components/SectionHead.astro';
+import PostCard from '../components/PostCard.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { services, principles } from '../site.config';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+
+const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 2);
+---
+
+<Base>
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="wrap hero__inner">
+      <div class="hero__content">
+        <p class="eyebrow">Suporte · Segurança · Web</p>
+
+        {/*
+          O `{' '}` não é decorativo: o compilador do Astro descarta a quebra de
+          linha que precede uma tag inline, o que colaria "no" em "próximo".
+        */}
+        <h1 class="hero__title">
+          Sua infraestrutura no{' '}
+          <span class="hero__accent">próximo nível</span>.
+        </h1>
+
+        <p class="hero__lead">
+          Tecnologia construída sobre três coisas inegociáveis:{' '}
+          <strong>liberdade</strong>, <strong>privacidade</strong> e{' '}
+          <strong>segurança</strong>. Software aberto, dados sob seu controle,
+          nada de caixa-preta.
+        </p>
+
+        <div class="hero__actions">
+          <a href="/contato/" class="btn">
+            Falar comigo
+            <span class="btn__arrow" aria-hidden="true">↗</span>
+          </a>
+          <a href="/servicos/" class="btn btn--ghost">Ver serviços</a>
+        </div>
+      </div>
+
+      <!-- Marca em escala grande como elemento gráfico, não como logotipo.
+           aria-hidden: é decoração; o nome já está no header. -->
+      <div class="hero__mark" aria-hidden="true">
+        <Logo size={420} animate />
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SERVIÇOS ================= -->
+  <section class="section" id="servicos">
+    <div class="wrap">
+      <SectionHead
+        eyebrow="O que eu faço"
+        title="Três frentes, um mesmo princípio"
+        link={{ href: '/servicos/', label: 'Detalhes de cada serviço' }}
+      />
+
+      <ul class="services">
+        {
+          services.map((service) => (
+            <li class="service reveal">
+              <span class="service__num" aria-hidden="true">
+                {service.number}
+              </span>
+              <div>
+                <h3 class="service__title">{service.title}</h3>
+                <p class="service__body">{service.summary}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= PRINCÍPIOS ================= -->
+  <section class="section section--banded principles-section">
+    <div class="wrap">
+      <SectionHead eyebrow="Por quê" title="O que guia cada decisão técnica" />
+
+      <ul class="principles">
+        {
+          principles.map((p) => (
+            <li class="principle reveal">
+              <h3 class="principle__title">{p.title}</h3>
+              <div class="rule" />
+              <p class="principle__body">{p.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= PROJETOS ================= -->
+  {
+    projetos.length > 0 && (
+      <section class="section">
+        <div class="wrap">
+          <SectionHead
+            eyebrow="Trabalho"
+            title="Projetos"
+            link={{ href: '/projetos/', label: 'Todos os projetos' }}
+          />
+          <div class="projects-grid">
+            {projetos.map((project) => (
+              <ProjectCard project={project} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ================= BLOG ================= -->
+  {
+    posts.length > 0 && (
+      <section class="section">
+        <div class="wrap">
+          <SectionHead
+            eyebrow="Escrita"
+            title="Do blog"
+            link={{ href: '/blog/', label: 'Todos os posts' }}
+          />
+          <div class="posts">
+            {posts.map((post) => (
+              <PostCard post={post} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ================= CTA ================= -->
+  <section class="section">
+    <div class="wrap">
+      <div class="cta">
+        <div>
+          <h2 class="cta__title">Tem um problema técnico para resolver?</h2>
+          <p class="cta__body">
+            Descreva a situação e eu respondo com um diagnóstico honesto — inclusive
+            se a resposta for "você não precisa contratar ninguém para isso".
+          </p>
+        </div>
+        <a href="/contato/" class="btn">
+          Começar uma conversa
+          <span class="btn__arrow" aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ---------------- HERO ---------------- */
+  .hero {
+    position: relative;
+    overflow: clip;
+    /* Maior que o das seções — o hero é a abertura —, mas não tanto quanto
+       antes: com as seções mais juntas, 9rem aqui virava um degrau grande
+       demais logo na primeira dobra. */
+    padding-block: clamp(2.5rem, 1.2rem + 5.5vw, 4.5rem);
+  }
+
+  /* Brilho radial atrás do texto: dá profundidade ao navy sem introduzir
+     nenhuma superfície ou borda nova. */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset-block-start: -30%;
+    inset-inline-start: -10%;
+    inline-size: 70%;
+    aspect-ratio: 1;
+    background: radial-gradient(
+      circle,
+      color-mix(in oklab, var(--brand-blue) 16%, transparent),
+      transparent 62%
+    );
+    pointer-events: none;
+  }
+
+  .hero__inner {
+    position: relative;
+    display: grid;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  @media (width >= 62rem) {
+    .hero__inner {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    }
+  }
+
+  .hero__title {
+    margin-block-start: var(--space-sm);
+    font-size: var(--fs-3xl);
+    font-weight: 700;
+    letter-spacing: var(--tracking-tighter);
+    max-inline-size: 16ch;
+  }
+
+  /* O gradiente vai do azul ao laranja no sentido ascendente — mesma leitura
+     do logo. Fallback: se background-clip:text não existir, fica azul sólido. */
+  .hero__accent {
+    color: var(--accent);
+    position: relative;
+    white-space: nowrap;
+  }
+
+  @supports (background-clip: text) or (-webkit-background-clip: text) {
+    .hero__accent {
+      /* `in oklab` importa aqui: interpolando em sRGB, o caminho de azul até
+         laranja passa por um cinza sujo no meio — justamente onde cai a
+         palavra "nível". Em oklab a transição mantém a saturação. */
+      background: linear-gradient(
+        100deg in oklab,
+        var(--brand-blue-lift),
+        var(--brand-blue) 45%,
+        var(--brand-orange)
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+  }
+
+  .hero__lead {
+    margin-block-start: var(--space-md);
+    font-size: var(--fs-md);
+    color: var(--text-muted);
+    max-inline-size: 48ch;
+  }
+
+  .hero__lead strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-block-start: var(--space-lg);
+  }
+
+  .hero__mark {
+    display: none;
+    justify-self: center;
+    /* Presente, mas ainda atrás do texto na hierarquia. A máscara radial
+       mantém as pontas se dissolvendo no fundo — é o que impede a marca de
+       parecer um segundo logotipo competindo com o do header. */
+    opacity: 0.32;
+    mask-image: radial-gradient(ellipse at center, #000 66%, transparent 94%);
+  }
+
+  @media (width >= 62rem) {
+    .hero__mark {
+      display: block;
+    }
+  }
+
+  /* ---------------- SERVIÇOS ---------------- */
+  .services {
+    display: grid;
+    gap: 0;
+    list-style: none;
+    padding: 0;
+  }
+
+  .service {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-md);
+    align-items: start;
+    padding-block: var(--space-md);
+    border-block-start: 1px solid transparent;
+    border-image: var(--hairline) 1;
+  }
+
+  .service:last-child {
+    border-block-end: 1px solid transparent;
+    border-image: var(--hairline) 1;
+  }
+
+  @media (width >= 48rem) {
+    .service {
+      grid-template-columns: 5rem 1fr;
+      gap: var(--space-xl);
+    }
+  }
+
+  /* A numeração em laranja é o "acento pontual" que o guia de marca pede:
+     alto contraste, área minúscula. */
+  .service__num {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: var(--fs-lg);
+    line-height: 1;
+    color: var(--hot);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .service__title {
+    font-size: var(--fs-lg);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .service__body {
+    margin-block-start: var(--space-2xs);
+    color: var(--text-muted);
+    max-inline-size: 60ch;
+  }
+
+  /* ---------------- PRINCÍPIOS ---------------- */
+  .principles-section {
+    background: var(--bg-subtle);
+    border-block: 1px solid transparent;
+    border-image: var(--hairline) 1;
+  }
+
+  .principles {
+    display: grid;
+    gap: var(--space-lg);
+    list-style: none;
+    padding: 0;
+  }
+
+  @media (width >= 48rem) {
+    .principles {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-xl);
+    }
+  }
+
+  .principle__title {
+    font-size: var(--fs-md);
+  }
+
+  .principle__body {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+  }
+
+  /* ---------------- LISTAGENS ---------------- */
+  .projects-grid {
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  @media (width >= 48rem) {
+    .projects-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .posts > :global(article:first-child) {
+    border-block-start: 1px solid transparent;
+    border-image: var(--hairline) 1;
+  }
+
+  /* ---------------- CTA ---------------- */
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    /* Um traço de marca no topo da caixa, em 2px, azul→laranja. */
+    background-image: linear-gradient(to right in oklab, var(--brand-blue), var(--brand-orange));
+    background-size: 100% 2px;
+    background-repeat: no-repeat;
+    background-position: top left;
+  }
+
+  .cta__title {
+    font-size: var(--fs-lg);
+    letter-spacing: var(--tracking-tight);
+  }
+
+  .cta__body {
+    margin-block-start: var(--space-2xs);
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    max-inline-size: 52ch;
+  }
+</style>

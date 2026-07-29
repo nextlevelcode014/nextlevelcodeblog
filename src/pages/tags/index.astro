@@ -1,0 +1,113 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import SectionHead from '../../components/SectionHead.astro';
+
+const posts = await getCollection('blog', ({ data }) => !data.draft);
+const projetos = await getCollection('projetos', ({ data }) => !data.draft);
+
+// Uma tag pode aparecer nos dois lugares, então contamos as duas origens
+// separadamente — útil para o visitante saber o que vai encontrar.
+const tally = new Map<string, { posts: number; projetos: number }>();
+
+const bump = (tag: string, key: 'posts' | 'projetos') => {
+  const entry = tally.get(tag) ?? { posts: 0, projetos: 0 };
+  entry[key] += 1;
+  tally.set(tag, entry);
+};
+
+for (const post of posts) for (const tag of post.data.tags) bump(tag, 'posts');
+for (const project of projetos) for (const tag of project.data.tags) bump(tag, 'projetos');
+
+const tags = [...tally.entries()]
+  .map(([name, counts]) => ({ name, ...counts, total: counts.posts + counts.projetos }))
+  .sort((a, b) => b.total - a.total || a.name.localeCompare(b.name, 'pt-BR'));
+---
+
+<Base
+  title="Tags"
+  description="Todos os assuntos cobertos no blog e nos projetos da NextLevelCode."
+>
+  <section class="section">
+    <div class="wrap">
+      <SectionHead as="h1" eyebrow="Índice" title="Tags" />
+
+      <p class="lead">
+        {tags.length} {tags.length === 1 ? 'assunto' : 'assuntos'} entre posts e projetos.
+      </p>
+
+      {
+        tags.length > 0 ? (
+          <ul class="tags">
+            {tags.map((tag) => (
+              <li>
+                <a href={`/tags/${tag.name}/`} class="tag-row">
+                  <span class="tag-row__name">{tag.name}</span>
+                  <span class="tag-row__count">
+                    {tag.posts > 0 && `${tag.posts} post${tag.posts > 1 ? 's' : ''}`}
+                    {tag.posts > 0 && tag.projetos > 0 && ' · '}
+                    {tag.projetos > 0 &&
+                      `${tag.projetos} projeto${tag.projetos > 1 ? 's' : ''}`}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="empty">Nenhuma tag ainda.</p>
+        )
+      }
+    </div>
+  </section>
+</Base>
+
+<style>
+  .tags {
+    list-style: none;
+    padding: 0;
+    margin-block-start: var(--space-lg);
+    border-block-start: 1px solid transparent;
+    border-image: var(--hairline) 1;
+  }
+
+  .tag-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding-block: var(--space-sm);
+    border-block-end: 1px solid transparent;
+    border-image: var(--hairline) 1;
+    text-decoration: none;
+    transition: padding-inline-start var(--dur) var(--ease-out);
+  }
+
+  /* Ao passar o mouse a linha desliza para dentro — resposta perceptível sem
+     mudar cor de fundo nem introduzir uma nova superfície. */
+  .tag-row:hover {
+    padding-inline-start: var(--space-xs);
+  }
+
+  .tag-row__name {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: var(--fs-md);
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .tag-row:hover .tag-row__name {
+    color: var(--accent);
+  }
+
+  .tag-row__count {
+    font-size: var(--fs-xs);
+    color: var(--text-faint);
+    white-space: nowrap;
+  }
+
+  .empty {
+    padding-block: var(--space-2xl);
+    color: var(--text-muted);
+    text-align: center;
+  }
+</style>

@@ -400,3 +400,7 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 
+dist/
+.astro/
+node_modules/
+.DS_Store

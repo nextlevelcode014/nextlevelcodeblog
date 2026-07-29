@@ -1,0 +1,54 @@
+---
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+---
+
+<Base title="Página não encontrada" noindex>
+  <section class="section notfound">
+    <div class="wrap notfound__inner">
+      <Logo size={72} />
+      <p class="eyebrow">Erro 404</p>
+      <h1 class="notfound__title">Esta rota não existe</h1>
+      <p class="notfound__body">
+        O endereço mudou, o link veio quebrado, ou a página nunca esteve aqui.
+      </p>
+      <div class="notfound__actions">
+        <a href="/" class="btn">Voltar ao início</a>
+        <a href="/blog/" class="btn btn--ghost">Ir para o blog</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .notfound {
+    display: grid;
+    place-items: center;
+    min-block-size: 60svh;
+  }
+
+  .notfound__inner {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    gap: var(--space-sm);
+  }
+
+  .notfound__title {
+    font-size: var(--fs-2xl);
+    letter-spacing: var(--tracking-tighter);
+  }
+
+  .notfound__body {
+    color: var(--text-muted);
+    max-inline-size: 40ch;
+  }
+
+  .notfound__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-xs);
+    margin-block-start: var(--space-sm);
+  }
+</style>

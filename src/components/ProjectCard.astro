@@ -1,0 +1,70 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  project: CollectionEntry<'projetos'>;
+  /** Ver a nota em PostCard: o nível acompanha o contexto da página. */
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { project, headingLevel: Heading = 'h3' } = Astro.props;
+const { title, description, year, status, tags } = project.data;
+---
+
+<a href={`/projetos/${project.id}/`} class="card project">
+  <div class="project__top">
+    <span class="card__meta">{year}</span>
+    <span class="status" data-status={status}>{status}</span>
+  </div>
+
+  <Heading class="card__title">{title}</Heading>
+  <p class="card__body">{description}</p>
+
+  <ul class="tag-list project__tags" aria-label="Tecnologias">
+    {tags.map((tag) => <li class="tag">{tag}</li>)}
+  </ul>
+</a>
+
+<style>
+  .project {
+    block-size: 100%;
+  }
+
+  .project__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2xs);
+  }
+
+  .project__tags {
+    margin-block-start: auto;
+    padding-block-start: var(--space-xs);
+  }
+
+  .status {
+    font-family: var(--font-heading);
+    font-size: var(--fs-2xs);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+  }
+
+  .status::before {
+    content: '';
+    inline-size: 6px;
+    block-size: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* Só projeto ativo ganha cor — o resto fica neutro. Se tudo brilha, nada
+     chama atenção. */
+  .status[data-status='ativo'] {
+    color: var(--hot);
+  }
+</style>

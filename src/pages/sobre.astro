@@ -1,0 +1,237 @@
+---
+import { statSync } from 'node:fs';
+import { join } from 'node:path';
+import Base from '../layouts/Base.astro';
+import SectionHead from '../components/SectionHead.astro';
+import { principles } from '../site.config';
+
+/**
+ * O botão de currículo só é renderizado se o PDF existir em `public/`.
+ * Assim nunca há um link de download apontando para 404: se o arquivo sair do
+ * lugar, o botão some junto em vez de quebrar na mão do visitante.
+ *
+ * A leitura acontece no build (Node), não no navegador — aproveitamos para
+ * mostrar o tamanho, que é a informação que falta em quase todo link de
+ * download: saber se vai baixar 200 KB ou 12 MB antes de clicar.
+ */
+const CURRICULO = '/curriculo.pdf';
+
+function lerCurriculo() {
+  try {
+    // `process.cwd()` e não `import.meta.url`: no build, este .astro já virou
+    // um módulo dentro de dist/, então o caminho relativo ao módulo apontaria
+    // para dist/public/ — que não existe. O cwd é a raiz do projeto.
+    const caminho = join(process.cwd(), 'public', CURRICULO);
+    const { size } = statSync(caminho);
+    const kb = size / 1024;
+    return { tamanho: kb >= 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${Math.round(kb)} KB` };
+  } catch {
+    return null;
+  }
+}
+
+const curriculo = lerCurriculo();
+---
+
+<Base
+  title="Sobre"
+  description="Quem está por trás da NextLevelCode e por que liberdade, privacidade e segurança não são detalhes técnicos."
+>
+  <section class="section">
+    <div class="wrap">
+      <SectionHead as="h1" eyebrow="Sobre" title="Quem está por trás disso" />
+
+      <div class="layout">
+        <div class="prose">
+          <p>
+            A <strong>NextLevelCode</strong> é o nome que eu dei ao trabalho que já vinha
+            fazendo há anos: consertar, proteger e construir sistemas. Começou com
+            hardware — abrir máquina, trocar peça, descobrir por que aquele notebook
+            desligava sozinho. Depois virou rede, depois servidor, depois código.
+          </p>
+
+          <p>
+            Hoje isso se organiza em três serviços que se sustentam: suporte técnico,
+            segurança da informação e desenvolvimento web. Não são áreas separadas —
+            são o mesmo problema visto de três distâncias diferentes.
+          </p>
+
+          <h2>Como eu trabalho</h2>
+
+          <p>
+            Prefiro explicar a esconder. Se você me contratar para resolver algo, vai
+            receber junto o raciocínio: o que quebrou, por que quebrou e o que fazer
+            para não quebrar de novo. Cliente que entende o próprio sistema é cliente
+            que precisa menos de mim — e é assim que deve ser.
+          </p>
+
+          <p>
+            Uso software livre sempre que ele der conta, o que hoje é quase sempre. Não
+            por ideologia abstrata: é que código auditável quebra menos surpresa, e
+            solução que você pode migrar é solução que você controla.
+          </p>
+
+          <h2>Fora do trabalho</h2>
+
+          <p>
+            Homelab, hardware de PC, Linux e Bitcoin. São os assuntos que aparecem no
+            <a href="/blog/">blog</a> e onde a maior parte dos <a href="/projetos/">projetos</a>
+            nasce — geralmente de um problema meu que virou ferramenta.
+          </p>
+        </div>
+
+        <aside class="side">
+          <div class="side__block">
+            <h2 class="eyebrow">Princípios</h2>
+            <ul class="principles">
+              {
+                principles.map((p) => (
+                  <li>
+                    <strong>{p.title}</strong>
+                    <span>{p.body}</span>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+
+          <div class="side__block">
+            <h2 class="eyebrow">Ferramentas do dia a dia</h2>
+            <ul class="tag-list">
+              {
+                [
+                  'Arch Linux',
+                  'Hyprland',
+                  'Proxmox',
+                  'Docker',
+                  'Nix',
+                  'Wireguard',
+                  'Astro',
+                  'TypeScript',
+                  'Bash',
+                  'Bitcoin Core',
+                ].map((t) => <li class="tag">{t}</li>)
+              }
+            </ul>
+          </div>
+
+          <div class="side__actions">
+            <a href="/contato/" class="btn">
+              Falar comigo
+              <span class="btn__arrow" aria-hidden="true">↗</span>
+            </a>
+
+            {
+              curriculo && (
+                <a class="cv" href={CURRICULO} download>
+                  <span class="cv__arrow" aria-hidden="true">
+                    ↓
+                  </span>
+                  Currículo
+                  <span class="cv__meta">PDF · {curriculo.tamanho}</span>
+                </a>
+              )
+            }
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .layout {
+    display: grid;
+    gap: var(--space-2xl);
+    margin-block-start: var(--space-lg);
+  }
+
+  @media (width >= 60rem) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr) 17rem;
+      gap: var(--space-3xl);
+    }
+
+    .side {
+      position: sticky;
+      inset-block-start: 6rem;
+      align-self: start;
+    }
+  }
+
+  .side {
+    display: grid;
+    gap: var(--space-lg);
+    justify-items: start;
+  }
+
+  .side__block {
+    inline-size: 100%;
+    padding-block-start: var(--space-sm);
+    border-block-start: 1px solid transparent;
+    border-image: var(--hairline) 1;
+  }
+
+  .principles {
+    list-style: none;
+    padding: 0;
+    margin-block-start: var(--space-sm);
+    display: grid;
+    gap: var(--space-sm);
+  }
+
+  .principles li {
+    display: grid;
+    gap: var(--space-3xs);
+    font-size: var(--fs-sm);
+  }
+
+  .principles strong {
+    font-family: var(--font-heading);
+    font-weight: 600;
+  }
+
+  .principles span {
+    color: var(--text-muted);
+  }
+
+  .side .tag-list {
+    margin-block-start: var(--space-sm);
+  }
+
+  .side__actions {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-xs);
+  }
+
+  /* Discreto de propósito: "Falar comigo" é a ação principal desta página e
+     continua sendo o único botão preenchido. O currículo é texto com uma seta,
+     um degrau abaixo na hierarquia. */
+  .cv {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5em;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .cv:hover {
+    color: var(--accent);
+  }
+
+  .cv__arrow {
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  .cv:hover .cv__arrow {
+    transform: translateY(2px);
+  }
+
+  .cv__meta {
+    font-size: var(--fs-2xs);
+    color: var(--text-faint);
+  }
+</style>

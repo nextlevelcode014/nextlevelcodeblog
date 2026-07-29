@@ -1,0 +1,21 @@
+---
+interface Props {
+  date: Date;
+  /** 'short' → 12 mar 2026 · 'long' → 12 de março de 2026 */
+  format?: 'short' | 'long';
+  class?: string;
+}
+
+const { date, format = 'short', class: className } = Astro.props;
+
+const formatter = new Intl.DateTimeFormat('pt-BR', {
+  day: 'numeric',
+  month: format === 'long' ? 'long' : 'short',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<time datetime={date.toISOString()} class={className}>
+  {formatter.format(date)}
+</time>

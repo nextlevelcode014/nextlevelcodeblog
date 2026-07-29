@@ -1,0 +1,139 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const projetos = await getCollection('projetos', ({ data }) => !data.draft);
+  return projetos.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+interface Props {
+  project: CollectionEntry<'projetos'>;
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const { title, description, year, status, tags, repo, demo } = project.data;
+---
+
+<Base title={title} description={description}>
+  <article class="section">
+    <div class="wrap">
+      <header class="head">
+        <a href="/projetos/" class="back">← Projetos</a>
+
+        <h1 class="head__title">{title}</h1>
+        <p class="head__desc">{description}</p>
+
+        <dl class="facts">
+          <div>
+            <dt class="eyebrow">Ano</dt>
+            <dd>{year}</dd>
+          </div>
+          <div>
+            <dt class="eyebrow">Status</dt>
+            <dd>{status}</dd>
+          </div>
+          {
+            tags.length > 0 && (
+              <div class="facts__wide">
+                <dt class="eyebrow">Stack</dt>
+                <dd>
+                  <ul class="tag-list">
+                    {tags.map((tag) => (
+                      <li class="tag">{tag}</li>
+                    ))}
+                  </ul>
+                </dd>
+              </div>
+            )
+          }
+        </dl>
+
+        {
+          (repo || demo) && (
+            <div class="links">
+              {repo && (
+                <a href={repo} class="btn btn--ghost" rel="noopener">
+                  Código-fonte
+                  <span class="btn__arrow" aria-hidden="true">
+                    ↗
+                  </span>
+                </a>
+              )}
+              {demo && (
+                <a href={demo} class="btn" rel="noopener">
+                  Ver ao vivo
+                  <span class="btn__arrow" aria-hidden="true">
+                    ↗
+                  </span>
+                </a>
+              )}
+            </div>
+          )
+        }
+
+        <div class="rule"></div>
+      </header>
+
+      <div class="prose">
+        <Content />
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .back {
+    display: inline-block;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    text-decoration: none;
+    margin-block-end: var(--space-lg);
+  }
+
+  .back:hover {
+    color: var(--accent);
+  }
+
+  .head__title {
+    font-size: var(--fs-2xl);
+    font-weight: 700;
+    letter-spacing: var(--tracking-tighter);
+  }
+
+  .head__desc {
+    margin-block-start: var(--space-sm);
+    font-size: var(--fs-md);
+    color: var(--text-muted);
+    max-inline-size: 54ch;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, auto));
+    gap: var(--space-md) var(--space-xl);
+    justify-content: start;
+    margin-block-start: var(--space-lg);
+  }
+
+  .facts__wide {
+    grid-column: 1 / -1;
+  }
+
+  .facts dd {
+    margin: 0;
+    margin-block-start: var(--space-3xs);
+    font-size: var(--fs-sm);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-block-start: var(--space-lg);
+  }
+</style>

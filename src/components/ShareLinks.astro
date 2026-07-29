@@ -1,0 +1,173 @@
+---
+/**
+ * Compartilhamento de um post.
+ *
+ * São links comuns, não widgets: nenhum SDK, nenhum script de terceiro,
+ * nenhum iframe. Isso importa aqui — os botões oficiais de compartilhamento
+ * dessas redes carregam JavaScript delas em toda visita e registram quem viu a
+ * página mesmo sem ninguém clicar. Com link puro, nada sai do navegador do
+ * visitante até ele decidir clicar. É o que mantém de pé a promessa do rodapé.
+ *
+ * O Instagram não aparece porque não existe: a plataforma não oferece nenhum
+ * endereço web para compartilhar um link. O botão "Copiar link" cobre esse
+ * caso — é como as pessoas colam um link em story ou bio.
+ */
+interface Props {
+  title: string;
+  /** URL absoluta do post. */
+  url: string;
+}
+
+const { title, url } = Astro.props;
+
+const encoded = encodeURIComponent(url);
+const texto = encodeURIComponent(title);
+
+const redes = [
+  { label: 'X', href: `https://x.com/intent/post?url=${encoded}&text=${texto}` },
+  {
+    label: 'LinkedIn',
+    href: `https://www.linkedin.com/sharing/share-offsite/?url=${encoded}`,
+  },
+  { label: 'WhatsApp', href: `https://wa.me/?text=${texto}%20${encoded}` },
+  { label: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${encoded}` },
+];
+---
+
+<aside class="share" aria-labelledby="share-title">
+  {/* O texto acabou: aqui vale o traço completo, com a decolagem laranja. */}
+  <div class="rule"></div>
+  <h2 class="eyebrow" id="share-title">Compartilhar</h2>
+
+  <ul class="share__list">
+    {
+      redes.map((rede) => (
+        <li>
+          {/*
+            O aviso de "nova aba" vai no aria-label, e não num <span> escondido
+            dentro do link. O utilitário .visually-hidden do site esconde com
+            `:not(:focus)` — feito para o link de pular conteúdo, que DEVE
+            aparecer ao receber foco. Aqui isso era um bug: ao chegar de Tab, o
+            texto voltava ao fluxo e a pílula esticava na frente do visitante.
+          */}
+          <a
+            class="share__item"
+            href={rede.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Compartilhar no ${rede.label} (abre em nova aba)`}
+          >
+            {rede.label}
+          </a>
+        </li>
+      ))
+    }
+    <li>
+      <button type="button" class="share__item" data-copy-link={url}>
+        <span data-copy-label>Copiar link</span>
+      </button>
+    </li>
+  </ul>
+</aside>
+
+<style>
+  .share {
+    margin-block-start: var(--space-lg);
+  }
+
+  .share__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2xs);
+    margin-block-start: var(--space-sm);
+    list-style: none;
+    padding: 0;
+  }
+
+  .share__item {
+    /* inline-flex + centralização em vez de inline-block: assim o rótulo fica
+       centrado na pílula independentemente do comprimento, e a caixa não
+       depende da métrica da linha de texto para se alinhar às vizinhas.
+       O min-inline-size existe por causa do "X": com um caractere só, a
+       pílula ficava estreita demais e destoava da fileira. */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: 6ch;
+    padding: 0.4em 0.9em;
+    font-family: var(--font-heading);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out);
+  }
+
+  .share__item:hover {
+    color: var(--accent);
+    background: var(--accent-quiet);
+    border-color: color-mix(in oklab, var(--brand-blue) 45%, transparent);
+  }
+
+  /* Confirmação de cópia: fica verde-azulado por um instante. Usa o mesmo
+     acento do site em vez de um verde novo — menos cores, mesma mensagem. */
+  .share__item[data-copied] {
+    color: var(--brand-navy);
+    background: var(--brand-blue);
+    border-color: var(--brand-blue);
+  }
+
+  :global(:root[data-theme='light']) .share__item[data-copied] {
+    color: #ffffff;
+  }
+</style>
+
+<script>
+  // Delegação no `document`, pelo mesmo motivo do botão de tema: com View
+  // Transitions este botão é recriado a cada navegação, e um listener preso a
+  // ele morreria junto.
+  const w = window as typeof window & { __nlcShareBound?: boolean };
+
+  if (!w.__nlcShareBound) {
+    w.__nlcShareBound = true;
+
+    document.addEventListener('click', async (event) => {
+      const target = event.target as Element | null;
+      const btn = target?.closest<HTMLButtonElement>('[data-copy-link]');
+      if (!btn) return;
+
+      const url = btn.dataset.copyLink;
+      const label = btn.querySelector('[data-copy-label]');
+      if (!url || !label) return;
+
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        // A Clipboard API exige contexto seguro (https ou localhost) e, em
+        // alguns navegadores, permissão. Se falhar, selecionar o texto deixa o
+        // visitante copiar com Ctrl+C em vez de não acontecer nada.
+        const range = document.createRange();
+        range.selectNodeContents(btn);
+        getSelection()?.removeAllRanges();
+        getSelection()?.addRange(range);
+        return;
+      }
+
+      const original = label.textContent;
+      label.textContent = 'Copiado';
+      btn.dataset.copied = '';
+
+      setTimeout(() => {
+        label.textContent = original;
+        delete btn.dataset.copied;
+      }, 1800);
+    });
+  }
+</script>

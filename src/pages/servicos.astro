@@ -1,0 +1,151 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionHead from '../components/SectionHead.astro';
+import { services } from '../site.config';
+---
+
+<Base
+  title="Serviços"
+  description="Suporte técnico, segurança da informação e desenvolvimento web — com software livre, privacidade por padrão e sem dependência de fornecedor."
+>
+  <section class="section">
+    <div class="wrap">
+      <SectionHead as="h1" eyebrow="Serviços" title="No que eu posso ajudar" />
+      <p class="lead">
+        Três frentes que se apoiam: quem cuida da máquina entende a rede, quem entende a
+        rede sabe onde ela quebra, e quem sabe onde quebra escreve software melhor.
+      </p>
+
+      <div class="services">
+        {
+          services.map((service) => (
+            <article class="service reveal" id={service.slug}>
+              <header class="service__head">
+                <span class="service__num" aria-hidden="true">
+                  {service.number}
+                </span>
+                <h2 class="service__title">{service.title}</h2>
+              </header>
+
+              <div class="service__content">
+                <p class="service__summary">{service.summary}</p>
+                <ul class="service__points">
+                  {service.points.map((point) => (
+                    <li>{point}</li>
+                  ))}
+                </ul>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+
+      <div class="closing">
+        <p>
+          Não achou o que precisa? A lista acima é o que aparece com mais frequência,
+          não um cardápio fechado.
+        </p>
+        <a href="/contato/" class="btn">
+          Descrever meu caso
+          <span class="btn__arrow" aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .services {
+    margin-block-start: var(--space-lg);
+  }
+
+  .service {
+    display: grid;
+    gap: var(--space-md);
+    padding-block: var(--space-lg);
+    border-block-start: 1px solid transparent;
+    border-image: var(--hairline) 1;
+    /* Compensa o header fixo quando se chega por âncora (/servicos/#seguranca) */
+    scroll-margin-block-start: 6rem;
+  }
+
+  /* Layout editorial: título fica numa coluna à esquerda que "gruda" enquanto
+     a lista de itens rola. Só faz sentido com altura de sobra, então é
+     desktop-only. */
+  @media (width >= 56rem) {
+    .service {
+      grid-template-columns: 18rem 1fr;
+      gap: var(--space-xl);
+    }
+
+    .service__head {
+      position: sticky;
+      inset-block-start: 6rem;
+      align-self: start;
+    }
+  }
+
+  .service__num {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: var(--fs-md);
+    color: var(--hot);
+    letter-spacing: var(--tracking-eyebrow);
+  }
+
+  .service__title {
+    margin-block-start: var(--space-2xs);
+    font-size: var(--fs-xl);
+    letter-spacing: var(--tracking-tighter);
+  }
+
+  .service__summary {
+    font-size: var(--fs-md);
+    color: var(--text-muted);
+    max-inline-size: 54ch;
+  }
+
+  .service__points {
+    margin-block-start: var(--space-md);
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--space-xs);
+    max-inline-size: 58ch;
+  }
+
+  .service__points li {
+    position: relative;
+    padding-inline-start: 1.6rem;
+    font-size: var(--fs-sm);
+  }
+
+  /* Marcador em 58°: o traço da marca reduzido a um tique de lista. */
+  .service__points li::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: 0.65em;
+    inline-size: 0.85rem;
+    block-size: 1px;
+    background: var(--brand-blue);
+    transform: rotate(calc(var(--angle) * -1));
+  }
+
+  .closing {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding-block-start: var(--space-xl);
+    border-block-start: 1px solid transparent;
+    border-image: var(--hairline) 1;
+  }
+
+  .closing p {
+    color: var(--text-muted);
+    max-inline-size: 46ch;
+  }
+</style>

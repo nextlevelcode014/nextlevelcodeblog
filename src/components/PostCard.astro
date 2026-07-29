@@ -1,0 +1,95 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import FormattedDate from './FormattedDate.astro';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+  /** Nível do título. Use h2 quando o card estiver logo abaixo de um h1
+   *  (listagem do blog) e h3 quando estiver dentro de uma seção com h2 (home).
+   *  Pular níveis atrapalha quem navega por títulos com leitor de tela. */
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { post, headingLevel: Heading = 'h3' } = Astro.props;
+const { title, description, pubDate, tags } = post.data;
+---
+
+<article class="post">
+  <a href={`/blog/${post.id}/`} class="post__link">
+    <FormattedDate date={pubDate} class="post__date" />
+    <Heading class="post__title">{title}</Heading>
+    <p class="post__desc">{description}</p>
+  </a>
+
+  {
+    tags.length > 0 && (
+      <ul class="tag-list post__tags">
+        {tags.map((tag) => (
+          <li>
+            <a href={`/tags/${tag}/`} class="tag">
+              {tag}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</article>
+
+<style>
+  /* A lista de posts é uma pilha de linhas separadas por hairline, não uma
+     grade de cards. Para texto puro isso lê mais rápido e sustenta melhor um
+     blog que vai crescer. */
+  .post {
+    position: relative;
+    padding-block: var(--space-md);
+    border-block-end: 1px solid transparent;
+    border-image: var(--hairline) 1;
+  }
+
+  .post__link {
+    display: block;
+    text-decoration: none;
+  }
+
+  /* Expande a área clicável para a linha inteira sem aninhar as tags dentro
+     do <a> — tags são links próprios e não podem ficar dentro de outro link. */
+  .post__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .post__date {
+    font-family: var(--font-heading);
+    font-size: var(--fs-2xs);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .post__title {
+    margin-block-start: var(--space-3xs);
+    font-size: var(--fs-md);
+    font-weight: 600;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .post:hover .post__title {
+    color: var(--accent);
+  }
+
+  .post__desc {
+    margin-block-start: var(--space-2xs);
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    max-inline-size: 62ch;
+  }
+
+  .post__tags {
+    position: relative;
+    z-index: 1;
+    margin-block-start: var(--space-xs);
+  }
+</style>

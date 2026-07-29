@@ -1,0 +1,109 @@
+---
+import Logo from './Logo.astro';
+import { nav, site, socials } from '../site.config';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="rule"></div>
+
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a href="/" class="footer__logo" aria-label={`${site.name} — página inicial`}>
+          <Logo size={30} />
+        </a>
+        <p class="footer__tagline">{site.tagline}</p>
+      </div>
+
+      <nav class="footer__col" aria-label="Rodapé — navegação">
+        <h2 class="eyebrow">Navegar</h2>
+        <ul>
+          {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+          <li><a href="/tags/">Tags</a></li>
+        </ul>
+      </nav>
+
+      <nav class="footer__col" aria-label="Rodapé — links externos">
+        <h2 class="eyebrow">Encontrar</h2>
+        <ul>
+          {
+            socials.map((s) => (
+              <li>
+                <a href={s.href} rel={s.href.startsWith('http') ? 'me noopener' : undefined}>
+                  {s.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+
+    <p class="footer__legal">
+      <span>© {year} {site.name}</span>
+      <span aria-hidden="true">·</span>
+      <span>Sem cookies, sem rastreadores, sem analytics.</span>
+    </p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    margin-block-start: var(--section-pad);
+    padding-block-end: var(--space-lg);
+    font-size: var(--fs-sm);
+  }
+
+  .footer__grid {
+    display: grid;
+    gap: var(--space-lg);
+    padding-block: var(--space-lg);
+  }
+
+  @media (width >= 48rem) {
+    .footer__grid {
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: var(--space-xl);
+    }
+  }
+
+  .footer__logo {
+    display: inline-block;
+  }
+
+  .footer__tagline {
+    margin-block-start: var(--space-sm);
+    color: var(--text-muted);
+    max-inline-size: 32ch;
+  }
+
+  .footer__col ul {
+    list-style: none;
+    padding: 0;
+    margin-block-start: var(--space-sm);
+    display: grid;
+    gap: var(--space-3xs);
+  }
+
+  .footer__col a {
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .footer__col a:hover {
+    color: var(--accent);
+  }
+
+  .footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    padding-block-start: var(--space-md);
+    border-block-start: 1px solid transparent;
+    border-image: var(--hairline) 1;
+    color: var(--text-faint);
+    font-size: var(--fs-xs);
+  }
+</style>

@@ -1,0 +1,273 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import FormattedDate from '../../components/FormattedDate.astro';
+import ShareLinks from '../../components/ShareLinks.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  const sorted = posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+  return sorted.map((post, i) => ({
+    params: { slug: post.id },
+    props: {
+      post,
+      // Passar vizinhos como props evita reconsultar a coleção em cada página.
+      newer: sorted[i - 1] ?? null,
+      older: sorted[i + 1] ?? null,
+    },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+  newer: CollectionEntry<'blog'> | null;
+  older: CollectionEntry<'blog'> | null;
+}
+
+const { post, newer, older } = Astro.props;
+const { Content, headings } = await render(post);
+const { title, description, pubDate, updatedDate, tags } = post.data;
+
+// Tempo de leitura calculado no build a partir do Markdown bruto. 200 palavras
+// por minuto é a média confortável para texto técnico em português.
+const words = (post.body ?? '').split(/\s+/).filter(Boolean).length;
+const minutes = Math.max(1, Math.round(words / 200));
+// Só monta o índice se houver H2 suficiente para valer a pena.
+const toc = headings.filter((h) => h.depth === 2);
+---
+
+<Base title={title} description={description} article>
+  <article class="section">
+    <div class="wrap">
+      <header class="post-head">
+        <a href="/blog/" class="back">← Blog</a>
+
+        <h1 class="post-head__title">{title}</h1>
+        <p class="post-head__desc">{description}</p>
+
+        <div class="post-head__meta">
+          <FormattedDate date={pubDate} format="long" />
+          <span aria-hidden="true">·</span>
+          <span>{minutes} min de leitura</span>
+          {
+            updatedDate && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span>
+                  atualizado em <FormattedDate date={updatedDate} />
+                </span>
+              </>
+            )
+          }
+        </div>
+
+        {
+          tags.length > 0 && (
+            <ul class="tag-list post-head__tags">
+              {tags.map((tag) => (
+                <li>
+                  <a href={`/tags/${tag}/`} class="tag">
+                    {tag}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+
+        <div class="rule"></div>
+      </header>
+
+      <div class="post-body">
+        {
+          toc.length >= 3 && (
+            <nav class="toc" aria-label="Índice do artigo">
+              <p class="eyebrow">Neste post</p>
+              <ul>
+                {toc.map((h) => (
+                  <li>
+                    <a href={`#${h.slug}`}>{h.text}</a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )
+        }
+
+        <div class="prose">
+          <Content />
+          <ShareLinks title={title} url={new URL(Astro.url.pathname, Astro.site).href} />
+        </div>
+      </div>
+
+      {
+        (newer || older) && (
+          <nav class="post-nav" aria-label="Navegação entre posts">
+            {older && (
+              <a href={`/blog/${older.id}/`} class="post-nav__item post-nav__item--prev">
+                <span class="post-nav__label">← Anterior</span>
+                <span class="post-nav__title">{older.data.title}</span>
+              </a>
+            )}
+
+            {newer && (
+              <a href={`/blog/${newer.id}/`} class="post-nav__item post-nav__item--next">
+                <span class="post-nav__label">Próximo →</span>
+                <span class="post-nav__title">{newer.data.title}</span>
+              </a>
+            )}
+          </nav>
+        )
+      }
+    </div>
+  </article>
+</Base>
+
+<style>
+  .back {
+    display: inline-block;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    text-decoration: none;
+    margin-block-end: var(--space-lg);
+  }
+
+  .back:hover {
+    color: var(--accent);
+  }
+
+  .post-head__title {
+    font-size: var(--fs-2xl);
+    font-weight: 700;
+    letter-spacing: var(--tracking-tighter);
+    max-inline-size: 20ch;
+  }
+
+  .post-head__desc {
+    margin-block-start: var(--space-sm);
+    font-size: var(--fs-md);
+    color: var(--text-muted);
+    max-inline-size: 54ch;
+  }
+
+  .post-head__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin-block-start: var(--space-md);
+    font-size: var(--fs-xs);
+    color: var(--text-faint);
+  }
+
+  .post-head__tags {
+    margin-block-start: var(--space-sm);
+  }
+
+  /* Índice em coluna lateral fixa no desktop; acima do texto no mobile. */
+  .post-body {
+    display: grid;
+    gap: var(--space-lg);
+  }
+
+  @media (width >= 64rem) {
+    .post-body {
+      grid-template-columns: minmax(0, var(--prose-width)) 1fr;
+      gap: var(--space-2xl);
+    }
+
+    .toc {
+      order: 2;
+      position: sticky;
+      inset-block-start: 6rem;
+      align-self: start;
+    }
+  }
+
+  .toc ul {
+    list-style: none;
+    padding: 0;
+    margin-block-start: var(--space-sm);
+    display: grid;
+    gap: var(--space-2xs);
+    /* Versão vertical da hairline: forte no topo, dissolvendo para baixo —
+       acompanha o sentido de leitura do índice. */
+    border-inline-start: 1px solid transparent;
+    border-image: var(--hairline-v) 1;
+  }
+
+  .toc li {
+    padding-inline-start: var(--space-sm);
+  }
+
+  .toc a {
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .toc a:hover {
+    color: var(--accent);
+  }
+
+  /* Sem borda superior aqui: o bloco de compartilhamento logo acima já traz
+     uma, e os próprios cartões têm contorno — três linhas empilhadas viravam
+     ruído. */
+  .post-nav {
+    display: grid;
+    gap: var(--space-sm);
+    margin-block-start: var(--space-lg);
+  }
+
+  @media (width >= 40rem) {
+    .post-nav {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* Posicionamento explícito: no primeiro e no último post do blog só existe
+       um vizinho, e sem isto o cartão sobrevivente esticaria para a largura
+       inteira — o leitor perderia a pista de qual direção ele representa. */
+    .post-nav__item--prev {
+      grid-column: 1;
+    }
+
+    .post-nav__item--next {
+      grid-column: 2;
+      text-align: end;
+      justify-items: end;
+    }
+  }
+
+  /* Só o contorno hairline: sem fundo próprio, sem traço colorido, sem
+     movimento. A única resposta ao hover é a cor do título — que é o mínimo
+     para o item se anunciar como link. */
+  .post-nav__item {
+    display: grid;
+    gap: 0.15rem;
+    padding: var(--space-xs) var(--space-sm);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    text-decoration: none;
+  }
+
+  .post-nav__item:hover .post-nav__title,
+  .post-nav__item:focus-visible .post-nav__title {
+    color: var(--accent);
+  }
+
+  .post-nav__label {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: var(--fs-2xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .post-nav__title {
+    font-size: var(--fs-sm);
+    line-height: var(--leading-snug);
+    color: var(--text);
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+</style>

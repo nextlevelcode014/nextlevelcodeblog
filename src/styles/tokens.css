@@ -1,0 +1,143 @@
+/*
+  Tokens da marca NextLevelCode
+  ---------------------------------------------------------------------------
+  Os valores fixos da marca (azul, laranja, navy) vivem em `--brand-*` e NUNCA
+  mudam entre temas. O que muda é a camada semântica (`--bg`, `--text`, ...),
+  escrita com `light-dark()`: uma única declaração cobre os dois temas, e o
+  navegador escolhe conforme o `color-scheme` em vigor.
+
+  Por que o azul da marca vira `#1565C0` no tema claro: `#2196F3` sobre branco
+  dá contraste 3.1:1, abaixo do mínimo 4.5:1 da WCAG para texto. O azul puro
+  continua sendo usado em preenchimentos e traços (onde contraste de texto não
+  se aplica) via `--brand-blue`. Mesma lógica para o laranja.
+*/
+
+@layer tokens {
+  :root {
+    /* ---------- Marca (imutável) ---------- */
+    --brand-navy: #020511;
+    --brand-blue: #2196f3;
+    --brand-blue-lift: #4fc3f7;
+    --brand-orange: #ff7a00;
+    --brand-white: #ffffff;
+
+    /* ---------- Superfícies ---------- */
+    --bg: light-dark(#ffffff, #020511);
+    --bg-subtle: light-dark(#f4f7fa, #060b19);
+    --bg-raised: light-dark(#ffffff, #0a1022);
+    --bg-inset: light-dark(#eef2f7, #0d1428);
+
+    /* ---------- Texto ---------- */
+    --text: light-dark(#222222, #ffffff);
+    --text-muted: light-dark(#555555, #9aa0ac);
+    --text-faint: light-dark(#767c86, #6a7285);
+
+    /* ---------- Traços ---------- */
+    --line: light-dark(#dddddd, #16203a);
+    --line-strong: light-dark(#c4cad3, #24314f);
+
+    /* Hairline direcional — a assinatura do site.
+       Toda divisória nasce quase invisível e fecha forte no fim, na direção da
+       leitura. Sozinha quase não se percebe; repetida em cada separador do
+       site, é o que faz as linhas parecerem parte de um sistema e não bordas
+       genéricas. Aplicada via `border-image`, que aceita degradê em borda.
+       Atenção: `border-image` anula `border-radius`, então isto serve só para
+       divisórias retas — em caixas arredondadas, use borda sólida. */
+    --hairline: linear-gradient(
+      to right,
+      color-mix(in oklab, var(--line) 15%, transparent),
+      var(--line-strong) 92%
+    );
+
+    /* Versão vertical, para colunas laterais (o índice do post). */
+    --hairline-v: linear-gradient(
+      to bottom,
+      var(--line-strong),
+      color-mix(in oklab, var(--line) 15%, transparent)
+    );
+
+    /* ---------- Acentos (versões com contraste de texto garantido) ---------- */
+    --accent: light-dark(#1565c0, #2196f3);
+    --accent-quiet: light-dark(#e3f0fd, #0e1e35);
+    --hot: light-dark(#b34e00, #ff7a00);
+    --hot-quiet: light-dark(#fff0e0, #2a1605);
+
+    /* ---------- Seleção / foco ---------- */
+    --focus: var(--accent);
+    --selection-bg: color-mix(in oklab, var(--brand-blue) 30%, transparent);
+
+    /* ---------- Tipografia ---------- */
+    --font-heading: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+    --font-text: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, 'JetBrains Mono', 'Fira Code', monospace;
+
+    /* Escala fluida (min 360px → max 1240px). Razão ~1.22 no mobile,
+       ~1.28 no desktop: hierarquia mais dramática em telas grandes. */
+    --fs-2xs: 0.6875rem;
+    --fs-xs: clamp(0.75rem, 0.73rem + 0.09vw, 0.8125rem);
+    --fs-sm: clamp(0.875rem, 0.85rem + 0.11vw, 0.9375rem);
+    --fs-base: clamp(1rem, 0.97rem + 0.14vw, 1.0625rem);
+    --fs-md: clamp(1.125rem, 1.07rem + 0.25vw, 1.25rem);
+    --fs-lg: clamp(1.375rem, 1.26rem + 0.5vw, 1.625rem);
+    --fs-xl: clamp(1.75rem, 1.52rem + 1vw, 2.25rem);
+    --fs-2xl: clamp(2.125rem, 1.7rem + 1.9vw, 3rem);
+    --fs-3xl: clamp(2.75rem, 1.95rem + 3.5vw, 4.5rem);
+
+    --tracking-eyebrow: 0.18em;
+    --tracking-tight: -0.02em;
+    --tracking-tighter: -0.035em;
+
+    --leading-tight: 1.08;
+    --leading-snug: 1.3;
+    /* 1.6 em vez de 1.65: multiplicado por dezenas de linhas, esse 0.05 é o que
+       mais infla a altura de uma página de texto. Abaixo de ~1.5 a leitura em
+       parágrafo longo começa a sofrer, então este é o piso confortável. */
+    --leading-normal: 1.6;
+
+    /* ---------- Espaçamento (escala 1.5×, base 1rem) ---------- */
+    --space-3xs: 0.25rem;
+    --space-2xs: 0.5rem;
+    --space-xs: 0.75rem;
+    --space-sm: 1rem;
+    --space-md: 1.5rem;
+    --space-lg: 2.25rem;
+    --space-xl: 3.5rem;
+    --space-2xl: 5rem;
+    --space-3xl: clamp(5rem, 3rem + 9vw, 9rem);
+
+    /* Respiro vertical de cada seção. Fica separado da escala genérica porque
+       aparece DOBRADO entre dois blocos vizinhos (padding de baixo de um +
+       padding de cima do outro) — é o número que controla o ritmo da página
+       inteira, e o único que precisa mexer se ela parecer esparsa ou apertada.
+       No desktop: 40px de cada lado, ou seja 80px entre seções. */
+    --section-pad: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+
+    /* ---------- Geometria ---------- */
+    /* 58° é o ângulo do traço do logo. Repetido em divisores, hovers e
+       decorações — é o que dá unidade visual ao site inteiro. */
+    --angle: 58deg;
+    --radius-sm: 2px;
+    --radius: 4px;
+    --radius-lg: 8px;
+
+    --content-width: 68rem;
+    --prose-width: 40rem;
+
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --dur-fast: 140ms;
+    --dur: 260ms;
+    --dur-slow: 620ms;
+  }
+
+  /* O tema efetivo é decidido pelo script inline no <head> (ver Base.astro),
+     que grava data-theme antes da primeira pintura — sem flash de tela branca. */
+  :root,
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+  }
+
+  :root[data-theme='light'] {
+    color-scheme: light;
+  }
+}

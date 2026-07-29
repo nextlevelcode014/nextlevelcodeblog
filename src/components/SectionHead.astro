@@ -1,0 +1,70 @@
+---
+/**
+ * Cabeçalho padrão de seção: numeração + etiqueta em caixa alta, título
+ * grande e, opcionalmente, um link de "ver tudo" alinhado à direita.
+ */
+interface Props {
+  eyebrow: string;
+  title: string;
+  /** Nível do heading — para não quebrar a hierarquia da página. */
+  as?: 'h1' | 'h2';
+  link?: { href: string; label: string };
+}
+
+const { eyebrow, title, as: Tag = 'h2', link } = Astro.props;
+---
+
+<div class="head">
+  <div>
+    <p class="eyebrow">{eyebrow}</p>
+    <Tag class="head__title">{title}</Tag>
+  </div>
+
+  {
+    link && (
+      <a href={link.href} class="head__link">
+        {link.label}
+        <span class="head__arrow" aria-hidden="true">
+          ↗
+        </span>
+      </a>
+    )
+  }
+</div>
+
+<style>
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    margin-block-end: var(--space-md);
+  }
+
+  .head__title {
+    margin-block-start: var(--space-2xs);
+    font-size: var(--fs-xl);
+    letter-spacing: var(--tracking-tighter);
+  }
+
+  .head__link {
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .head__link:hover {
+    color: var(--accent);
+  }
+
+  .head__arrow {
+    display: inline-block;
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  .head__link:hover .head__arrow {
+    transform: translate(2px, -2px);
+  }
+</style>

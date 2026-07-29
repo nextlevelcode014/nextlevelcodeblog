@@ -1,0 +1,96 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import PostCard from '../../components/PostCard.astro';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+// Tags ordenadas por frequência: as mais usadas aparecem primeiro.
+const counts = new Map<string, number>();
+for (const post of posts) {
+  for (const tag of post.data.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+}
+const topTags = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
+---
+
+<Base
+  title="Blog"
+  description="Notas sobre homelab, Linux, hardware, segurança e Bitcoin — o que eu aprendi quebrando e consertando as coisas."
+>
+  <section class="section">
+    <div class="wrap">
+      <SectionHead
+        as="h1"
+        eyebrow="Blog"
+        title="Notas de campo"
+        link={{ href: '/rss.xml', label: 'Assinar RSS' }}
+      />
+
+      <p class="lead">
+        Homelab, Linux, hardware, segurança e Bitcoin. Escrito enquanto a memória do
+        problema ainda está fresca — o que costuma significar mais detalhe e menos verniz.
+      </p>
+
+      {
+        topTags.length > 0 && (
+          <ul class="tag-list topics">
+            {topTags.map(([tag, count]) => (
+              <li>
+                <a href={`/tags/${tag}/`} class="tag">
+                  {tag} <span class="topics__count">{count}</span>
+                </a>
+              </li>
+            ))}
+            <li>
+              <a href="/tags/" class="tag topics__all">
+                todas as tags →
+              </a>
+            </li>
+          </ul>
+        )
+      }
+
+      {
+        posts.length > 0 ? (
+          <div class="posts">
+            {posts.map((post) => (
+              <PostCard post={post} headingLevel="h2" />
+            ))}
+          </div>
+        ) : (
+          <p class="empty">Nenhum post publicado ainda. Em breve.</p>
+        )
+      }
+    </div>
+  </section>
+</Base>
+
+<style>
+  .topics {
+    margin-block: var(--space-md) var(--space-lg);
+  }
+
+  .topics__count {
+    color: var(--text-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .topics__all {
+    background: transparent;
+    border-style: dashed;
+  }
+
+  .posts {
+    border-block-start: 1px solid transparent;
+    border-image: var(--hairline) 1;
+  }
+
+  .empty {
+    padding-block: var(--space-2xl);
+    color: var(--text-muted);
+    text-align: center;
+  }
+</style>

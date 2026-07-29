@@ -1,0 +1,81 @@
+---
+/**
+ * A marca "N" da NextLevelCode.
+ *
+ * Vetorizada a partir do PNG original medindo as retas de centro e as larguras
+ * traço a traço (erro médio de 1,3% contra o arquivo de origem). É desenhada
+ * como polígono preenchido, e não como path traçado, porque as pontas do
+ * original não são as que o `stroke-linecap` do SVG produz: os topos são
+ * cortes horizontais e as bases são cortes inclinados em ~21°.
+ *
+ * Em SVG em vez de PNG porque fica nítido em qualquer tamanho e densidade de
+ * tela, pesa menos de 1KB e as cores podem reagir ao tema.
+ *
+ * Sistema de coordenadas: 109,2 × 99,7 unidades (a altura da marca é 100).
+ */
+interface Props {
+  /** Altura em pixels; a largura acompanha a proporção. */
+  size?: number;
+  /** Revela a marca da esquerda para a direita, como se fosse traçada. */
+  animate?: boolean;
+  class?: string;
+}
+
+const { size = 28, animate = false, class: className } = Astro.props;
+
+// IDs de gradiente precisam ser únicos por instância: com dois logos na mesma
+// página, IDs repetidos fazem o segundo herdar o gradiente do primeiro.
+const uid = crypto.randomUUID().slice(0, 8);
+---
+
+<svg
+  viewBox="-1 -1 111.2 101.7"
+  height={size}
+  width={(size * 111.2) / 101.7}
+  role="img"
+  aria-label="NextLevelCode"
+  class:list={['logo', { 'logo--animate': animate }, className]}
+>
+  <defs>
+    <linearGradient id={`nlc-${uid}`} x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--brand-blue)"></stop>
+      <stop offset="1" stop-color="var(--brand-blue-lift)"></stop>
+    </linearGradient>
+  </defs>
+
+  <!-- Traços laranja (atrás) -->
+  <g fill="var(--brand-orange)">
+    <path d="M29.98 49.46 L33.33 52.82 L13.19 99.69 L9.07 98.11 Z"></path>
+    <path d="M104.70 10.75 L109.20 10.75 L64.87 98.92 L61.10 97.47 Z"></path>
+  </g>
+
+  <!-- O N azul (à frente) -->
+  <path
+    fill={`url(#nlc-${uid})`}
+    d="M-0.07 94.70 L25.61 35.35 L33.05 35.35 L58.69 82.00 L99.53 0.15 L106.46 0.15 L58.95 95.36 L29.55 41.86 L5.73 96.93 Z"
+  ></path>
+</svg>
+
+<style>
+  .logo {
+    display: block;
+  }
+
+  /* Revelação da esquerda para a direita: o N é lido nessa direção, então o
+     wipe passa a impressão de estar sendo traçado. Uma animação por vez, sem
+     JS e sem custo de layout — só `clip-path`. */
+  @media (prefers-reduced-motion: no-preference) {
+    .logo--animate {
+      animation: logo-draw 1.1s var(--ease-out) 0.15s both;
+    }
+  }
+
+  @keyframes logo-draw {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+</style>

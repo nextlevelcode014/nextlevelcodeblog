@@ -1,0 +1,126 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import { Font } from 'astro:assets';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../site.config';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Caminho da imagem de compartilhamento, relativo à raiz do site. */
+  image?: string;
+  /** Marca a página como artigo nas meta tags (og:type). */
+  article?: boolean;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = site.description,
+  image = '/og.png',
+  article = false,
+  noindex = false,
+} = Astro.props;
+
+const fullTitle = title ? `${title} · ${site.name}` : `${site.name} — ${site.tagline}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(image, Astro.site);
+---
+
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="alternate" type="application/rss+xml" title={`${site.name} — Blog`} href="/rss.xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content={article ? 'article' : 'website'} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content={site.name} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="theme-color" content="#020511" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+
+    <Font cssVariable="--font-display" preload />
+    <Font cssVariable="--font-body" preload />
+
+    {/*
+      Este script precisa ser inline e síncrono: ele roda ANTES do primeiro
+      pixel ser pintado. Se fosse um módulo externo, o navegador desenharia a
+      página no tema padrão e trocaria depois — o clássico flash branco.
+      `is:inline` impede o Astro de mover isso para um bundle.
+    */}
+    <script is:inline>
+      (() => {
+        function resolveTheme() {
+          try {
+            const saved = localStorage.getItem('theme');
+            if (saved === 'light' || saved === 'dark') return saved;
+          } catch {
+            // localStorage bloqueado: cai no padrão abaixo.
+          }
+          // Escuro é o padrão da marca: só vai para o claro se o visitante
+          // pediu explicitamente, ou se o sistema dele pede claro.
+          return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+
+        const apply = () => (document.documentElement.dataset.theme = resolveTheme());
+
+        apply();
+
+        // Com View Transitions o <html> da página nova substitui o atual, e com
+        // ele vai embora o data-theme que acabamos de definir — por isso o tema
+        // "voltava" ao navegar. `astro:after-swap` roda depois da troca do DOM e
+        // antes da pintura, que é a única janela onde dá para reaplicar sem
+        // piscar. O listener fica no `document`, que sobrevive às navegações.
+        document.addEventListener('astro:after-swap', apply);
+      })();
+    </script>
+
+    <ClientRouter />
+  </head>
+
+  <body>
+    <Header />
+    <main id="conteudo">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style is:global>
+  /* Transição entre páginas: um fade curto. Nada de slide ou zoom — em um
+     site de leitura, movimento grande atrapalha mais do que encanta. */
+  @view-transition {
+    navigation: auto;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 180ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation: none;
+    }
+  }
+</style>

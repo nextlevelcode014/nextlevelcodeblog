@@ -1,0 +1,201 @@
+---
+import Logo from './Logo.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import { nav, site } from '../site.config';
+
+const path = Astro.url.pathname;
+
+/** Marca o item ativo. A home só casa exata; as outras casam com subrotas
+ *  (assim /blog/meu-post continua acendendo "Blog"). */
+const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+
+<a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="header">
+  <div class="wrap header__inner">
+    <a href="/" class="brand" aria-label={`${site.name} — página inicial`}>
+      <Logo size={26} />
+      <span class="brand__name">NextLevelCode</span>
+    </a>
+
+    <nav class="nav" aria-label="Navegação principal">
+      <ul class="nav__list">
+        {
+          nav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class="nav__link"
+                aria-current={isActive(item.href) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="header__actions">
+      <ThemeToggle />
+      <a href="/contato/" class="btn btn--sm">Contato</a>
+    </div>
+  </div>
+</header>
+
+<style>
+  .skip {
+    position: absolute;
+    inset-block-start: -100%;
+    inset-inline-start: var(--space-sm);
+    z-index: 100;
+    padding: 0.6em 1em;
+    background: var(--brand-blue);
+    color: var(--brand-navy);
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: var(--radius);
+  }
+
+  .skip:focus {
+    inset-block-start: var(--space-sm);
+  }
+
+  .header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 50;
+    border-block-end: 1px solid transparent;
+    border-image: var(--hairline) 1;
+    /* O blur mantém o texto legível enquanto o conteúdo passa por baixo, sem
+       precisar de um fundo 100% opaco que criaria uma barra pesada. */
+    background: color-mix(in oklab, var(--bg) 82%, transparent);
+    backdrop-filter: blur(14px) saturate(140%);
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    .header {
+      background: var(--bg);
+    }
+  }
+
+  .header__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    min-block-size: 4rem;
+  }
+
+  /* ---- Marca ---- */
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    flex: none;
+  }
+
+  .brand__name {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: var(--fs-sm);
+    letter-spacing: var(--tracking-tight);
+    color: var(--text);
+    transition: color var(--dur) var(--ease-out);
+  }
+
+  .brand:hover .brand__name {
+    color: var(--accent);
+  }
+
+  /* ---- Navegação ---- */
+  .nav {
+    margin-inline-start: auto;
+    /* Em telas estreitas a nav rola horizontalmente em vez de virar um menu
+       hambúrguer: menos JS, menos estado, e com 5 itens ainda cabe bem. */
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav__list {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    list-style: none;
+    padding: 0;
+  }
+
+  .nav__link {
+    position: relative;
+    display: block;
+    padding-block: 0.4rem;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  /* Sublinhado que cresce da esquerda. Laranja: é o acento de "onde você
+     está", o único lugar da navegação onde ele aparece. */
+  .nav__link::after {
+    content: '';
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-start: 0;
+    inline-size: 0;
+    block-size: 1px;
+    background: var(--brand-orange);
+    transition: inline-size var(--dur) var(--ease-out);
+  }
+
+  .nav__link:hover {
+    color: var(--text);
+  }
+
+  .nav__link:hover::after,
+  .nav__link[aria-current='page']::after {
+    inline-size: 100%;
+  }
+
+  .nav__link[aria-current='page'] {
+    color: var(--text);
+  }
+
+  /* ---- Ações ---- */
+  .header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    flex: none;
+  }
+
+  .btn--sm {
+    padding: 0.45em 0.95em;
+    font-size: var(--fs-xs);
+  }
+
+  /* Abaixo de 62rem some o CTA (a nav já leva a tudo) e abaixo de 34rem some
+     o nome escrito — sobra só a marca, que é reconhecível sozinha. */
+  @media (width < 62rem) {
+    .header__actions .btn--sm {
+      display: none;
+    }
+  }
+
+  @media (width < 34rem) {
+    .brand__name {
+      display: none;
+    }
+
+    .nav__list {
+      gap: var(--space-sm);
+    }
+  }
+</style>
