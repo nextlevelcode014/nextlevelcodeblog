@@ -47,6 +47,13 @@ const { title, description, pubDate, tags } = post.data;
     border-image: var(--hairline) 1;
   }
 
+  /* O último item não leva traço: logo abaixo vem o fim da seção e, depois, a
+     régua do rodapé. Com os dois, sobravam duas linhas horizontais separadas
+     por 80px de vazio — o olho lê isso como buraco, não como respiro. */
+  .post:last-child {
+    border-block-end: none;
+  }
+
   .post__link {
     display: block;
     text-decoration: none;
