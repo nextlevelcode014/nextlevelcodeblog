@@ -97,9 +97,15 @@ const toc = headings.filter((h) => h.depth === 2);
 
         <div class="prose">
           <Content />
-          <ShareLinks title={title} url={new URL(Astro.url.pathname, Astro.site).href} />
         </div>
       </div>
+
+      {/*
+        Fora do `.prose` de propósito. Lá dentro, a regra `.prose h2` vence o
+        `.eyebrow` por especificidade e renderizava a etiqueta "Compartilhar"
+        com 26px e 36px de margem, como se fosse um título de seção do artigo.
+      */}
+      <ShareLinks title={title} url={new URL(Astro.url.pathname, Astro.site).href} />
 
       {
         (newer || older) && (

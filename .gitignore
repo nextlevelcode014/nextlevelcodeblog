@@ -404,3 +404,6 @@ dist/
 .astro/
 node_modules/
 .DS_Store
+
+# artefatos de automação de browser
+.playwright-mcp/
