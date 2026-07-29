@@ -100,6 +100,7 @@ O que ele detecta — cada item já pegou bug real neste repositório:
 ```bash
 bun .claude/skills/run-site/driver.mjs shot / --out /tmp/shots/home.png
 bun .claude/skills/run-site/driver.mjs shot /blog/ --out /tmp/shots/blog.png --width 390 --theme light
+bun .claude/skills/run-site/driver.mjs shot /sobre/ --out /tmp/shots/cv.png --scroll-to ".cv"
 ```
 
 **Olhe a imagem depois de gerar.** O driver falha alto se o servidor estiver
@@ -119,6 +120,7 @@ Saída verificada do segundo: `"rgb(2, 5, 17)"` — o navy da marca.
 | `--width` / `--height` | 1440 / 900 | viewport |
 | `--theme` | `dark` | grava `data-theme` e `localStorage` |
 | `--full` | — | página inteira em vez da dobra |
+| `--scroll-to <sel>` | — | centraliza o elemento antes de fotografar; falha se não casar |
 | `--animate` | — | **não** congela animações (ver Gotchas) |
 | `SITE_URL` | `http://localhost:4321` | servidor alvo |
 | `BROWSER_BIN` | auto | caminho do Chromium |

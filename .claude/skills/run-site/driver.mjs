@@ -123,7 +123,7 @@ async function abrirAba(porta) {
 }
 
 /** Navega, aplica viewport e tema, espera a fonte carregar. */
-async function preparar(cli, rota, { largura, altura, tema, congelar = true }) {
+async function preparar(cli, rota, { largura, altura, tema, congelar = true, rolarAte }) {
   await cli.send('Emulation.setDeviceMetricsOverride', {
     width: largura,
     height: altura,
@@ -159,6 +159,19 @@ async function preparar(cli, rota, { largura, altura, tema, congelar = true }) {
       expression: `document.documentElement.dataset.theme = ${JSON.stringify(tema)};
                    try { localStorage.setItem('theme', ${JSON.stringify(tema)}) } catch {}`,
     });
+  }
+
+  if (rolarAte) {
+    const achou = await cli.send('Runtime.evaluate', {
+      expression: `(() => {
+        const el = document.querySelector(${JSON.stringify(rolarAte)});
+        if (!el) return false;
+        el.scrollIntoView({ block: 'center', behavior: 'instant' });
+        return true;
+      })()`,
+      returnByValue: true,
+    });
+    if (!achou.result.value) throw new Error(`nenhum elemento casa com "${rolarAte}"`);
   }
 
   if (congelar) {
@@ -257,6 +270,8 @@ if (!comando || comando === 'help') {
   audit [--width 1440] [--theme dark|light] [rota…]      (sem rotas = todas)
   eval <rota> <expressão-js> [--theme …]
 
+  --scroll-to <seletor>  centraliza o elemento antes de fotografar
+
   SITE_URL   servidor alvo (padrão ${BASE})
   BROWSER_BIN caminho do Chromium (padrão: primeiro encontrado)`);
   process.exit(0);
@@ -271,7 +286,7 @@ try {
   if (comando === 'shot') {
     const rota = posicionais[0] ?? '/';
     const saida = flag('out', '/tmp/shots/site.png');
-    await preparar(cli, rota, { largura, altura, tema, congelar: !resto.includes('--animate') });
+    await preparar(cli, rota, { largura, altura, tema, congelar: !resto.includes('--animate'), rolarAte: flag('scroll-to') });
     const { data } = await cli.send('Page.captureScreenshot', {
       format: 'png',
       captureBeyondViewport: resto.includes('--full'),
@@ -284,7 +299,7 @@ try {
     const rotas = posicionais.length ? posicionais : ROTAS_PADRAO;
     let total = 0;
     for (const rota of rotas) {
-      await preparar(cli, rota, { largura, altura, tema, congelar: !resto.includes('--animate') });
+      await preparar(cli, rota, { largura, altura, tema, congelar: !resto.includes('--animate'), rolarAte: flag('scroll-to') });
       const achados = await avaliar(cli, AUDITORIA);
       if (achados.length) {
         total += achados.length;
@@ -300,7 +315,7 @@ try {
     }
   } else if (comando === 'eval') {
     const [rota, ...expr] = posicionais;
-    await preparar(cli, rota ?? '/', { largura, altura, tema, congelar: !resto.includes('--animate') });
+    await preparar(cli, rota ?? '/', { largura, altura, tema, congelar: !resto.includes('--animate'), rolarAte: flag('scroll-to') });
     console.log(JSON.stringify(await avaliar(cli, expr.join(' ')), null, 2));
   } else {
     console.error(`comando desconhecido: ${comando}`);
