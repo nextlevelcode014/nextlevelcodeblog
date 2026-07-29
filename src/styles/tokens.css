@@ -49,6 +49,15 @@
       var(--line-strong) 92%
     );
 
+    /* Relevo das linhas.
+       Um sulco em metal não é uma linha: é sombra de um lado e realce do outro,
+       porque a luz vem de cima. Uma hairline de 1px com `--sheen` logo abaixo
+       passa a ler como gravada na superfície em vez de desenhada sobre ela.
+       Os valores são baixos de propósito — acima de ~0.08 no escuro o efeito
+       deixa de ser material e vira contorno brilhante. */
+    --sheen: light-dark(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.055));
+    --sheen-deep: light-dark(rgba(2, 5, 17, 0.05), rgba(0, 0, 0, 0.4));
+
     /* Versão vertical, para colunas laterais (o índice do post). */
     --hairline-v: linear-gradient(
       to bottom,
