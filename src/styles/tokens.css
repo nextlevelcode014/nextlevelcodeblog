@@ -58,6 +58,13 @@
 
     /* ---------- Acentos (versões com contraste de texto garantido) ---------- */
     --accent: light-dark(#1565c0, #2196f3);
+
+    /* Pontas do gradiente do título do hero. Precisam mudar por tema: o azul
+       claro da marca (#4FC3F7) sobre branco dá 1,99:1, abaixo do mínimo de 3:1
+       da WCAG até para texto grande. No claro o gradiente desce para tons mais
+       fechados; no escuro ele pode subir, porque ali é o fundo que é escuro. */
+    --hero-from: light-dark(#2196f3, #4fc3f7);
+    --hero-to: light-dark(#1565c0, #2196f3);
     --accent-quiet: light-dark(#e3f0fd, #0e1e35);
     --hot: light-dark(#b34e00, #ff7a00);
     --hot-quiet: light-dark(#fff0e0, #2a1605);

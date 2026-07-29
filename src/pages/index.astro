@@ -29,7 +29,8 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
         */}
         <h1 class="hero__title">
           Sua infraestrutura no{' '}
-          <span class="hero__accent">próximo nível</span>.
+          <span class="hero__accent">próximo nível</span><span class="hero__dot"
+            aria-hidden="true">.</span>
         </h1>
 
         <p class="hero__lead">
@@ -211,8 +212,14 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
     max-inline-size: 16ch;
   }
 
-  /* O gradiente vai do azul ao laranja no sentido ascendente — mesma leitura
-     do logo. Fallback: se background-clip:text não existir, fica azul sólido. */
+  /* O gradiente fica só nos azuis, e o laranja aparece no ponto final.
+     Não é preferência estética: azul e laranja são quase complementares, então
+     interpolar de um ao outro passa perto do neutro em qualquer espaço de cor
+     cartesiano — e o cinza caía bem no meio de "nível". Testei oklch por matiz,
+     que elimina o cinza mas atravessa roxo e rosa, cores que não existem na
+     marca. Manter o azul dominante e o laranja como acento pontual resolve o
+     problema e é o que o guia de marca já pedia.
+     Fallback: sem background-clip:text, fica azul sólido. */
   .hero__accent {
     color: var(--accent);
     position: relative;
@@ -221,19 +228,17 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
 
   @supports (background-clip: text) or (-webkit-background-clip: text) {
     .hero__accent {
-      /* `in oklab` importa aqui: interpolando em sRGB, o caminho de azul até
-         laranja passa por um cinza sujo no meio — justamente onde cai a
-         palavra "nível". Em oklab a transição mantém a saturação. */
-      background: linear-gradient(
-        100deg in oklab,
-        var(--brand-blue-lift),
-        var(--brand-blue) 45%,
-        var(--brand-orange)
-      );
+      background: linear-gradient(100deg in oklab, var(--hero-from), var(--hero-to));
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
     }
+  }
+
+  /* aria-hidden no markup: leitores de tela já pausam na pontuação da frase;
+     anunciar um ponto isolado só atrapalharia. */
+  .hero__dot {
+    color: var(--hot);
   }
 
   .hero__lead {
