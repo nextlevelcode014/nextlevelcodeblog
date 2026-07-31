@@ -15,7 +15,7 @@
  * Requer um servidor já no ar (ver SKILL.md) e um binário Chromium.
  */
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile, rm } from 'node:fs/promises';
+import { mkdir, writeFile, rm, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname } from 'node:path';
 
@@ -218,9 +218,13 @@ const AUDITORIA = `(() => {
   // há quebra de linha no .astro. Já aconteceu seis vezes aqui.
   document.querySelectorAll('p a, p strong, p em, li a, li strong, h1 span, .lead strong').forEach(el => {
     const antes = el.previousSibling, depois = el.nextSibling, t = el.textContent;
+    // Destaque de sigla — o \`**P**ortable\` de POSIX — é uma letra só abrindo a
+    // palavra. Grudar no resto é o efeito pretendido, não espaço perdido.
+    const sigla = t.length === 1 &&
+      (!antes || antes.nodeType !== 3 || /[^\\p{L}\\p{N}]$/u.test(antes.textContent));
     if (antes?.nodeType === 3 && /[\\p{L}\\p{N}]$/u.test(antes.textContent) && /^[\\p{L}\\p{N}]/u.test(t))
       p.push('palavra colada: …' + antes.textContent.slice(-12) + '⟨' + t.slice(0,12) + '⟩');
-    if (depois?.nodeType === 3 && /[\\p{L}\\p{N}]$/u.test(t) && /^[\\p{L}\\p{N}]/u.test(depois.textContent))
+    if (!sigla && depois?.nodeType === 3 && /[\\p{L}\\p{N}]$/u.test(t) && /^[\\p{L}\\p{N}]/u.test(depois.textContent))
       p.push('palavra colada: ⟨' + t.slice(-12) + '⟩' + depois.textContent.slice(0,12) + '…');
   });
 
@@ -245,10 +249,27 @@ const AUDITORIA = `(() => {
   return [...new Set(p)];
 })()`;
 
-const ROTAS_PADRAO = [
-  '/', '/servicos/', '/projetos/', '/projetos/homelab/', '/blog/',
-  '/blog/homelab-backup-3-2-1/', '/sobre/', '/contato/', '/tags/', '/tags/linux/', '/404',
-];
+/**
+ * As rotas saem do sitemap do build, não de uma lista escrita à mão.
+ *
+ * Lista fixa apodrece: apagar um post deixa a rota apontando para o nada, o
+ * `astro preview` serve a página de 404 com status 200, e a auditoria passa
+ * feliz tendo auditado a tela de erro. Isso já aconteceu duas vezes aqui.
+ * O sitemap é gerado pelo mesmo build que produziu as páginas, então não tem
+ * como divergir. O `/404` entra à parte, porque de propósito não é indexado.
+ */
+async function rotasPadrao() {
+  const sitemap = 'dist/sitemap-0.xml';
+  if (!existsSync(sitemap)) {
+    throw new Error(
+      `${sitemap} não existe — rode \`bun run build\` antes de auditar, ` +
+        'ou passe as rotas na linha de comando.',
+    );
+  }
+  const xml = await readFile(sitemap, 'utf8');
+  const rotas = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1]).pathname);
+  return [...new Set([...rotas, '/404'])];
+}
 
 // ---------------------------------------------------------------- CLI
 
@@ -296,7 +317,7 @@ try {
     await writeFile(saida, Buffer.from(data, 'base64'));
     console.log(`${saida}  (${rota} · ${largura}px · ${tema})`);
   } else if (comando === 'audit') {
-    const rotas = posicionais.length ? posicionais : ROTAS_PADRAO;
+    const rotas = posicionais.length ? posicionais : await rotasPadrao();
     let total = 0;
     for (const rota of rotas) {
       await preparar(cli, rota, { largura, altura, tema, congelar: !resto.includes('--animate'), rolarAte: flag('scroll-to') });
