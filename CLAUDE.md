@@ -133,12 +133,14 @@ são estágio de vida, não saúde. Ao desenhar um elemento novo, cheque de onde
 metáfora vem: o vocabulário desta marca é **trajetória** — linhas que sobem, o
 ângulo de 58°, níveis alcançados.
 
-**Efeito de hover deve ser um gesto da marca.** O card usa duas etapas encadeadas
-por `transition-delay`: uma linha percorre a borda inferior e um traço arremete em
-58° para fora do canto. Substituiu uma barra de degradê que qualquer site tem.
-Cuidado com a geometria: ancorar a decolagem como no `.rule` solto a joga para
-**baixo** do card — ela precisa nascer em `inset-inline-start: 100%` com
-`transform-origin: 0 100%` e crescer para fora. Confira no navegador, não no papel.
+**O hover do card é só tom, de propósito.** Ele muda borda e fundo e mais nada.
+Já teve uma barra de degradê no topo e, depois, um gesto de duas etapas (linha
+percorrendo a base + traço decolando em 58°); ambos foram removidos por deixarem
+o card ruidoso. Se for reintroduzir movimento aqui, note que ancorar a decolagem
+como no `.rule` solto a joga para **baixo** do card — ela precisa nascer em
+`inset-inline-start: 100%` com `transform-origin: 0 100%` e crescer para fora.
+O gesto da marca hoje vive no `.rule` e no logo; o laranja do card ficou só no
+`StatusMark` do projeto ativo.
 
 **Divisórias usam `--hairline` via `border-image`**, o degradê direcional que é a
 assinatura visual do site. Duas restrições técnicas:
