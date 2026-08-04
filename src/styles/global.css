@@ -234,6 +234,16 @@
     border-image: var(--hairline) 1;
   }
 
+  /* O realce de 1px logo abaixo é o que transforma a linha em sulco. */
+  .rule {
+    box-shadow: 0 1px 0 var(--sheen);
+  }
+
+  /* O traço laranja ganha reflexo especular ao longo do comprimento — mais
+     claro no terço onde a "luz" bate, apagando nas duas pontas — e um halo
+     curto. É o que faz ele parecer uma haste polida em vez de um risco chapado.
+     O halo é `drop-shadow` e não `box-shadow` porque o elemento está rotacionado:
+     box-shadow não acompanha a rotação e o halo sairia torto. */
   .rule::after {
     content: '';
     position: absolute;
@@ -241,7 +251,15 @@
     inset-block-end: 0;
     inline-size: 2.25rem;
     block-size: 1px;
-    background: var(--brand-orange);
+    background: linear-gradient(
+      to right in oklab,
+      color-mix(in oklab, var(--brand-orange) 25%, transparent),
+      var(--brand-orange) 42%,
+      color-mix(in oklab, var(--brand-orange) 55%, white) 62%,
+      var(--brand-orange) 80%,
+      color-mix(in oklab, var(--brand-orange) 35%, transparent)
+    );
+    filter: drop-shadow(0 0 3px color-mix(in oklab, var(--brand-orange) 40%, transparent));
     transform: rotate(calc(var(--angle) * -1));
     transform-origin: 100% 100%;
   }
@@ -317,6 +335,12 @@
     border: 1px solid var(--line);
     border-radius: var(--radius);
     text-decoration: none;
+    /* Realce interno na aresta de cima + sombra rasa embaixo: a chapa parece
+       levantada da superfície, não desenhada nela. Um pixel de cada, sem blur
+       na parte de cima — borda de metal é dura, não difusa. */
+    box-shadow:
+      inset 0 1px 0 var(--sheen),
+      0 1px 2px var(--sheen-deep);
     transition:
       border-color var(--dur) var(--ease-out),
       background-color var(--dur) var(--ease-out);
