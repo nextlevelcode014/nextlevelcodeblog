@@ -15,9 +15,9 @@
  * Requer um servidor já no ar (ver SKILL.md) e um binário Chromium.
  */
 import { spawn } from 'node:child_process';
-import { mkdir, writeFile, rm } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { mkdir, writeFile, rm, readFile } from 'node:fs/promises';
+import { existsSync, rmSync, readdirSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 
 const BASE = process.env.SITE_URL ?? 'http://localhost:4321';
 
@@ -43,8 +43,60 @@ function acharNavegador() {
   return bin;
 }
 
-/** Sobe o navegador headless e devolve { proc, porta, encerrar }. */
+/**
+ * Mata navegadores de execuções anteriores que ficaram para trás.
+ *
+ * Um `kill -9` no driver não deixa handler nenhum rodar, então o navegador
+ * daquela execução sobrevive — e como cada um são ~10 processos de ~200MB, eles
+ * se acumulam rápido: esta função nasceu depois de encontrar 125 instâncias
+ * órfãs ocupando 25GB de RAM+swap. O nome do perfil carrega o pid do driver que
+ * o criou, então basta perguntar se aquele pid ainda existe.
+ */
+function limparRestos() {
+  if (!existsSync('/proc')) return; // varredura é específica de Linux
+  let perfis;
+  try {
+    perfis = readdirSync('/tmp').filter((d) => d.startsWith('nlc-driver-'));
+  } catch {
+    return;
+  }
+
+  const orfaos = perfis.filter((dir) => {
+    const dono = Number(dir.slice('nlc-driver-'.length));
+    if (!dono || dono === process.pid) return false;
+    try {
+      process.kill(dono, 0); // sinal 0 só testa existência
+      return false; // driver ainda vivo: perfil em uso legítimo
+    } catch {
+      return true;
+    }
+  });
+  if (!orfaos.length) return;
+
+  for (const pid of readdirSync('/proc')) {
+    if (!/^\d+$/.test(pid)) continue;
+    let cmd = '';
+    try {
+      cmd = readFileSync(`/proc/${pid}/cmdline`, 'utf8');
+    } catch {
+      continue; // processo morreu no meio da varredura, ou não é nosso
+    }
+    if (orfaos.some((d) => cmd.includes(`--user-data-dir=/tmp/${d}`))) {
+      try {
+        process.kill(Number(pid), 'SIGKILL');
+      } catch {}
+    }
+  }
+  for (const d of orfaos) {
+    try {
+      rmSync(`/tmp/${d}`, { recursive: true, force: true });
+    } catch {}
+  }
+}
+
+/** Sobe o navegador headless e devolve { porta, encerrar }. */
 async function abrirNavegador() {
+  limparRestos();
   const perfil = `/tmp/nlc-driver-${process.pid}`;
   const proc = spawn(
     acharNavegador(),
@@ -57,31 +109,88 @@ async function abrirNavegador() {
       '--force-color-profile=srgb',
       'about:blank',
     ],
-    { stdio: ['ignore', 'pipe', 'pipe'] },
+    // `detached` põe o navegador num grupo de processos só dele, e é isso que
+    // permite matar a árvore inteira depois: um navegador headless são ~10
+    // processos (zygotes, gpu-process, renderers, crashpad) e sinalizar só o
+    // raiz deixava todo o resto vivo e reparentado ao systemd.
+    // `stdio: 'ignore'` porque a porta agora vem de arquivo, não do stderr.
+    { stdio: 'ignore', detached: true },
   );
 
-  // A porta escolhida só aparece no stderr, na linha "DevTools listening on ws://…"
-  const porta = await new Promise((resolve, reject) => {
-    const prazo = setTimeout(() => reject(new Error('navegador não subiu em 20s')), 20_000);
-    let buffer = '';
-    proc.stderr.on('data', (d) => {
-      buffer += d;
-      const m = buffer.match(/ws:\/\/127\.0\.0\.1:(\d+)\//);
-      if (m) {
-        clearTimeout(prazo);
-        resolve(Number(m[1]));
-      }
-    });
-    proc.on('exit', (c) => reject(new Error(`navegador saiu com código ${c}\n${buffer}`)));
-  });
-
-  return {
-    porta,
-    async encerrar() {
-      proc.kill();
-      await rm(perfil, { recursive: true, force: true }).catch(() => {});
-    },
+  let morto = false;
+  const matar = () => {
+    if (morto) return;
+    morto = true;
+    // Pid negativo = o grupo inteiro. SIGKILL e não SIGTERM porque o
+    // desligamento gracioso do Chromium quer escrever no perfil, e nós
+    // apagamos o perfil logo em seguida; essa corrida era o que deixava o
+    // navegador pendurado.
+    try {
+      process.kill(-proc.pid, 'SIGKILL');
+    } catch {}
+    try {
+      proc.kill('SIGKILL');
+    } catch {}
+    // Versão síncrona porque os caminhos de `exit`/sinal não esperam promessa:
+    // sem isto cada Ctrl-C deixava ~30MB de perfil para trás em /tmp. Depois de
+    // um SIGKILL ninguém mais escreve no diretório, então apagar já é seguro.
+    try {
+      rmSync(perfil, { recursive: true, force: true });
+    } catch {}
   };
+
+  // Rede de segurança: o `finally` lá embaixo só cobre o caminho feliz. Ctrl-C,
+  // timeout de quem chamou, ou exceção antes dele deixavam um navegador de
+  // ~200MB vivo para sempre. `exit` roda síncrono, por isso `matar` é síncrono.
+  process.on('exit', matar);
+  for (const sinal of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
+    process.on(sinal, () => {
+      matar();
+      process.exit(130);
+    });
+  }
+
+  const encerrar = async () => {
+    matar();
+    // Confirmar a morte antes de apagar o perfil; sinal 0 não envia nada, só
+    // testa se o pid ainda existe.
+    const limite = Date.now() + 3_000;
+    while (Date.now() < limite) {
+      try {
+        process.kill(proc.pid, 0);
+      } catch {
+        break;
+      }
+      await new Promise((r) => setTimeout(r, 25));
+    }
+    await rm(perfil, { recursive: true, force: true }).catch(() => {});
+  };
+
+  // O navegador escreve a porta em <perfil>/DevToolsActivePort assim que o
+  // endpoint CDP está de pé — mesma informação da linha "DevTools listening on
+  // ws://…", mas sem depender de pipe de stderr. Sob o bun aquele pipe rendia
+  // dois processos `cat` auxiliares por execução, que também vazavam.
+  const arquivoPorta = join(perfil, 'DevToolsActivePort');
+  const prazo = Date.now() + 20_000;
+  let porta = 0;
+  while (Date.now() < prazo) {
+    if (proc.exitCode !== null) {
+      await encerrar();
+      throw new Error(`navegador saiu com código ${proc.exitCode}`);
+    }
+    const linha = (await readFile(arquivoPorta, 'utf8').catch(() => '')).split('\n')[0].trim();
+    if (/^\d+$/.test(linha)) {
+      porta = Number(linha);
+      break;
+    }
+    await new Promise((r) => setTimeout(r, 50));
+  }
+  if (!porta) {
+    await encerrar();
+    throw new Error('navegador não subiu em 20s');
+  }
+
+  return { porta, encerrar };
 }
 
 /** Cria uma aba e devolve um cliente CDP com `send(metodo, params)`. */
@@ -218,9 +327,13 @@ const AUDITORIA = `(() => {
   // há quebra de linha no .astro. Já aconteceu seis vezes aqui.
   document.querySelectorAll('p a, p strong, p em, li a, li strong, h1 span, .lead strong').forEach(el => {
     const antes = el.previousSibling, depois = el.nextSibling, t = el.textContent;
+    // Destaque de sigla — o \`**P**ortable\` de POSIX — é uma letra só abrindo a
+    // palavra. Grudar no resto é o efeito pretendido, não espaço perdido.
+    const sigla = t.length === 1 &&
+      (!antes || antes.nodeType !== 3 || /[^\\p{L}\\p{N}]$/u.test(antes.textContent));
     if (antes?.nodeType === 3 && /[\\p{L}\\p{N}]$/u.test(antes.textContent) && /^[\\p{L}\\p{N}]/u.test(t))
       p.push('palavra colada: …' + antes.textContent.slice(-12) + '⟨' + t.slice(0,12) + '⟩');
-    if (depois?.nodeType === 3 && /[\\p{L}\\p{N}]$/u.test(t) && /^[\\p{L}\\p{N}]/u.test(depois.textContent))
+    if (!sigla && depois?.nodeType === 3 && /[\\p{L}\\p{N}]$/u.test(t) && /^[\\p{L}\\p{N}]/u.test(depois.textContent))
       p.push('palavra colada: ⟨' + t.slice(-12) + '⟩' + depois.textContent.slice(0,12) + '…');
   });
 
@@ -245,10 +358,27 @@ const AUDITORIA = `(() => {
   return [...new Set(p)];
 })()`;
 
-const ROTAS_PADRAO = [
-  '/', '/servicos/', '/projetos/', '/projetos/homelab/', '/blog/',
-  '/blog/homelab-backup-3-2-1/', '/sobre/', '/contato/', '/tags/', '/tags/linux/', '/404',
-];
+/**
+ * As rotas saem do sitemap do build, não de uma lista escrita à mão.
+ *
+ * Lista fixa apodrece: apagar um post deixa a rota apontando para o nada, o
+ * `astro preview` serve a página de 404 com status 200, e a auditoria passa
+ * feliz tendo auditado a tela de erro. Isso já aconteceu duas vezes aqui.
+ * O sitemap é gerado pelo mesmo build que produziu as páginas, então não tem
+ * como divergir. O `/404` entra à parte, porque de propósito não é indexado.
+ */
+async function rotasPadrao() {
+  const sitemap = 'dist/sitemap-0.xml';
+  if (!existsSync(sitemap)) {
+    throw new Error(
+      `${sitemap} não existe — rode \`bun run build\` antes de auditar, ` +
+        'ou passe as rotas na linha de comando.',
+    );
+  }
+  const xml = await readFile(sitemap, 'utf8');
+  const rotas = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1]).pathname);
+  return [...new Set([...rotas, '/404'])];
+}
 
 // ---------------------------------------------------------------- CLI
 
@@ -296,7 +426,7 @@ try {
     await writeFile(saida, Buffer.from(data, 'base64'));
     console.log(`${saida}  (${rota} · ${largura}px · ${tema})`);
   } else if (comando === 'audit') {
-    const rotas = posicionais.length ? posicionais : ROTAS_PADRAO;
+    const rotas = posicionais.length ? posicionais : await rotasPadrao();
     let total = 0;
     for (const rota of rotas) {
       await preparar(cli, rota, { largura, altura, tema, congelar: !resto.includes('--animate'), rolarAte: flag('scroll-to') });

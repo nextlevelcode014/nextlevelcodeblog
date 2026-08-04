@@ -33,10 +33,28 @@ const channels = socials
 
       <div class="layout">
         <div>
+          {/*
+            Esta página faz a pessoa escrever; a promessa de diagnóstico e o
+            prazo de resposta vivem no CTA da home, e o prazo aparece de novo na
+            nota do canal de e-mail logo abaixo. Repetir os três aqui era a
+            terceira cópia da mesma frase na mesma jornada.
+
+            E o parágrafo não tranquiliza ninguém, de propósito. Duas versões
+            anteriores pressupunham alguma falta de quem lê: "não precisa saber
+            o termo técnico certo" supõe que a pessoa não sabe, e "com suas
+            palavras" supõe que as palavras dela não seriam as certas.
+            Tranquilizar sobre algo que ninguém levantou avisa que você
+            esperava o pior. Quem ajuda quem está travado é o quadro ao lado,
+            que instrui em vez de pressupor.
+
+            Também não puxa para os serviços. Boa parte de quem abre esta
+            página chega de um post e não quer contratar nada; "papo sobre
+            homelab" existe para essa pessoa se sentir convidada, e é o que
+            diferencia este parágrafo de um convite genérico.
+          */}
           <p class="lead">
-            Descreva o problema com suas palavras — não precisa saber o termo técnico
-            certo. Eu respondo com um diagnóstico honesto e, se for o caso, digo que
-            você não precisa contratar ninguém.
+            Escreve aí. Pode ser um trabalho, um projeto, uma dúvida ou um papo
+            sobre homelab.
           </p>
 
           <ul class="channels">
@@ -55,7 +73,14 @@ const channels = socials
         </div>
 
         <aside class="aside">
-          <h2 class="eyebrow">O que incluir na mensagem</h2>
+          {/*
+            Condicional de propósito. O convite ao lado inclui quem só quer
+            puxar assunto; um título absoluto ("O que incluir na mensagem")
+            transformava esta lista de chamado de suporte em requisito para
+            todo mundo, e quem chegava para outra coisa concluía que a página
+            não era para ele.
+          */}
+          <h2 class="eyebrow">Se for um problema técnico</h2>
           <ul class="checklist">
             <li>O que está acontecendo, e desde quando</li>
             <li>Que equipamento ou sistema está envolvido</li>
@@ -67,7 +92,7 @@ const channels = socials
             <h2 class="eyebrow">Sobre seus dados</h2>
             <p>
               Este site não tem formulário, cookies, analytics nem scripts de terceiros.
-              O que você me mandar por e-mail fica no e-mail — e nada além disso é
+              O que você me mandar por e-mail fica no e-mail, e nada além disso é
               guardado.
             </p>
           </div>

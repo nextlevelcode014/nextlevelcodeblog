@@ -6,14 +6,32 @@ import { services } from '../site.config';
 
 <Base
   title="Serviços"
-  description="Suporte técnico, segurança da informação e desenvolvimento web — com software livre, privacidade por padrão e sem dependência de fornecedor."
+  description="Suporte técnico, segurança da informação e desenvolvimento web, com software livre, privacidade por padrão e sem dependência de fornecedor."
 >
   <section class="section">
     <div class="wrap">
-      <SectionHead as="h1" eyebrow="Serviços" title="No que eu posso ajudar" />
+      {/*
+        A home usa a mesma eyebrow com "O que eu resolvo": lá é o resultado
+        para o cliente, aqui é o trabalho em si. "No que eu posso ajudar", que
+        estava aqui, tinha o mesmo defeito do "Eu posso ajudar" que saiu do
+        resumo do serviço 01 — "posso" deixa a promessa condicional e "ajudar"
+        não diz o que acontece.
+      */}
+      <SectionHead as="h1" eyebrow="Serviços" title="O que eu faço" />
+      {/*
+        Apresenta, não vende. O parágrafo daqui era uma cadeia ("quem cuida da
+        máquina entende a rede, quem entende a rede sabe onde ela quebra…") que
+        tinha ritmo de argumento e função de autoelogio: cada elo era asserção,
+        e a conclusão dizia que o software sai melhor sem nada que sustentasse
+        isso. A ideia por trás dela — as três frentes serem o mesmo problema
+        visto de distâncias diferentes — segue viva em /sobre/, que é a página
+        onde essa conversa cabe.
+
+        Aqui a função é só orientar quem vai ler três listas, então o texto é
+        impessoal e não afirma nada de que se possa discordar.
+      */}
       <p class="lead">
-        Três frentes que se apoiam: quem cuida da máquina entende a rede, quem entende a
-        rede sabe onde ela quebra, e quem sabe onde quebra escreve software melhor.
+        Qualquer um consegue aprender qualquer coisa com devido tempo e esforço, mas para você que não tem ou quer usar seu tempo com outra coisa, eu posso ajudar.
       </p>
 
       <div class="services">
@@ -34,6 +52,13 @@ import { services } from '../site.config';
                     <li>{point}</li>
                   ))}
                 </ul>
+
+                <p class="service__label">Ferramentas</p>
+                <ul class="tools" aria-label={`Ferramentas de ${service.title}`}>
+                  {service.tools.map((tool) => (
+                    <li class="tag tag--tool">{tool}</li>
+                  ))}
+                </ul>
               </div>
             </article>
           ))
@@ -42,8 +67,7 @@ import { services } from '../site.config';
 
       <div class="closing">
         <p>
-          Não achou o que precisa? A lista acima é o que aparece com mais frequência,
-          não um cardápio fechado.
+          Se acha que posso te ajudar com base nessa lista, entre em contato. Qual sua necessidade especifica? O que você quer resolver? Qual sua realidade?
         </p>
         <a href="/contato/" class="btn">
           Descrever meu caso
@@ -113,6 +137,27 @@ import { services } from '../site.config';
     display: grid;
     gap: var(--space-xs);
     max-inline-size: 58ch;
+  }
+
+  /* Mesmo olho das outras seções, em escala menor: aqui ele rotula um bloco
+     dentro do serviço, não a seção inteira. */
+  .service__label {
+    margin-block-start: var(--space-md);
+    font-family: var(--font-heading);
+    font-size: var(--fs-2xs);
+    font-weight: 700;
+    letter-spacing: var(--tracking-eyebrow, 0.18em);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-block-start: var(--space-xs);
+    padding: 0;
+    list-style: none;
   }
 
   .service__points li {

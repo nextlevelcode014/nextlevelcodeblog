@@ -73,6 +73,12 @@ bun .claude/skills/run-site/driver.mjs audit --width 390 --theme light
 bun .claude/skills/run-site/driver.mjs audit /blog/ /sobre/      # rotas específicas
 ```
 
+Sem rotas na linha de comando, ele audita **todas as páginas do
+`dist/sitemap-0.xml`** mais o `/404`. Ou seja: **exige `bun run build` antes**, e
+o que ele varre acompanha o conteúdo sozinho. Não mantenha lista de rotas à mão —
+a que existia apontou para post e projeto já apagados, e como o `preview` serve a
+página de 404 com status 200, a auditoria passava tendo auditado a tela de erro.
+
 Cobertura completa antes de dar trabalho visual por concluído:
 
 ```bash
@@ -81,8 +87,9 @@ for t in dark light; do for w in 1440 390; do
 done; done
 ```
 
-Saída verificada: `✓ 11 rota(s) sem problemas  (1440px · dark)` nas quatro
-combinações.
+Saída verificada: `✓ 36 rota(s) sem problemas  (1440px · dark)` nas quatro
+combinações. São ~1 min por combinação — rode cada uma em chamada separada, que
+as quatro juntas estouram o timeout padrão do Bash.
 
 O que ele detecta — cada item já pegou bug real neste repositório:
 

@@ -113,10 +113,48 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
   .nav {
     margin-inline-start: auto;
     /* Em telas estreitas a nav rola horizontalmente em vez de virar um menu
-       hambúrguer: menos JS, menos estado, e com 5 itens ainda cabe bem. */
+       hambúrguer: menos JS, menos estado. A 390px os cinco itens já não cabem
+       — daí a máscara abaixo, que é o que avisa que a lista continua. */
     overflow-x: auto;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
+
+    /* Esmaece o último centímetro em vez de cortar a palavra no meio, que lê
+       como layout quebrado. `animation-timeline: scroll(self inline)` liga a
+       opacidade da borda à posição da rolagem: cheia enquanto há conteúdo à
+       direita, zero ao chegar no fim. Sem barra de rolagem visível (escondida
+       acima), é o único sinal de que existe mais coisa.
+
+       O valor declarado é **zero**, e o esmaecido vem só dos keyframes. Tem que
+       ser nessa direção: quando não há transbordo a timeline fica inativa, a
+       animação não corre, e o que vale é o valor declarado. Declarando 1.5rem
+       aqui, a máscara grudava em 768px — largura onde os cinco itens cabem
+       inteiros e não há nada para avisar. É também o comportamento em
+       navegador sem `animation-timeline`: sem aviso, mas sem borda apagada
+       sem motivo. */
+    --nav-fade: 0rem;
+    mask-image: linear-gradient(
+      to right,
+      #000 calc(100% - var(--nav-fade)),
+      transparent
+    );
+    animation: nav-fade-end linear both;
+    animation-timeline: scroll(self inline);
+  }
+
+  @keyframes nav-fade-end {
+    from {
+      --nav-fade: 1.5rem;
+    }
+    to {
+      --nav-fade: 0rem;
+    }
+  }
+
+  @property --nav-fade {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0rem;
   }
 
   .nav::-webkit-scrollbar {
@@ -181,15 +219,15 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     font-size: var(--fs-xs);
   }
 
-  /* Abaixo de 62rem some o CTA (a nav já leva a tudo) e abaixo de 34rem some
-     o nome escrito — sobra só a marca, que é reconhecível sozinha. */
-  @media (width < 62rem) {
-    .header__actions .btn--sm {
-      display: none;
-    }
-  }
+  /* O CTA fica em todas as larguras. Ele já foi escondido abaixo de 62rem, com
+     a justificativa de que "a nav leva a tudo" — só que `/contato/` nunca
+     esteve no array `nav`, então no celular qualquer página fora da home ficava
+     sem nenhum caminho para a página que fecha negócio.
 
-  @media (width < 34rem) {
+     Quem cede espaço é o nome escrito da marca, que some a partir de 62rem em
+     vez de 34rem. É o mesmo argumento que já valia lá embaixo: o símbolo
+     sozinho é reconhecível, e o nome ainda aparece no rodapé de toda página. */
+  @media (width < 62rem) {
     .brand__name {
       display: none;
     }
