@@ -7,10 +7,23 @@ export const site = {
   name: 'NextLevelCode',
   tagline: 'Tecnologia com liberdade, privacidade e segurança.',
   description:
-    'Suporte técnico, segurança da informação e desenvolvimento web para quem leva infraestrutura a sério. Soluções abertas, privadas e sob seu controle.',
+    'Suporte técnico, segurança da informação e desenvolvimento web.',
   author: 'NextLevelCode',
   email: 'work@nextlevelcode.pro',
   locale: 'pt-BR',
+} as const;
+
+/*
+ * Citação do rodapé. Fica fora do `site` de propósito: o `tagline` alimenta o
+ * `<title>` da home (`Base.astro`), onde texto longo é cortado pela busca em
+ * ~60 caracteres. Este campo tem um consumidor só, o `Footer.astro`, e é
+ * marcado como `<blockquote>` para que a voz do Herbert não se confunda com a
+ * voz do site em leitor de tela.
+ */
+export const quote = {
+  text: 'Antigamente, os homens entregaram seu pensamento às máquinas, na esperança de que isso os libertasse. Mas isso apenas permitiu que outros homens, com suas máquinas, os escravizassem.',
+  author: 'Frank Herbert',
+  work: 'Duna',
 } as const;
 
 export const nav = [
@@ -27,35 +40,47 @@ export const services = [
     number: '01',
     title: 'Suporte Técnico',
     summary:
-      'Manutenção, recuperação e configuração de máquinas e redes — sem enrolação e sem software que te espiona.',
+      'Está com o computador travando, dando tela azul ou com algum defeito? Eu conserto.',
     points: [
-      'Diagnóstico e reparo de hardware (desktop, notebook, servidor)',
-      'Instalação e migração para Linux',
-      'Recuperação de dados e estratégia de backup 3-2-1',
-      'Redes domésticas e de pequenas empresas',
-      'Homelab: virtualização, containers e self-hosting',
+      'Diagnóstico completo de hardware e software',
+      'Instalação e configuração de Windows e Linux',
+      'Recuperação e otimização de desempenho',
+      'Limpeza interna e manutenção preventiva',
+      'Configuração de redes, periféricos e backups',
+      'Instalação e manutenção de servidores',
+      'Compra e troca de peças',
     ],
+    tools: ['Linux', 'Windows', 'smartctl', 'MemTest86', 'rsync'],
   },
   {
     slug: 'seguranca',
     number: '02',
     title: 'Segurança da Informação',
     summary:
-      'Descobrir o que está exposto antes que alguém descubra por você — e fechar a porta com o mínimo de atrito.',
+      'Usa a mesma senha em vários sites e nunca fez backup? Eu organizo e te ensino a manter.',
+    // Todos os itens são sintagma nominal, como nos outros dois serviços. Os
+    // três últimos já foram oração ("Como identificar...", "O que fazer..."),
+    // o que separava o que eu configuro do que eu ensino — distinção que o
+    // `summary` já carrega e que a lista chapada da /servicos/ não mostrava.
+    // Teste de intrusão não entra aqui: o arquivo do Hugo exclui por escrito.
     points: [
-      'Avaliação de superfície de ataque e hardening',
-      'Testes de intrusão autorizados em aplicações web',
-      'Gestão de senhas, 2FA e chaves de criptografia',
-      'Resposta a incidentes e análise pós-invasão',
-      'Treinamento prático de higiene digital para equipes',
+      'Estratégia de backup 3-2-1, configurada e testada',
+      'Gerenciador de senhas e verificação em duas etapas',
+      'Ajuste das configurações de privacidade em redes sociais',
+      'Controle de permissões de aplicativos no celular',
+      'Redução de rastreamento em navegadores e serviços online',
+      'Identificação de phishing, golpe e engenharia social',
+      'Cuidados com links, anexos e downloads',
+      'Procedimentos em caso de suspeita de invasão ou vazamento',
     ],
+    tools: ['Bitwarden', 'KeePassXC', 'Tailscale', 'WireGuard', 'Borg', 'restic', 'TOTP'],
   },
   {
     slug: 'web',
     number: '03',
     title: 'Desenvolvimento Web',
     summary:
-      'Sites rápidos, acessíveis e sem rastreadores. Você é dono do código e dos dados — não uma plataforma.',
+      'Precisa de um site rápido ou de um sistema feito para o seu caso? Eu construo, e o código fica com você.',
     points: [
       'Sites institucionais e landing pages de alta performance',
       'Blogs e documentação em Markdown',
@@ -63,21 +88,40 @@ export const services = [
       'Analytics respeitoso, sem cookies de terceiros',
       'Deploy, domínio, TLS e monitoramento',
     ],
+    tools: ['Astro', 'Bun', 'TypeScript', 'Python', 'FastAPI', 'Docker', 'Vercel'],
   },
 ] as const;
+
+/*
+ * Havia aqui um `commitments`, renderizado como dobra própria na home. Ele
+ * saiu: três promessas com o mesmo peso de Serviços e Projetos viram desconto
+ * automático de quem ainda não conhece o autor, e nenhuma ficava perto de onde
+ * a decisão acontece. O comentário na home explica em detalhe.
+ *
+ * Os três textos continuam no site, cada um escrito para o contexto que ocupa,
+ * e por isso não moram mais aqui: nenhum é compartilhado entre páginas.
+ *
+ * - preço antes do trabalho ....... `src/pages/servicos.astro`, bloco .closing
+ * - digo quando não compensa ...... `src/pages/index.astro`, .cta__body
+ * - nada fica preso comigo ........ `src/pages/sobre.astro`, "Como eu trabalho"
+ */
 
 export const principles = [
   {
     title: 'Liberdade',
-    body: 'Software livre e padrões abertos sempre que possível. Nada que te prenda a um fornecedor — inclusive a mim.',
+    body: 'Sua ferramenta, seu direito de estudar, modificar, distribuir, copiar e usar.',
+  },
+  {
+    title: 'Transparência',
+    body: 'Não confie, verifique. Se não é verificável, não é seguro: é esperança.',
   },
   {
     title: 'Privacidade',
-    body: 'Coletar o mínimo, guardar o mínimo. Se um dado não precisa existir, ele não é criado.',
+    body: 'Poder de revelar-se seletivamente ao mundo.',
   },
   {
     title: 'Segurança',
-    body: 'Padrão seguro por definição, não como configuração opcional que alguém esquece de ligar.',
+    body: 'Processo contínuo de redução de risco e de reação.',
   },
 ] as const;
 
@@ -92,7 +136,7 @@ export const socials = [
   {
     label: 'Forgejo',
     href: 'https://forgejo.tail181a66.ts.net',
-    note: 'Meus repositórios, auto-hospedados.',
+    note: 'Meus repositórios, self-hosted.',
   },
   {
     label: 'GitHub',
@@ -102,16 +146,16 @@ export const socials = [
   {
     label: 'Substack',
     href: 'https://substack.com/@nextlevelcode',
-    note: 'Newsletter — textos mais longos e menos técnicos.',
+    note: 'Newsletter com textos mais longos e menos técnicos.',
   },
   {
     label: 'E-mail',
     href: `mailto:${site.email}`,
-    note: 'Melhor canal. Respondo em até 1 dia útil.',
+    note: 'Melhor canal. Respondo em até 1 dia.',
   },
   {
     label: 'RSS',
     href: '/rss.xml',
-    note: 'O blog no seu leitor, sem depender de algoritmo.',
+    note: 'Feed RSS.',
   },
 ] as const;

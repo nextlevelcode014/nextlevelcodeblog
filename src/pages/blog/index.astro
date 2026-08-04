@@ -14,25 +14,42 @@ for (const post of posts) {
   for (const tag of post.data.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1);
 }
 const topTags = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
+
+// A mesma frase serve de lide e de `<meta description>`, a pedido do autor.
+// Declarada uma vez para as duas não divergirem quando uma for editada.
+const lead =
+  'De fato, tentar expressar o que você entende não é apenas uma forma de provar que você entende, mas uma forma de entender de verdade.';
 ---
 
 <Base
   title="Blog"
-  description="Notas sobre homelab, Linux, hardware, segurança e Bitcoin — o que eu aprendi quebrando e consertando as coisas."
+  description={lead}
 >
   <section class="section">
     <div class="wrap">
       <SectionHead
         as="h1"
         eyebrow="Blog"
-        title="Notas de campo"
+        title="O que eu ando estudando"
         link={{ href: '/rss.xml', label: 'Assinar RSS' }}
       />
 
-      <p class="lead">
-        Homelab, Linux, hardware, segurança e Bitcoin. Escrito enquanto a memória do
-        problema ainda está fresca — o que costuma significar mais detalhe e menos verniz.
-      </p>
+      {/*
+        O título e o lead daqui eram "Notas de campo" e "o que eu aprendi
+        quebrando e consertando as coisas", que prometiam um diário de conserto.
+        Dos quatro posts, três são explicação de conceito e nenhum é conserto:
+        o rótulo não correspondia ao conteúdo.
+
+        O lead é a filosofia do blog, escrita pelo autor. Ela não lista assunto
+        de propósito: os posts logo abaixo já dizem sobre o que são, e as
+        etiquetas também. E não afirma nada sobre quem escreve — é uma ideia com
+        a qual dá para concordar sem confiar em ninguém, e quem concorda já
+        entendeu por que a página existe.
+
+        Não troque "expressar" por "explicar" nem corte o "De fato": a frase é
+        do autor e foi mantida na íntegra a pedido dele.
+      */}
+      <p class="lead">{lead}</p>
 
       {
         topTags.length > 0 && (
@@ -73,8 +90,12 @@ const topTags = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
     margin-block: var(--space-md) var(--space-lg);
   }
 
+  /* `--text-muted` e não `--text-faint`: a pílula tem fundo próprio
+     (`--bg-inset`), e sobre ele o faint dá 4,44:1 — raspando o mínimo AA de
+     4,5. É o mesmo achado que o painel do site de atendimento já tinha
+     registrado, com o mesmo número: faint só vale sobre o fundo da página. */
   .topics__count {
-    color: var(--text-faint);
+    color: var(--text-muted);
     font-variant-numeric: tabular-nums;
   }
 

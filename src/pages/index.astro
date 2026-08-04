@@ -5,7 +5,7 @@ import Logo from '../components/Logo.astro';
 import SectionHead from '../components/SectionHead.astro';
 import PostCard from '../components/PostCard.astro';
 import ProjectCard from '../components/ProjectCard.astro';
-import { services, principles } from '../site.config';
+import { services } from '../site.config';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
@@ -27,17 +27,24 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
           O `{' '}` não é decorativo: o compilador do Astro descarta a quebra de
           linha que precede uma tag inline, o que colaria "no" em "próximo".
         */}
+        {/*
+          A quebra é escrita, não deixada para o `max-inline-size` resolver.
+          Com a largura mandando, "Sua" ficava sozinho na primeira linha e o
+          título caía em três degraus tortos. É o que o site de atendimento já
+          fazia — o `<br />` ali não é descuido, é a quebra sendo decidida por
+          quem escreveu a frase. O `min-width` da media query garante que só
+          vale onde cabe: abaixo dela o título volta a quebrar sozinho.
+        */}
         <h1 class="hero__title">
-          Sua infraestrutura no{' '}
+          Sua infraestrutura<br class="hero__break" /> no{' '}
           <span class="hero__accent">próximo nível</span><span class="hero__dot"
             aria-hidden="true">.</span>
         </h1>
 
         <p class="hero__lead">
-          Tecnologia construída sobre três coisas inegociáveis:{' '}
-          <strong>liberdade</strong>, <strong>privacidade</strong> e{' '}
-          <strong>segurança</strong>. Software aberto, dados sob seu controle,
-          nada de caixa-preta.
+          Tecnologia construída sobre quatro princípios:{' '}
+          <strong>liberdade</strong>, <strong>transparência</strong>, <strong>privacidade</strong> e{' '}
+          <strong>segurança</strong>.
         </p>
 
         <div class="hero__actions">
@@ -52,7 +59,7 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
       <!-- Marca em escala grande como elemento gráfico, não como logotipo.
            aria-hidden: é decoração; o nome já está no header. -->
       <div class="hero__mark" aria-hidden="true">
-        <Logo size={420} animate />
+        <Logo size={300} animate />
       </div>
     </div>
   </section>
@@ -61,8 +68,8 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
   <section class="section" id="servicos">
     <div class="wrap">
       <SectionHead
-        eyebrow="O que eu faço"
-        title="Três frentes, um mesmo princípio"
+        eyebrow="Serviços"
+        title="O que eu resolvo"
         link={{ href: '/servicos/', label: 'Detalhes de cada serviço' }}
       />
 
@@ -76,6 +83,18 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
               <div>
                 <h3 class="service__title">{service.title}</h3>
                 <p class="service__body">{service.summary}</p>
+                {/*
+                  As ferramentas fazem o que adjetivo nenhum faz: mostram o
+                  assunto sendo dominado, em vez de afirmar que é. Cabem aqui
+                  na home porque são curtas; a lista do que está incluso fica
+                  em /servicos/, senão o link "Detalhes de cada serviço" não
+                  levaria a nada que já não estivesse nesta página.
+                */}
+                <ul class="tools" aria-label={`Ferramentas de ${service.title}`}>
+                  {service.tools.map((tool) => (
+                    <li class="tag tag--tool">{tool}</li>
+                  ))}
+                </ul>
               </div>
             </li>
           ))
@@ -84,24 +103,24 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
     </div>
   </section>
 
-  <!-- ================= PRINCÍPIOS ================= -->
-  <section class="section section--banded principles-section">
-    <div class="wrap">
-      <SectionHead eyebrow="Por quê" title="O que guia cada decisão técnica" />
+  <!-- Aqui havia uma dobra de compromissos ("O que você pode cobrar de mim"),
+       com três promessas lado a lado. Saiu por três motivos, e não vale
+       recriar sem resolvê-los:
 
-      <ul class="principles">
-        {
-          principles.map((p) => (
-            <li class="principle reveal">
-              <h3 class="principle__title">{p.title}</h3>
-              <div class="rule" />
-              <p class="principle__body">{p.body}</p>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
+       - "cobrar de mim" é ambíguo numa página que fala de preço: lê tanto como
+         "exigir de mim" quanto como "me faturar";
+       - três promessas empilhadas com o mesmo peso de Serviços e Projetos
+         viram desconto automático de quem não conhece o autor. Promessa ocupava
+         o espaço que rende para prova;
+       - nenhuma delas ficava perto de onde a decisão acontece.
+
+       Os três textos não sumiram, foram para onde respondem uma dúvida real:
+       preço antes do trabalho em /servicos/ (onde se calcula custo), "digo
+       quando não compensa" no CTA logo abaixo (onde se hesita em escrever) e
+       portabilidade em /sobre/ (onde valor é o assunto).
+
+       O dia em que existir caso real com resultado, esta dobra é o lugar
+       dele. -->
 
   <!-- ================= PROJETOS ================= -->
   {
@@ -130,7 +149,7 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
         <div class="wrap">
           <SectionHead
             eyebrow="Escrita"
-            title="Do blog"
+            title="Meu blog"
             link={{ href: '/blog/', label: 'Todos os posts' }}
           />
           <div class="posts">
@@ -148,10 +167,23 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
     <div class="wrap">
       <div class="cta">
         <div>
-          <h2 class="cta__title">Tem um problema técnico para resolver?</h2>
+          {/*
+            Este bloco já repetiu, quase palavra por palavra, o compromisso
+            "Digo quando não compensa" que fica duas dobras acima — e a mesma
+            frase ainda aparecia no lead de /contato/. Três vezes a mesma
+            promessa na jornada de quem clica.
+
+            Divisão de trabalho atual: o compromisso promete, este CTA diz o
+            que a pessoa recebe de volta (prazo, escopo, preço) e o /contato/
+            diz como escrever. Se for mexer aqui, cheque os outros dois antes.
+
+            O título é afirmativo de propósito: os três resumos de serviço
+            acima são perguntas, e uma quarta pergunta aqui perderia o
+            contraste.
+          */}
+          <h2 class="cta__title">Quer conversar?</h2>
           <p class="cta__body">
-            Descreva a situação e eu respondo com um diagnóstico honesto — inclusive
-            se a resposta for "você não precisa contratar ninguém para isso".
+            Entre em contato e me descreva o que você precisa, de uma conversa sobre tecnologia a um fechamento de negócio.
           </p>
         </div>
         <a href="/contato/" class="btn">
@@ -206,33 +238,49 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
 
   .hero__title {
     margin-block-start: var(--space-sm);
-    font-size: var(--fs-3xl);
+    /* `--fs-3xl` dava 72px e o título caía em três degraus tortos. O culpado
+       não era o `max-inline-size` (ele calculava 1032px e nunca chegava a
+       valer): quem limita é a coluna do hero, de 593px em 1280px de tela.
+       "Sua infraestrutura" a 72px não cabe ali de jeito nenhum.
+
+       54px é o teto do site de atendimento, que resolve a mesma frase em duas
+       linhas na mesma largura. O `--fs-3xl` seguia sendo usado só aqui. */
+    font-size: clamp(2.25rem, 1.5rem + 2.8vw, 3.375rem);
     font-weight: 700;
     letter-spacing: var(--tracking-tighter);
-    max-inline-size: 16ch;
+    max-inline-size: 22ch;
   }
 
-  /* O gradiente fica só nos azuis, e o laranja aparece no ponto final.
-     Não é preferência estética: azul e laranja são quase complementares, então
-     interpolar de um ao outro passa perto do neutro em qualquer espaço de cor
-     cartesiano — e o cinza caía bem no meio de "nível". Testei oklch por matiz,
-     que elimina o cinza mas atravessa roxo e rosa, cores que não existem na
-     marca. Manter o azul dominante e o laranja como acento pontual resolve o
-     problema e é o que o guia de marca já pedia.
-     Fallback: sem background-clip:text, fica azul sólido. */
+  /* Só quebra onde a linha inteira cabe. Em telas estreitas o `<br>` cortaria
+     cedo demais e sobraria um buraco à direita. */
+  .hero__break {
+    display: none;
+  }
+
+  @media (width >= 40rem) {
+    .hero__break {
+      display: inline;
+    }
+  }
+
+  /* Azul cheio, como o destaque do site de atendimento.
+
+     Havia aqui um degradê entre dois azuis, recortado no texto. A justificativa
+     original era sobre qual degradê usar — nunca sobre precisar de um: o
+     comentário defendia manter o percurso só nos azuis porque atravessar até o
+     laranja passa pelo cinza. Continua verdade, e o `.` laranja no fim resolve
+     o acento sem degradê nenhum.
+
+     O que decidiu foi a marca ao lado: ela acabou de perder o mesmo degradê
+     azul→azul-claro por desbotar o traço em escala. Título e símbolo dividem a
+     dobra; um chapado e o outro esmaecido não se leem como a mesma marca.
+
+     Some junto a dependência de `background-clip: text` — que exigia um
+     `@supports` e um fallback só para o texto não sumir onde não há suporte. */
   .hero__accent {
     color: var(--accent);
     position: relative;
     white-space: nowrap;
-  }
-
-  @supports (background-clip: text) or (-webkit-background-clip: text) {
-    .hero__accent {
-      background: linear-gradient(100deg in oklab, var(--hero-from), var(--hero-to));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
   }
 
   /* aria-hidden no markup: leitores de tela já pausam na pontuação da frase;
@@ -263,11 +311,33 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
   .hero__mark {
     display: none;
     justify-self: center;
-    /* Presente, mas ainda atrás do texto na hierarquia. A máscara radial
-       mantém as pontas se dissolvendo no fundo — é o que impede a marca de
-       parecer um segundo logotipo competindo com o do header. */
-    opacity: 0.32;
-    mask-image: radial-gradient(ellipse at center, #000 66%, transparent 94%);
+    /* 300px de LARGURA, como no site de atendimento — lá o teto é
+       `max-inline-size` e a altura sai da proporção (274px). Passar `size=300`
+       ao componente dava 300 de altura e 328 de largura: a mesma marca saía
+       9% maior de um lado. O `size` vira só a dimensão intrínseca do SVG. */
+    inline-size: 100%;
+    max-inline-size: 300px;
+    /* Presente, mas ainda atrás do texto na hierarquia.
+
+       Era 0.32, por receio de virar um segundo logotipo competindo com o do
+       header. Na tela isso não acontece: o do header tem 28px e fica em cima
+       à esquerda, este fica à direita e em escala. O que 0.32 fazia era apagar
+       o laranja do traço — o N perdia a cor que o identifica e virava uma
+       marca d'água cinzenta.
+
+       A máscara radial que dissolvia as pontas saiu junto: ela cortava
+       justamente as duas extremidades do traço que sobe, que é o gesto do
+       desenho. Com a opacidade fazendo o recuo, mascarar era recuar duas
+       vezes. 0.6 e sem máscara é o que o site de atendimento faz. */
+    opacity: 0.6;
+  }
+
+  /* O componente entrega o SVG com altura fixa; aqui ele volta a ser fluido
+     para o `max-inline-size` acima mandar. `:global` porque o SVG vem de outro
+     componente e não carrega o hash de escopo desta página. */
+  .hero__mark :global(svg) {
+    inline-size: 100%;
+    block-size: auto;
   }
 
   @media (width >= 62rem) {
@@ -328,34 +398,13 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
     max-inline-size: 60ch;
   }
 
-  /* ---------------- PRINCÍPIOS ---------------- */
-  .principles-section {
-    background: var(--bg-subtle);
-    border-block: 1px solid transparent;
-    border-image: var(--hairline) 1;
-  }
-
-  .principles {
-    display: grid;
-    gap: var(--space-lg);
-    list-style: none;
+  .tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-block-start: var(--space-sm);
     padding: 0;
-  }
-
-  @media (width >= 48rem) {
-    .principles {
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-xl);
-    }
-  }
-
-  .principle__title {
-    font-size: var(--fs-md);
-  }
-
-  .principle__body {
-    color: var(--text-muted);
-    font-size: var(--fs-sm);
+    list-style: none;
   }
 
   /* ---------------- LISTAGENS ---------------- */
@@ -385,12 +434,13 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
     padding: var(--space-lg);
     background: var(--bg-raised);
     border: 1px solid var(--line);
+    /* Traço de marca no topo, azul sólido — o mesmo da `.chamada` do site de
+       atendimento. Era um degradê azul→laranja, e ele competia com o laranja
+       do risco de 58°: dois acentos disputando a mesma caixa. O laranja rende
+       mais como ponto único (o `.` do hero, o risco da régua) do que diluído
+       ao longo de uma linha. */
+    border-block-start: 2px solid var(--accent);
     border-radius: var(--radius-lg);
-    /* Um traço de marca no topo da caixa, em 2px, azul→laranja. */
-    background-image: linear-gradient(to right in oklab, var(--brand-blue), var(--brand-orange));
-    background-size: 100% 2px;
-    background-repeat: no-repeat;
-    background-position: top left;
   }
 
   .cta__title {

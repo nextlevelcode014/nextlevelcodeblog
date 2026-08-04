@@ -1,6 +1,6 @@
 ---
 import Logo from './Logo.astro';
-import { nav, site, socials } from '../site.config';
+import { nav, quote, site, socials } from '../site.config';
 
 const year = new Date().getFullYear();
 ---
@@ -15,12 +15,23 @@ const year = new Date().getFullYear();
           <Logo size={30} />
         </a>
         <p class="footer__tagline">{site.tagline}</p>
+
+        <figure class="footer__quote">
+          <blockquote>{quote.text}</blockquote>
+          <figcaption><span aria-hidden="true">—</span> {quote.author}, <cite>{quote.work}</cite></figcaption>
+        </figure>
       </div>
 
       <nav class="footer__col" aria-label="Rodapé — navegação">
         <h2 class="eyebrow">Navegar</h2>
         <ul>
           {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+          {/*
+            Contato e Tags ficam fora do array `nav` de propósito (o menu do
+            header já é apertado a 390px), mas o rodapé precisa listar Contato:
+            é a rede de segurança para quem chega ao fim de um post no celular.
+          */}
+          <li><a href="/contato/">Contato</a></li>
           <li><a href="/tags/">Tags</a></li>
         </ul>
       </nav>
@@ -77,6 +88,32 @@ const year = new Date().getFullYear();
     margin-block-start: var(--space-sm);
     color: var(--text-muted);
     max-inline-size: 32ch;
+  }
+
+  /* A citação é a voz de outra pessoa, não a do site: fica um degrau abaixo do
+     tagline em tamanho e em contraste, e o filete lateral marca de onde a fala
+     começa. Sem itálico: o bloco todo já é a marcação. */
+  .footer__quote {
+    margin-block-start: var(--space-md);
+    padding-inline-start: var(--space-xs);
+    border-inline-start: 1px solid transparent;
+    border-image: var(--hairline-v) 1;
+    max-inline-size: 44ch;
+    color: var(--text-faint);
+    font-size: var(--fs-xs);
+  }
+
+  .footer__quote blockquote {
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  .footer__quote figcaption {
+    margin-block-start: var(--space-2xs);
+  }
+
+  .footer__quote cite {
+    font-style: normal;
   }
 
   .footer__col ul {
