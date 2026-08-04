@@ -78,6 +78,39 @@ Consequências, ambas já resolvidas mas fáceis de reintroduzir:
 contato e e-mail. Editar um serviço lá atualiza a home e `/servicos/` ao mesmo tempo.
 Prefira mexer aqui a mexer no texto dentro dos `.astro`.
 
+**O `services` do `site.config.ts` é resumo, não a fonte.** A descrição completa de
+cada serviço vive no site Hugo que está sendo migrado:
+
+```
+/home/nextlevelcode/Work/dev/nextlevelcodeblog/content/services/<slug>/index.pt.md
+```
+
+Antes de escrever ou editar `summary`, `points` ou `tools`, **leia o arquivo
+correspondente**. O que está no `site.config.ts` é uma condensação, e mais de uma
+vez o resumo já prometeu coisa que o serviço real não faz. Os nomes lá são mais
+longos que os do site novo: "Suporte Técnico e Soluções em Tecnologia",
+"Segurança e Privacidade Digital", "Desenvolvimento Web e Soluções Sob Medida".
+
+O que não se deduz do `site.config.ts` sozinho:
+
+- **O público é pessoa física e pequeno negócio.** Não é time de infraestrutura.
+  Todo texto de serviço se escreve para quem descreve o problema como "tela azul",
+  não como "falha de kernel".
+- **Segurança é educativo e preventivo, e o escopo é fechado por escrito.** O
+  arquivo exclui, com todas as letras, **teste de invasão, perícia digital,
+  recuperação de contas e investigação forense**. Nunca acrescente esses itens,
+  nem os deixe comentados esperando por um dia — comentário parece pendência e
+  alguém reativa.
+- **Suporte é centrado em notebook e inclui trabalho físico**: limpeza interna,
+  ventilação, pasta térmica, dobradiça. Também remoção de malware, upgrade de SSD
+  e RAM, e orientação de compra.
+- **Automação é metade do serviço de web**, não um extra: tarefa repetitiva,
+  integração entre sistemas, redução de retrabalho.
+- **O atendimento é presencial ou remoto**, e no suporte pode envolver recolher o
+  equipamento mediante agendamento, sempre autorizado antes. Isso está nos
+  arquivos do Hugo e **ainda não aparece em lugar nenhum do site novo** — é a
+  informação que falta para quem está com a máquina quebrada decidir chamar.
+
 **Conteúdo** vive em `src/content/{blog,projetos}/*.md`, com schema em
 `src/content.config.ts` (loader `glob` da Content Layer). Duas regras:
 - Toda consulta a coleção **precisa** filtrar rascunho: `getCollection('blog', ({ data }) => !data.draft)`.
@@ -158,6 +191,70 @@ dependência de runtime, verifique:
 ```bash
 grep -rhoE '<(script|link|img|iframe)[^>]*(src|href)="https?://[^"]*"' dist --include="*.html" | grep -v nextlevelcode.pro
 ```
+
+## Regras de escrita do texto de marketing
+
+Todas saíram de texto que já esteve publicado neste site e foi trocado. Valem para
+`site.config.ts`, para as páginas institucionais e para `<meta description>` — não
+para os posts do blog, que são voz do autor.
+
+**Não pressuponha falta em quem lê.** "Não precisa saber o termo técnico certo"
+supõe que a pessoa não sabe; "descreva com suas palavras" supõe que as palavras
+dela não seriam as certas. Tranquilizar sobre algo que ninguém levantou avisa que
+você esperava o pior. Quando a informação for necessária, **mude de quem é a
+falta**: em vez de "você não precisa saber", "o que eu precisar saber, eu pergunto".
+
+**Não invente adversário.** "Sem vender medo" só faz sentido se existir alguém
+vendendo medo, então a frase insere esse alguém na cabeça do leitor e passa a
+falar do concorrente em vez de falar de você. O filtro: **se a negativa não te
+limita, ela é retórica**. "Nada que te prenda a um fornecedor, inclusive a mim"
+custa alguma coisa a você e por isso vale; "sem vender medo" cobra de um terceiro
+imaginário e não obriga a nada.
+
+**Adjetivo grátis não é argumento.** "Personalizado", "completo", "de alta
+performance", "melhores ferramentas", "diagnóstico honesto" — ninguém anuncia
+diagnóstico incompleto nem ferramenta ruim. Se dizer o contrário for absurdo, o
+adjetivo não informa. Prefira o fato que o sustenta, ou corte.
+
+**Sintoma antes de categoria.** O cliente reconhece "tela azul", "travando",
+"não liga"; não reconhece "falhas de sistema" nem "necessidade de manutenção".
+Uma lista de sintomas precisa ser toda do mesmo tipo — misturar dois sintomas com
+uma atividade ("travamento, tela azul, manutenção") quebra a leitura.
+
+**Toda frase precisa de um dono.** "Soluções para X" e "Suporte para X" nomeiam a
+categoria e não prometem nada; ninguém pode ser cobrado por ter oferecido soluções.
+Primeira pessoa **do singular**, sempre: um "nós" num negócio de uma pessoa é o
+truque de parecer maior, e contradiz o resto da página.
+
+**Não troque de sujeito no meio da frase.** "Travamento, problema de sistema ou
+peça com defeito: seu computador volta a funcionar" obriga o leitor a voltar e
+reatribuir os três problemas a um sujeito que só apareceu no fim.
+
+**Título nomeia a ação, não a virtude.** Quem anuncia a própria honestidade está
+pedindo para acreditarem nele. "Diagnóstico honesto" virou "Digo quando não
+compensa": o corpo do texto já demonstrava, o título só afirmava.
+
+**Cada promessa aparece uma vez.** A mesma frase sobre diagnóstico honesto já
+esteve em três lugares na jornada de um clique. Divisão atual, e há comentário nos
+arquivos explicando cada uma:
+
+| onde | trabalho |
+|---|---|
+| CTA da home | diz o que a pessoa recebe de volta, e promete o diagnóstico honesto |
+| `/servicos/`, bloco `.closing` | promete orçamento fechado antes de começar |
+| `/contato/` | diz como escrever |
+| `/sobre/` | argumenta por que as três frentes se conectam, e promete portabilidade |
+
+A home já teve uma dobra só de compromissos, com as três promessas lado a lado.
+Ela saiu: promessa empilhada com o mesmo peso das seções de conteúdo vira
+desconto automático de quem não conhece o autor, e nenhuma das três ficava perto
+de onde a decisão acontece. **Promessa rende onde a pessoa hesita; aquela dobra
+rende no dia em que houver caso real com resultado para colocar nela.**
+
+**Sem travessão no texto institucional.** Onde ele anunciava explicação, use
+dois-pontos; onde era pausa, vírgula. Sobra travessão só em separador de campo
+(`<title>`, `aria-label`, título do feed), que não é retórica. Os posts do blog
+ficam de fora desta regra.
 
 ## Navegador para verificação visual
 

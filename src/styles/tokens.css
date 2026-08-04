@@ -30,7 +30,12 @@
     /* ---------- Texto ---------- */
     --text: light-dark(#222222, #ffffff);
     --text-muted: light-dark(#555555, #9aa0ac);
-    --text-faint: light-dark(#767c86, #6a7285);
+    /* Os valores vêm do site de atendimento, que já os ajustou para passar em
+       AA sobre estes mesmos fundos (`--bg` é idêntico nos dois). Os anteriores
+       davam 3,93:1 no escuro e 4,20:1 no claro — abaixo dos 4,5:1 — no ano do
+       cartão de projeto e no rodapé legal. Escurece no claro e clareia no
+       escuro: em ambos os casos afasta do fundo. */
+    --text-faint: light-dark(#6a7285, #757d90);
 
     /* ---------- Traços ---------- */
     --line: light-dark(#dddddd, #16203a);
@@ -59,12 +64,14 @@
     /* ---------- Acentos (versões com contraste de texto garantido) ---------- */
     --accent: light-dark(#1565c0, #2196f3);
 
-    /* Pontas do gradiente do título do hero. Precisam mudar por tema: o azul
+    /* Aqui viviam `--hero-from` e `--hero-to`, as pontas do degradê do título
+       do hero. O título passou a ser azul chapado (`--accent`, que já é o
+       mesmo par por tema), e os dois ficaram sem nenhum consumidor.
+
+       O que eles carregavam continua valendo e vale para `--accent`: o azul
        claro da marca (#4FC3F7) sobre branco dá 1,99:1, abaixo do mínimo de 3:1
-       da WCAG até para texto grande. No claro o gradiente desce para tons mais
-       fechados; no escuro ele pode subir, porque ali é o fundo que é escuro. */
-    --hero-from: light-dark(#2196f3, #4fc3f7);
-    --hero-to: light-dark(#1565c0, #2196f3);
+       da WCAG até para texto grande. É por isso que `--accent` fecha em
+       #1565C0 no tema claro em vez de usar o hex do guia. */
     --accent-quiet: light-dark(#e3f0fd, #0e1e35);
     --hot: light-dark(#b34e00, #ff7a00);
     --hot-quiet: light-dark(#fff0e0, #2a1605);

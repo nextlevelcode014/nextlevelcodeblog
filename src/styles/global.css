@@ -369,6 +369,17 @@
       background-color var(--dur-fast) var(--ease-out);
   }
 
+  /* Nome de ferramenta é literal — `smartctl`, `rsync`, `restic` se escrevem
+     assim e não de outro jeito. Em Poppins com espaçamento de título eles
+     passam por marca; em mono, por comando, que é o que são. Herda todo o
+     resto da `.tag` para não virar uma segunda pílula no sistema. */
+  .tag--tool {
+    font-family: var(--font-mono);
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
   a.tag:hover {
     color: var(--accent);
     background: var(--accent-quiet);

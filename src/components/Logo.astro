@@ -22,10 +22,6 @@ interface Props {
 }
 
 const { size = 28, animate = false, class: className } = Astro.props;
-
-// IDs de gradiente precisam ser únicos por instância: com dois logos na mesma
-// página, IDs repetidos fazem o segundo herdar o gradiente do primeiro.
-const uid = crypto.randomUUID().slice(0, 8);
 ---
 
 <svg
@@ -36,22 +32,26 @@ const uid = crypto.randomUUID().slice(0, 8);
   aria-label="NextLevelCode"
   class:list={['logo', { 'logo--animate': animate }, className]}
 >
-  <defs>
-    <linearGradient id={`nlc-${uid}`} x1="0" y1="1" x2="1" y2="0">
-      <stop offset="0" stop-color="var(--brand-blue)"></stop>
-      <stop offset="1" stop-color="var(--brand-blue-lift)"></stop>
-    </linearGradient>
-  </defs>
-
   <!-- Traços laranja (atrás) -->
   <g fill="var(--brand-orange)">
     <path d="M29.98 49.46 L33.33 52.82 L13.19 99.69 L9.07 98.11 Z"></path>
     <path d="M104.70 10.75 L109.20 10.75 L64.87 98.92 L61.10 97.47 Z"></path>
   </g>
 
-  <!-- O N azul (à frente) -->
+  {/*
+    Azul cheio, não degradê.
+
+    Havia um `linearGradient` de `--brand-blue` para `--brand-blue-lift` na
+    diagonal. Ele clareava o braço direito do N justamente onde a marca sobe —
+    o traço perdia saturação no ponto que dá o nome ao desenho, e em escala
+    grande a marca lia como desbotada. O arquivo do site de atendimento sempre
+    foi chapado (`#2196F3`), e é a versão que se sustenta nos dois tamanhos.
+
+    Também some o `crypto.randomUUID()` que existia só para dar id único ao
+    gradiente: sem `<defs>`, não há id para colidir entre duas instâncias.
+  */}
   <path
-    fill={`url(#nlc-${uid})`}
+    fill="var(--brand-blue)"
     d="M-0.07 94.70 L25.61 35.35 L33.05 35.35 L58.69 82.00 L99.53 0.15 L106.46 0.15 L58.95 95.36 L29.55 41.86 L5.73 96.93 Z"
   ></path>
 </svg>

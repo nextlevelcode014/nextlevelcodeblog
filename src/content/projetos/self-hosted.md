@@ -1,73 +1,56 @@
 ---
 title: 'Self-hosted'
-description: 'Infraestrutura pessoal numa Raspberry Pi 5: nuvem, fotos, senhas, DNS e busca rodando em casa, com entrada só pela tailnet e dado cifrado em repouso.'
+description: 'Minha infraestrutura pessoal: Googlo, WhatsApp, DNS, Netflix, AnyDesk, Senhas e muito mais'
 order: 1
-year: '2026 — hoje'
+year: '2026'
 status: 'ativo'
 tags: ['self-hosted', 'homelab', 'docker', 'tailscale', 'privacidade', 'seguranca']
 repo: 'https://forgejo.tail181a66.ts.net/nextlevelcode/self-hosted'
 ---
 
-Substituir serviço de nuvem por hardware próprio, um serviço de cada vez. Cada pasta
-do repositório é um serviço independente definido por um `compose.yml`, e o conjunto
-roda numa Raspberry Pi 5 com Ubuntu Server, bootando de um SSD de 1 TB por USB.
+Junção de varias alternativas open source com objetivo de criar uma infraestrutura
+pessoal, usando uma stack de serviços que julgo essenciais.
 
-## O que roda
+Configurar e manter todos esses serviços custa tempo, não é um hobby, são
+princípios: **liberdade**, **privacidade** e **segurança**. Liberdade de customização, configuração,
+planejamento. Privacidade de revelar apenas aquilo que me interessa. Segurança
+é a responsabilidade de cuidar das sua coisas, então arcar com as consequências.
+
+Embora esse projeto tenha sido pensando nos meus interesses pessoais, configurações, dicas e soluções
+encontradas na minha jornada podem servir como base, oferecendo sugestões e ideias.
+
+## O que hospedo atualmente
 
 | Serviço | Função |
 |---|---|
-| Nextcloud AIO | Nuvem, chamadas e documentos |
-| Immich | Fotos e vídeos |
-| Vaultwarden | Senhas — e a fonte dos segredos de todos os outros |
-| SearXNG | Meta-buscador, sem perfil de quem pesquisa |
-| AdGuard Home | DNS e bloqueio de rastreadores |
-| Arr Stack | Mídia: Jellyfin, Sonarr/Radarr, Prowlarr, qBittorrent |
+| Nextcloud AIO | Backup, Comunicação, Syncronização... |
+| Immich | Galeria de fotos e vídeos |
+| Vaultwarden | Gerenciador de senhas |
+| SearXNG | Motor de busca |
+| AdGuard Home | DNS |
+| Arr Stack | Streaming |
 | RustDesk | Acesso remoto |
-| Gluetun | Gateway VPN compartilhado |
-| Forgejo | O servidor git que hospeda este repositório |
+| Gluetun | VPN para os containers |
 
-## As quatro decisões que sustentam o resto
 
-**Entrada só pela tailnet.** Quase todo serviço sobe com um sidecar do Tailscale e é
-publicado por `tailscale serve` — nada fica exposto na internet aberta. A exceção é
-uma só e é deliberada: a web do Forgejo sai por Tailscale Funnel para leitura
-anônima, enquanto o SSH continua restrito à tailnet. Quem chega de fora lê o código
-e não altera nada.
+Cada serviço exige conhecimento, configurações e particularidades especificas.
+Felizmente com docker tudo fica mais fácil, gerenciar aplicações que antes exigia
+anos de experiencia na area tornou-se mais simples.
 
-**Saída pela VPN onde importa.** O Gluetun é o gateway ProtonVPN/WireGuard, e os
-serviços sensíveis usam o namespace de rede dele. O detalhe que faz isso valer
-alguma coisa é o killswitch: se o túnel cai, eles ficam sem rede — em vez de
-continuar funcionando e vazar.
+## Como foi pensado
+Todo acesso externo é feito via Tailscale, arquivos de configurações são praticamente
+todos docker composes, com exceção de configurações específicos de de cada serviço.
 
-**Cifrado em repouso.** A Pi não tem TPM, então o sistema sobe sem cifragem e um
-volume LUKS é destrancado à mão a cada boot. O `data-root` do Docker vive dentro
-dele, e um manifesto (`storage.map`) troca cada caminho sensível por symlink para o
-volume cifrado — assim os arquivos de compose não precisam saber de nada disso. Os
-scripts de subida são fail-closed: recusam iniciar se o volume não estiver montado.
+Isso tudo está fisicamente em um Raspberry PI 5 com 8GB de ram e um SSD externo de um 1T. Um hardware
+capaz e eficiente, portável, pouco consumo de energia e extensível.
 
-**Segredo não entra no git.** Cada serviço versiona um `.env.example`; o `.env` real
-é montado a partir do Vaultwarden por um comando só. O cofre é a fonte, e o
-repositório pode ser público sem revisão linha a linha.
+O SSD tem 3 partições, sendo uma para o boot e firmware, segunda para o root e uma ultima criptografada
+para os dados. Isso adiciona uma camada de segurança contra roubo físico do SSD.
 
-## Estado atual, sem maquiagem
+Usar só um SSD não é ideal para meu modelo, por isso pretendo expandir mais a frente para um NVMe.
 
-**Backup está pela metade.** Só o Nextcloud tem backup automatizado e agendado. O
-resto está documentado serviço por serviço, com o método certo para cada um — banco
-vivo sai pela ferramenta nativa, porque copiar o arquivo a quente pega uma transação
-pela metade e nasce corrompido —, mas ainda roda à mão. Enquanto for manual, não é
-backup: é intenção.
+Existe um script shell para auxiliar na organização da infraestrutura: arquivos de configurações,
+composes, containers, ENVs e etc.
 
-**Não há CI.** Rodar o runner do Forgejo exigiria montar o `docker.sock` dentro de um
-container, o que na prática é dar root no host para o CI. Preferi validar os compose
-à mão a abrir esse buraco na máquina que guarda tudo.
-
-**A senha do repositório de backup não fica no Vaultwarden.** A chave que restaura o
-cofre não pode depender do cofre. Essa mora em papel e em outro dispositivo.
-
-## De onde veio
-
-O plano inicial está em
-[Criando minha infraestrutura digital](/blog/criando-minha-infraestrutura-digital/),
-escrito quando isso ainda era desenho: dois NVMe, dois SSDs e separação de dados por
-domínio. O que foi ao ar é mais modesto no hardware — uma Pi e um SSD — mas manteve a
-ideia que importava, a de separar dado por função em vez de jogar tudo num disco só.
+O sistema de backup é automatizado, sendo a implementação especifica de acordo com o serviço.
+Os backups sempre saem do PI criptografados para dois servidores diferentes.
