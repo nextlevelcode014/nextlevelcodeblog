@@ -136,6 +136,28 @@ requisição sai do domínio, e nada do que é pesquisado é registrado.
 - `src/busca.ts` fica solto em `src/`, ao lado de `site.config.ts` e
   `content.config.ts`: módulo compartilhado é raro aqui e a árvore é plana.
 
+**`/uso/`** (dados em `src/uso.config.ts`) é a página de "o que eu uso": máquina,
+sistema, programas e os serviços que rodam no Raspberry Pi. Três regras, e as três
+são o motivo de ela existir depois que as listas de ferramentas saíram (#22):
+
+- **Item sem a linha `uso` não entra.** O campo não é descrição da ferramenta, é
+  por que ela está *nesta* máquina. Sem ele, volta a ser a pílula que foi removida.
+- **Mudança na lista pede linha em `mudancas`**, com data e motivo. É o que faz a
+  página envelhecer por escrito em vez de em silêncio, e o "atualizado em" do topo
+  sai da data mais recente. A data é string ISO formatada na mão: `new Date('…')`
+  lê meia-noite em UTC e volta um dia no fuso de Brasília.
+- **Referência a post ou projeto entra pelo campo `leitura` do item**, que vira link
+  no fim da linha de `uso`. Não crie bloco de "veja também" no fim da página: ele
+  serve a trinta itens e a nenhum, e chega depois que a pessoa terminou de ler.
+  O campo é opcional porque item com link é convite; se todos tivessem, nenhum seria.
+- **A página fica fora do `nav`.** O menu é caminho de cliente, e o público desta
+  página é quem lê o blog. Ela é alcançada pela `/sobre/`, pela busca e por link
+  direto. Pôr no menu ainda esbarra na issue #13 (nav não cabe a 390px).
+
+O `texto` dela no índice da busca é gerado do próprio `uso.config.ts`, e não escrito
+à mão como o das outras páginas institucionais: quem procura digita `immich`, não
+"uso". Item novo entra na busca junto com a página.
+
 **Estilo** tem três camadas:
 1. `src/styles/tokens.css` — variáveis. Os dois temas saem de uma declaração só via
    `light-dark()`, escolhida pelo `color-scheme` que o `data-theme` define.

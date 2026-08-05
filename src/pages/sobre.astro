@@ -97,15 +97,26 @@ const curriculo = lerCurriculo();
           </div>
 
           {/*
-            Havia aqui um segundo bloco da lateral, "Ferramentas do dia a dia":
-            dez pílulas com Arch Linux, Hyprland, Proxmox, Bitcoin Core e afins.
-            Saiu junto com as listas de ferramentas dos serviços, e pelo mesmo
-            motivo: nome solto de tecnologia prova pouco e envelhece sozinho.
+            Aqui ficavam as dez pílulas de "Ferramentas do dia a dia", que
+            saíram por nome solto de tecnologia provar pouco e envelhecer
+            sozinho. O espaço reservado virou este link.
 
-            O espaço está reservado para outra coisa, ainda por definir. Se ele
-            continuar vazio, a lateral funciona: Princípios e as duas ações já
-            enchem a coluna ao lado do texto.
+            A lista não voltou para cá, e não deve voltar: na lateral cabiam
+            dez nomes e nenhuma explicação, que é exatamente o defeito que a
+            tirou. Em /uso/ cada item tem o motivo e a página tem registro de
+            mudanças, então ela envelhece por escrito em vez de em silêncio.
           */}
+          <div class="side__block">
+            <h2 class="eyebrow">O que eu uso</h2>
+            <p class="side__nota">
+              O sistema, os programas e os serviços que rodam aqui todo dia, com o motivo de
+              cada escolha.
+            </p>
+            <a class="side__link" href="/uso/">
+              Ver a lista
+              <span class="side__arrow" aria-hidden="true">↗</span>
+            </a>
+          </div>
 
           <div class="side__actions">
             <a href="/contato/" class="btn">
@@ -185,6 +196,35 @@ const curriculo = lerCurriculo();
 
   .principles span {
     color: var(--text-muted);
+  }
+
+  .side__nota {
+    margin-block-start: var(--space-2xs);
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+
+  /* Mesmo degrau de hierarquia do currículo logo abaixo: texto com seta, não
+     botão. O único botão preenchido da página continua sendo "Falar comigo". */
+  .side__link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35em;
+    margin-block-start: var(--space-2xs);
+    font-family: var(--font-heading);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .side__arrow {
+    display: inline-block;
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  .side__link:hover .side__arrow {
+    transform: translate(2px, -2px);
   }
 
   .side__actions {

@@ -1,5 +1,6 @@
 import { getCollection } from 'astro:content';
 import { principles, services } from './site.config';
+import { categorias } from './uso.config';
 
 /**
  * Índice de busca do site, montado no build e servido como JSON estático por
@@ -88,6 +89,21 @@ const paginas: ItemBusca[] = [
     titulo: 'Sobre',
     descricao: 'Quem está por trás da NextLevelCode e por que as três frentes se conectam.',
     texto: 'currículo cv experiência formação como eu trabalho princípios liberdade privacidade',
+    tags: [],
+  },
+  {
+    tipo: 'Página',
+    url: '/uso/',
+    titulo: 'O que eu uso',
+    descricao: 'O sistema, os programas e os serviços que eu rodo todo dia, e por que cada um.',
+    // O `texto` sai do próprio `uso.config.ts`, e não escrito à mão: quem
+    // procura "immich" ou "hyprland" digita o nome da ferramenta, não a
+    // palavra "uso". Ficando ligado aos dados, item novo entra na busca junto
+    // com a página, sem depender de alguém lembrar de vir aqui.
+    texto: [
+      'ferramentas setup máquina notebook servidor homelab dotfiles',
+      ...categorias.flatMap((c) => [c.titulo, ...c.itens.map((i) => `${i.nome} ${i.uso}`)]),
+    ].join(' · '),
     tags: [],
   },
   {
