@@ -16,9 +16,18 @@ interface Props {
   title: string;
   /** URL absoluta do post. */
   url: string;
+  /**
+   * Versão do topo do post: as mesmas pílulas, sem o traço de fim de bloco e
+   * sem a etiqueta "Compartilhar". O traço completo (com a decolagem laranja)
+   * significa "o texto acabou" — usá-lo antes do primeiro parágrafo mentiria,
+   * e ficaria empilhado com o traço que já fecha o cabeçalho. A etiqueta some
+   * porque os nomes das redes já dizem o que a fileira é, e repetir o título
+   * duas vezes na mesma página dá duas seções de igual peso para uma coisa só.
+   */
+  compact?: boolean;
 }
 
-const { title, url } = Astro.props;
+const { title, url, compact = false } = Astro.props;
 
 const encoded = encodeURIComponent(url);
 const texto = encodeURIComponent(title);
@@ -34,10 +43,29 @@ const redes = [
 ];
 ---
 
-<aside class="share" aria-labelledby="share-title">
-  {/* O texto acabou: aqui vale o traço completo, com a decolagem laranja. */}
-  <div class="rule"></div>
-  <h2 class="eyebrow" id="share-title">Compartilhar</h2>
+{/*
+  Só a versão do fim tem título visível, então só ela usa `aria-labelledby`.
+  Se as duas usassem, o `id` apareceria duas vezes na mesma página: `id`
+  repetido é HTML inválido e o leitor de tela resolve a referência para a
+  primeira ocorrência, de forma que o bloco do fim seria anunciado pelo
+  cabeçalho do topo.
+*/}
+<aside
+  class:list={['share', compact && 'share--compact']}
+  aria-labelledby={compact ? undefined : 'share-title'}
+  aria-label={compact ? 'Compartilhar' : undefined}
+>
+  {
+    !compact && (
+      <>
+        {/* O texto acabou: aqui vale o traço completo, com a decolagem laranja. */}
+        <div class="rule" />
+        <h2 class="eyebrow" id="share-title">
+          Compartilhar
+        </h2>
+      </>
+    )
+  }
 
   <ul class="share__list">
     {
@@ -73,6 +101,17 @@ const redes = [
 <style>
   .share {
     margin-block-start: var(--space-lg);
+  }
+
+  /* No topo a fileira é mais um item da faixa de metadados (data, tempo de
+     leitura, tags) do que uma seção própria: mesmo espaçamento das tags, e
+     nada de folga extra porque não há etiqueta para separar dela. */
+  .share--compact {
+    margin-block-start: var(--space-sm);
+  }
+
+  .share--compact .share__list {
+    margin-block-start: 0;
   }
 
   .share__list {

@@ -35,6 +35,9 @@ const words = (post.body ?? '').split(/\s+/).filter(Boolean).length;
 const minutes = Math.max(1, Math.round(words / 200));
 // Só monta o índice se houver H2 suficiente para valer a pena.
 const toc = headings.filter((h) => h.depth === 2);
+
+// Uma URL só para os dois blocos de compartilhamento (topo e fim).
+const shareUrl = new URL(Astro.url.pathname, Astro.site).href;
 ---
 
 <Base title={title} description={description} article>
@@ -76,6 +79,13 @@ const toc = headings.filter((h) => h.depth === 2);
           )
         }
 
+        {/*
+          Dentro do cabeçalho, antes do traço: assim o traço continua fechando
+          o bloco inteiro de abertura, em vez de o compartilhamento aparecer
+          solto entre o traço e o primeiro parágrafo.
+        */}
+        <ShareLinks title={title} url={shareUrl} compact />
+
         <div class="rule"></div>
       </header>
 
@@ -105,7 +115,7 @@ const toc = headings.filter((h) => h.depth === 2);
         `.eyebrow` por especificidade e renderizava a etiqueta "Compartilhar"
         com 26px e 36px de margem, como se fosse um título de seção do artigo.
       */}
-      <ShareLinks title={title} url={new URL(Astro.url.pathname, Astro.site).href} />
+      <ShareLinks title={title} url={shareUrl} />
 
       {
         (newer || older) && (
