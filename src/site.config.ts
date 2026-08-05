@@ -119,12 +119,14 @@ export const services = [
  * automático de quem ainda não conhece o autor, e nenhuma ficava perto de onde
  * a decisão acontece. O comentário na home explica em detalhe.
  *
- * Os três textos continuam no site, cada um escrito para o contexto que ocupa,
- * e por isso não moram mais aqui: nenhum é compartilhado entre páginas.
+ * Os textos que sobraram moram cada um no contexto que ocupa, e por isso não
+ * moram mais aqui: nenhum é compartilhado entre páginas.
  *
  * - preço antes do trabalho ....... `src/pages/servicos.astro`, bloco .closing
  * - digo quando não compensa ...... `src/pages/index.astro`, .cta__body
- * - nada fica preso comigo ........ `src/pages/sobre.astro`, "Como eu trabalho"
+ *
+ * O terceiro, "nada fica preso comigo", saiu do site na reescrita da /sobre/,
+ * por decisão do autor. Não é pendência e não volta.
  */
 
 export const principles = [

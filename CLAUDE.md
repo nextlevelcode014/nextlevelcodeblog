@@ -262,7 +262,16 @@ arquivos explicando cada uma:
 | CTA da home | diz o que a pessoa recebe de volta, e promete o diagnóstico honesto |
 | `/servicos/`, bloco `.closing` | promete orçamento fechado antes de começar |
 | `/contato/` | diz como escrever |
-| `/sobre/` | argumenta por que as três frentes se conectam, e promete portabilidade |
+| `/sobre/` | conta quem escreve e o que o move. **Não carrega promessa nenhuma.** |
+
+A `/sobre/` já prometeu portabilidade ("nada do que eu faço fica preso comigo").
+A frase saiu na reescrita da página, por decisão do autor, e **não volta**: não
+foi esquecimento nem efeito colateral. Não a recoloque, ali nem em outra página.
+
+**O texto da `/sobre/` é do autor, na voz dele.** Ao editar aquele bloco, corrija
+ortografia e pontuação e nada mais: a página vale pela sinceridade, e frase polida
+por terceiro soa como todas as outras. As regras de escrita acima valem para o
+resto do texto institucional, não para ali.
 
 A home já teve uma dobra só de compromissos, com as três promessas lado a lado.
 Ela saiu: promessa empilhada com o mesmo peso das seções de conteúdo vira
