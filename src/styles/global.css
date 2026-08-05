@@ -373,6 +373,33 @@
     font-size: var(--fs-sm);
   }
 
+  /* ---- Botão de ícone ----
+     O quadrado de 2.25rem do cabeçalho: alvo de toque confortável sem virar
+     um bloco pesado ao lado do CTA. Serve a <button> (tema) e a <a> (busca),
+     que precisam parecer o mesmo controle apesar de serem coisas diferentes. */
+  .icon-btn {
+    display: grid;
+    place-items: center;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out);
+  }
+
+  a.icon-btn:hover,
+  button.icon-btn:hover,
+  .icon-btn[aria-current='page'] {
+    color: var(--text);
+    background: var(--bg-inset);
+    border-color: var(--line);
+  }
+
   /* ---- Tags ---- */
   .tag {
     display: inline-block;

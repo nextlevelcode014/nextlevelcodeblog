@@ -8,7 +8,7 @@
 
 <button
   type="button"
-  class="theme-toggle"
+  class="icon-btn theme-toggle"
   data-theme-toggle
   aria-label="Alternar tema claro e escuro"
   title="Alternar tema"
@@ -26,25 +26,13 @@
 </button>
 
 <style>
-  .theme-toggle {
-    display: grid;
-    place-items: center;
-    inline-size: 2.25rem;
-    block-size: 2.25rem;
-    color: var(--text-muted);
-    border: 1px solid transparent;
-    border-radius: var(--radius);
-    transition:
-      color var(--dur-fast) var(--ease-out),
-      border-color var(--dur-fast) var(--ease-out),
-      background-color var(--dur-fast) var(--ease-out);
-  }
+  /* Caixa, cor e hover vêm de `.icon-btn` no global.css, compartilhados com o
+     botão de busca do cabeçalho. Aqui fica só o que é deste botão: a troca de
+     ícone conforme o tema.
 
-  .theme-toggle:hover {
-    color: var(--text);
-    background: var(--bg-inset);
-    border-color: var(--line);
-  }
+     Cuidado ao acrescentar regra de `.theme-toggle`: estilo escopado de
+     componente fica fora das `@layer` e por isso vence o `.icon-btn`, mesmo
+     com a mesma especificidade. */
 
   /* Um ícone por tema. `:root[data-theme]` decide qual desenhar. */
   .icon-moon {

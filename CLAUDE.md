@@ -118,6 +118,25 @@ O que não se deduz do `site.config.ts` sozinho:
 - Tags não são cadastradas em lugar nenhum — `/tags/` e `/tags/<nome>/` são geradas do
   que existe nos arquivos. Use minúsculas sem acento: a tag vira URL.
 
+**Busca** (`/busca/`, ícone de lupa no cabeçalho) roda inteira no navegador. São três
+peças: `src/busca.ts` monta o índice no build, `src/pages/busca.json.ts` o serve como
+`/busca.json`, e `src/pages/busca.astro` baixa esse arquivo e filtra. Nenhuma
+requisição sai do domínio, e nada do que é pesquisado é registrado.
+
+- **Conteúdo novo precisa entrar em `src/busca.ts`.** Post, projeto e tag entram
+  sozinhos, porque vêm das coleções. Serviço vem do `site.config.ts`. **Página
+  institucional é escrita à mão lá** — uma página nova não aparece na busca até
+  ganhar sua entrada. O filtro de rascunho vale aqui como em qualquer listagem.
+- O texto das páginas institucionais no índice **não é cópia** da `<meta
+  description>` delas: é a frase que se lê numa lista de resultados. As duas podem
+  divergir sem que nada quebre.
+- O índice guarda o corpo inteiro dos posts (é o que faz achar uma palavra no meio
+  de um parágrafo), então ele cresce com o blog. Por isso é arquivo separado e não
+  dado embutido na página: só quem abre a busca paga esse peso.
+- **Não crie `src/lib/`**: o `.gitignore` herdou `lib/` de um template Python e
+  ignora o diretório inteiro, em silêncio. Módulo compartilhado vai solto em `src/`,
+  ao lado de `site.config.ts`.
+
 **Estilo** tem três camadas:
 1. `src/styles/tokens.css` — variáveis. Os dois temas saem de uma declaração só via
    `light-dark()`, escolhida pelo `color-scheme` que o `data-theme` define.

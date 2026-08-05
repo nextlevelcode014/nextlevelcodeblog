@@ -31,7 +31,7 @@ import { services } from '../site.config';
         impessoal e não afirma nada de que se possa discordar.
       */}
       <p class="lead">
-        Qualquer um consegue aprender qualquer coisa com devido tempo e esforço, mas para você que não tem ou quer usar seu tempo com outra coisa, eu posso ajudar.
+        Qualquer um consegue aprender qualquer coisa com o devido tempo e esforço, mas para você que não tem tempo ou quer usá-lo com outra coisa, eu posso ajudar.
       </p>
 
       <div class="services">
@@ -65,6 +65,29 @@ import { services } from '../site.config';
         }
       </div>
 
+      {/*
+        Vem dos arquivos do Hugo e não existia em lugar nenhum do site novo.
+        É a informação que falta para quem está com a máquina quebrada decidir
+        chamar: se eu vou até lá, se resolve à distância, e o que acontece com
+        o equipamento se precisar sair de casa.
+
+        Fica depois das três listas e antes do .closing de propósito: quem
+        chegou até aqui já sabe o que eu faço e a próxima pergunta é "como".
+      */}
+      <div class="attend">
+        <h2 class="attend__title">Como eu atendo</h2>
+        <div class="attend__body">
+          <p>
+            Presencial ou remoto. Configuração, instalação, orientação e diagnóstico inicial
+            eu resolvo na sua casa ou empresa, ou pela internet.
+          </p>
+          <p>
+            Quando o caso for mais complexo e não der para resolver no local, eu recolho o
+            equipamento mediante agendamento.
+          </p>
+        </div>
+      </div>
+
       <div class="closing">
         <p>
           Se acha que posso te ajudar com base nessa lista, entre em contato. Qual sua necessidade especifica? O que você quer resolver? Qual sua realidade?
@@ -93,24 +116,17 @@ import { services } from '../site.config';
     scroll-margin-block-start: 6rem;
   }
 
-  /* Layout editorial: título fica numa coluna à esquerda que "gruda" enquanto
-     a lista de itens rola. Só faz sentido com altura de sobra, então é
-     desktop-only. */
-  @media (width >= 56rem) {
-    .service {
-      grid-template-columns: 18rem 1fr;
-      gap: var(--space-xl);
-    }
-
-    .service__head {
-      position: sticky;
-      inset-block-start: 6rem;
-      align-self: start;
-    }
+  /* O cabeçalho ocupa a largura toda, com número e título na mesma linha.
+     Já foi coluna de 18rem à esquerda, com o título sticky: como o título tem
+     duas ou três linhas e a lista tem oito itens, sobrava um vazio da altura
+     do bloco inteiro embaixo dele, e o sticky não tinha curso para percorrer. */
+  .service__head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
   }
 
   .service__num {
-    display: block;
     font-family: var(--font-heading);
     font-weight: 700;
     font-size: var(--fs-md);
@@ -119,7 +135,6 @@ import { services } from '../site.config';
   }
 
   .service__title {
-    margin-block-start: var(--space-2xs);
     font-size: var(--fs-xl);
     letter-spacing: var(--tracking-tighter);
   }
@@ -137,6 +152,31 @@ import { services } from '../site.config';
     display: grid;
     gap: var(--space-xs);
     max-inline-size: 58ch;
+  }
+
+  /* Duas colunas onde há largura: com o cabeçalho no topo, a lista herdou a
+     página inteira e uma coluna só deixaria oito itens empilhados com metade
+     da linha vazia. `columns` preenche por coluna, então a ordem de leitura
+     desce pela esquerda antes de saltar para a direita. */
+  @media (width >= 56rem) {
+    .service__points {
+      display: block;
+      columns: 2;
+      column-gap: var(--space-xl);
+      /* Sem teto de medida: o limite de 58ch existia para uma coluna só. Com
+         duas, ele obrigava cada item a quebrar em duas linhas e a lista voltava
+         a ter a mesma altura de antes. Item de lista é frase curta, não é
+         parágrafo, então a medida longa não atrapalha a leitura. */
+      max-inline-size: none;
+    }
+
+    /* Margem embaixo, não entre: margem no topo do item que cai no começo da
+       segunda coluna é descartada de forma inconsistente entre navegadores, e
+       o topo das duas colunas sairia desalinhado. */
+    .service__points li {
+      break-inside: avoid;
+      margin-block-end: var(--space-xs);
+    }
   }
 
   /* Mesmo olho das outras seções, em escala menor: aqui ele rotula um bloco
@@ -176,6 +216,38 @@ import { services } from '../site.config';
     block-size: 1px;
     background: var(--brand-blue);
     transform: rotate(calc(var(--angle) * -1));
+  }
+
+  /* Mesma anatomia do bloco de serviço: filete em cima, título no topo em
+     largura toda, corpo em duas colunas onde couber. */
+  .attend {
+    padding-block: var(--space-lg);
+    border-block-start: 1px solid transparent;
+    border-image: var(--hairline) 1;
+  }
+
+  .attend__title {
+    font-size: var(--fs-lg);
+    letter-spacing: var(--tracking-tighter);
+  }
+
+  .attend__body {
+    margin-block-start: var(--space-md);
+    display: grid;
+    gap: var(--space-md);
+    max-inline-size: 60ch;
+  }
+
+  .attend__body p {
+    color: var(--text-muted);
+  }
+
+  @media (width >= 56rem) {
+    .attend__body {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-xl);
+      max-inline-size: none;
+    }
   }
 
   .closing {

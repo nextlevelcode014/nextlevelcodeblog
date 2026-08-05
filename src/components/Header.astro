@@ -38,6 +38,23 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     </nav>
 
     <div class="header__actions">
+      {/* Fora do array `nav`: a busca é ferramenta, não destino de leitura.
+          Como ícone ela cabe em qualquer largura, e a nav já rola apertada
+          a 390px com os cinco itens de texto. */}
+      <a
+        href="/busca/"
+        class="icon-btn"
+        aria-label="Buscar no site"
+        title="Buscar"
+        aria-current={path === '/busca/' ? 'page' : undefined}
+      >
+        <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none"
+          stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <circle cx="11" cy="11" r="6.4"></circle>
+          <path d="M20 20l-4.3-4.3"></path>
+        </svg>
+      </a>
+
       <ThemeToggle />
       <a href="/contato/" class="btn btn--sm">Contato</a>
     </div>

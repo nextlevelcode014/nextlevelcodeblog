@@ -41,10 +41,15 @@ export const services = [
     title: 'Suporte Técnico',
     summary:
       'Está com o computador travando, dando tela azul ou com algum defeito? Eu conserto.',
+    // Oito itens, e a ordem importa: em /servicos/ a lista vira duas colunas
+    // preenchidas por coluna, então os quatro primeiros ficam à esquerda
+    // (sistema e desempenho) e os quatro últimos à direita (peça, rede e
+    // máquina ligada). Ao mexer aqui, mantenha o número par.
     points: [
       'Diagnóstico completo de hardware e software',
       'Instalação e configuração de Windows e Linux',
       'Recuperação e otimização de desempenho',
+      'Remoção de malware e programas indesejados',
       'Limpeza interna e manutenção preventiva',
       'Configuração de redes, periféricos e backups',
       'Instalação e manutenção de servidores',
@@ -57,7 +62,7 @@ export const services = [
     number: '02',
     title: 'Segurança da Informação',
     summary:
-      'Usa a mesma senha em vários sites e nunca fez backup? Eu organizo e te ensino a manter.',
+      'Usa a mesma senha em vários sites e nunca fez backup? Eu organizo e te mostro como manter.',
     // Todos os itens são sintagma nominal, como nos outros dois serviços. Os
     // três últimos já foram oração ("Como identificar...", "O que fazer..."),
     // o que separava o que eu configuro do que eu ensino — distinção que o
@@ -81,11 +86,27 @@ export const services = [
     title: 'Desenvolvimento Web',
     summary:
       'Precisa de um site rápido ou de um sistema feito para o seu caso? Eu construo, e o código fica com você.',
+    // Mesma divisão em duas colunas do serviço 01: os quatro primeiros são o
+    // que se constrói, os quatro últimos o que roda depois de pronto.
+    // Automação é metade deste serviço, e não um extra — por isso "tarefas
+    // repetitivas" tem item próprio, e o item de integração, que antes dizia
+    // "integrações e automações", ficou só com integração para não repetir.
+    //
+    // Havia aqui um "Analytics respeitoso, sem cookies de terceiros". Saiu por
+    // um motivo de página, não de princípio: o rodapé promete "sem analytics",
+    // e ler as duas frases no mesmo scroll obriga o leitor a escolher em qual
+    // acreditar. Medição e cookie não são ruins por natureza, e o serviço faz
+    // isso para cliente que precisar, com política respeitosa. Se voltar, o
+    // texto precisa deixar claro que é escolha do projeto do cliente, não o
+    // que roda aqui.
     points: [
-      'Sites institucionais e landing pages de alta performance',
+      'Sites institucionais e landing pages',
       'Blogs e documentação em Markdown',
-      'Integrações e automações sob medida',
-      'Analytics respeitoso, sem cookies de terceiros',
+      'Painéis administrativos e áreas restritas',
+      'Formulários, cadastros e gestão de informações',
+      'Automação de tarefas repetitivas',
+      'Integrações entre sistemas e serviços',
+      'Coleta e organização de dados',
       'Deploy, domínio, TLS e monitoramento',
     ],
     tools: ['Astro', 'Bun', 'TypeScript', 'Python', 'FastAPI', 'Docker', 'Vercel'],

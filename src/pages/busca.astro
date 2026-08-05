@@ -1,0 +1,541 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionHead from '../components/SectionHead.astro';
+
+/*
+ * Busca do site. O índice vem de `/busca.json` (ver `src/busca.ts`) e todo
+ * o filtro acontece no navegador: sem serviço de busca, sem requisição para
+ * fora, sem registro do que foi pesquisado.
+ *
+ * A página é estática, então o resultado só existe com JavaScript ligado. É o
+ * único lugar do site onde isso vale: aqui o JS *é* a funcionalidade, e não
+ * enfeite sobre conteúdo que já estava na página. O <noscript> abaixo diz para
+ * onde ir nesse caso, em vez de deixar um campo que não responde.
+ */
+const dica = 'Busca em posts, projetos, serviços e páginas do site.';
+---
+
+<Base
+  title="Busca"
+  description="Procure por assunto em tudo que está publicado no site: posts, projetos, serviços e páginas."
+>
+  <section class="section">
+    <div class="wrap">
+      <SectionHead as="h1" eyebrow="Busca" title="Procurar no site" />
+
+      <div class="busca">
+        {/*
+          `action` e `method` deixam o Enter funcionar mesmo antes do JS pegar:
+          recarrega /busca/?q=..., e o script lê o `q` ao iniciar. Com o script
+          ativo o envio é interceptado, porque a lista já está atualizada.
+        */}
+        <form class="campo" role="search" action="/busca/" method="get" data-busca>
+          <label class="visually-hidden" for="busca-campo">Termo de busca</label>
+
+          <svg
+            class="campo__icone"
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            aria-hidden="true"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+          >
+            <circle cx="11" cy="11" r="6.4"></circle>
+            <path d="M20 20l-4.3-4.3"></path>
+          </svg>
+
+          <input
+            id="busca-campo"
+            class="campo__input"
+            data-busca-input
+            type="search"
+            name="q"
+            placeholder="backup, tela azul, linux…"
+            autocomplete="off"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
+            enterkeyhint="search"
+          />
+        </form>
+
+        <p class="status" data-busca-status role="status">{dica}</p>
+
+        <noscript>
+          <p class="status">
+            A busca precisa de JavaScript para funcionar, porque ela roda inteira no seu
+            navegador. Sem ele, os caminhos continuam abertos:{' '}
+            <a href="/blog/">todos os posts</a>,{' '}
+            <a href="/tags/">todas as tags</a> e{' '}
+            <a href="/servicos/">os serviços</a>.
+          </p>
+        </noscript>
+
+        <ol class="resultados" data-busca-resultados hidden></ol>
+
+        {/*
+          Modelo de resultado. Fica no HTML, e não montado em JavaScript, para
+          que a marcação e os nomes de classe vivam num lugar só — o script
+          clona e preenche.
+        */}
+        <template data-busca-modelo>
+          <li class="resultado">
+            <a class="resultado__link" href="">
+              <span class="resultado__tipo"></span>
+              <h2 class="resultado__titulo"></h2>
+              <p class="resultado__trecho"></p>
+            </a>
+          </li>
+        </template>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Largura de leitura, não a da página: um campo de 68rem parece formulário de
+     sistema, e o resultado é texto, que se lê melhor em coluna estreita. */
+  .busca {
+    max-inline-size: 44rem;
+  }
+
+  .campo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    padding-inline: var(--space-sm);
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow:
+      inset 0 1px 0 var(--sheen),
+      0 1px 2px var(--sheen-deep);
+    transition: border-color var(--dur) var(--ease-out);
+  }
+
+  /* O anel de foco fica na caixa inteira, no mesmo desenho do `:focus-visible`
+     global. O input por dentro perde o dele: dois anéis concêntricos leem como
+     defeito. */
+  .campo:focus-within {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+    border-color: color-mix(in oklab, var(--brand-blue) 45%, transparent);
+  }
+
+  .campo__icone {
+    flex: none;
+    color: var(--text-faint);
+  }
+
+  .campo__input {
+    flex: 1;
+    min-inline-size: 0;
+    padding-block: 0.85rem;
+    font-size: var(--fs-md);
+    background: none;
+    border: none;
+  }
+
+  .campo__input:focus {
+    outline: none;
+  }
+
+  .status {
+    margin-block-start: var(--space-sm);
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+  }
+
+  .resultados {
+    margin-block-start: var(--space-md);
+    list-style: none;
+    padding: 0;
+    border-block-start: 1px solid transparent;
+    border-image: var(--hairline) 1;
+  }
+
+  /* Mesma pilha de linhas da listagem do blog: para texto puro isso lê mais
+     rápido que uma grade de cards. */
+  .resultado {
+    position: relative;
+    padding-block: var(--space-sm);
+    border-block-end: 1px solid transparent;
+    border-image: var(--hairline) 1;
+  }
+
+  .resultado:last-child {
+    border-block-end: none;
+  }
+
+  .resultado__link {
+    display: block;
+    text-decoration: none;
+  }
+
+  .resultado__tipo {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: var(--fs-2xs);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  .resultado__titulo {
+    margin-block-start: var(--space-3xs);
+    font-size: var(--fs-md);
+    font-weight: 600;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .resultado__link:hover .resultado__titulo {
+    color: var(--accent);
+  }
+
+  .resultado__trecho {
+    margin-block-start: var(--space-2xs);
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    max-inline-size: 62ch;
+  }
+
+  /* `:global` porque estes <mark> são criados em JavaScript e não passam pelo
+     compilador do Astro, então não carregam o atributo de escopo. O pai
+     carrega, e é ele quem limita o alcance da regra.
+
+     O título precisa estar aqui junto com o trecho: sem ele o realce do título
+     cai no amarelo padrão do navegador, que não é cor desta paleta e some no
+     tema escuro. */
+  .resultado__titulo :global(mark),
+  .resultado__trecho :global(mark) {
+    padding-inline: 0.15em;
+    color: var(--text);
+    background: var(--accent-quiet);
+    border-radius: var(--radius-sm);
+  }
+</style>
+
+<script>
+  import type { ItemBusca } from '../busca';
+
+  /**
+   * Busca no cliente. Três decisões que não se leem no código:
+   *
+   * - **Acento não separa resultado.** Quem digita "seguranca" está procurando
+   *   "segurança". Tudo é comparado sem diacrítico (ver `dobrar`).
+   * - **Todo termo precisa casar** (E, não OU). Com um índice pequeno, o OU
+   *   devolve o site inteiro em qualquer busca de duas palavras.
+   * - **Onde casou vale mais que quantas vezes casou.** Título pesa mais que
+   *   corpo, e nada é contado duas vezes — frequência premiaria post longo.
+   */
+
+  type Preparado = ItemBusca & {
+    dTitulo: string;
+    dDescricao: string;
+    dTexto: string;
+    dTags: string[];
+  };
+
+  /** Desempate entre itens de mesma pontuação. Serviço primeiro: é a resposta
+   *  mais provável para quem está procurando o que eu faço. */
+  const PESO_TIPO: Record<ItemBusca['tipo'], number> = {
+    Serviço: 4,
+    Página: 3,
+    Post: 2,
+    Projeto: 1,
+    Tag: 0,
+  };
+
+  const DICA = 'Busca em posts, projetos, serviços e páginas do site.';
+  const MIN_TERMO = 2;
+
+  /**
+   * Minúsculas e sem acento, **preservando o comprimento**. O realce depende
+   * disso: ele acha a posição no texto dobrado e recorta o texto original pelo
+   * mesmo índice. Um `normalize('NFD')` cru quebraria esse casamento, porque
+   * "ç" vira dois caracteres antes de perder a cedilha — daí a comparação de
+   * comprimento a cada caractere.
+   */
+  function dobrar(texto: string): string {
+    let saida = '';
+    for (const ch of texto) {
+      const plano = ch.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      saida += plano.length === ch.length ? plano : ch;
+    }
+    return saida;
+  }
+
+  let indice: Preparado[] | null = null;
+  let carga: Promise<Preparado[]> | null = null;
+
+  function carregar(): Promise<Preparado[]> {
+    carga ??= fetch('/busca.json')
+      .then((resposta) => {
+        if (!resposta.ok) throw new Error(`busca.json: ${resposta.status}`);
+        return resposta.json() as Promise<ItemBusca[]>;
+      })
+      .then((itens) => {
+        indice = itens.map((item) => ({
+          ...item,
+          dTitulo: dobrar(item.titulo),
+          dDescricao: dobrar(item.descricao),
+          dTexto: dobrar(item.texto),
+          dTags: item.tags.map(dobrar),
+        }));
+        return indice;
+      })
+      .catch((erro) => {
+        // Sem isto, uma falha de rede momentânea condenaria a página até o
+        // próximo recarregamento: a promessa rejeitada ficaria em cache.
+        carga = null;
+        throw erro;
+      });
+
+    return carga;
+  }
+
+  function comecaPalavra(texto: string, termo: string): boolean {
+    let i = texto.indexOf(termo);
+    while (i !== -1) {
+      if (i === 0 || !/[\p{L}\p{N}]/u.test(texto[i - 1]!)) return true;
+      i = texto.indexOf(termo, i + 1);
+    }
+    return false;
+  }
+
+  /** Pontua um item, ou devolve `null` se algum termo não aparecer nele. */
+  function pontuar(item: Preparado, termos: string[]): number | null {
+    let total = 0;
+
+    for (const termo of termos) {
+      let ponto = 0;
+
+      // A tag não pontua pelo título porque o título dela *é* a tag, já contada
+      // logo abaixo. Contando duas vezes, qualquer busca por assunto abria com
+      // a página de etiqueta em vez do texto que responde à pergunta.
+      if (item.tipo !== 'Tag' && item.dTitulo.includes(termo)) {
+        ponto += comecaPalavra(item.dTitulo, termo) ? 12 : 8;
+      }
+      if (item.dTags.includes(termo)) ponto += 6;
+      else if (item.dTags.some((tag) => tag.includes(termo))) ponto += 3;
+      if (item.dDescricao.includes(termo)) ponto += 3;
+      if (item.dTexto.includes(termo)) ponto += 1;
+
+      if (ponto === 0) return null;
+      total += ponto;
+    }
+
+    return total;
+  }
+
+  /** Descrição quando ela responde; senão, a janela do corpo onde o termo caiu. */
+  function trecho(item: Preparado, termos: string[]): string {
+    if (termos.some((termo) => item.dDescricao.includes(termo))) return item.descricao;
+
+    const posicoes = termos.map((termo) => item.dTexto.indexOf(termo)).filter((i) => i >= 0);
+    if (posicoes.length === 0) return item.descricao;
+
+    const alvo = Math.min(...posicoes);
+    const texto = item.texto;
+    let inicio = Math.max(0, alvo - 80);
+    let fim = Math.min(texto.length, alvo + 180);
+
+    // Corta em espaço: meia palavra no começo do trecho lê como texto corrompido.
+    if (inicio > 0) {
+      const espaco = texto.indexOf(' ', inicio);
+      if (espaco !== -1 && espaco < alvo) inicio = espaco + 1;
+    }
+    if (fim < texto.length) {
+      const espaco = texto.lastIndexOf(' ', fim);
+      if (espaco > alvo) fim = espaco;
+    }
+
+    return `${inicio > 0 ? '…' : ''}${texto.slice(inicio, fim).trim()}${fim < texto.length ? '…' : ''}`;
+  }
+
+  /** Escreve o texto no elemento com os termos dentro de `<mark>`. */
+  function realcar(alvo: HTMLElement, texto: string, termos: string[]): void {
+    alvo.textContent = '';
+
+    const dobrado = dobrar(texto);
+    const marcas: Array<[number, number]> = [];
+
+    for (const termo of termos) {
+      let i = dobrado.indexOf(termo);
+      while (i !== -1) {
+        marcas.push([i, i + termo.length]);
+        i = dobrado.indexOf(termo, i + termo.length);
+      }
+    }
+
+    marcas.sort((a, b) => a[0] - b[0]);
+
+    let cursor = 0;
+    for (const [ini, fim] of marcas) {
+      if (ini < cursor) continue; // termos sobrepostos: vale a primeira marca
+      if (ini > cursor) alvo.append(texto.slice(cursor, ini));
+      const marca = document.createElement('mark');
+      marca.textContent = texto.slice(ini, fim);
+      alvo.append(marca);
+      cursor = fim;
+    }
+
+    if (cursor < texto.length) alvo.append(texto.slice(cursor));
+  }
+
+  function partes() {
+    const form = document.querySelector<HTMLFormElement>('[data-busca]');
+    const campo = document.querySelector<HTMLInputElement>('[data-busca-input]');
+    const status = document.querySelector<HTMLParagraphElement>('[data-busca-status]');
+    const lista = document.querySelector<HTMLOListElement>('[data-busca-resultados]');
+    const modelo = document.querySelector<HTMLTemplateElement>('[data-busca-modelo]');
+
+    if (!form || !campo || !status || !lista || !modelo) return null;
+    return { form, campo, status, lista, modelo };
+  }
+
+  function limpar(status: HTMLElement, lista: HTMLElement, mensagem: string): void {
+    status.textContent = mensagem;
+    lista.replaceChildren();
+    lista.hidden = true;
+  }
+
+  function desenhar(consulta: string): void {
+    const alvos = partes();
+    if (!alvos) return;
+
+    const { status, lista, modelo } = alvos;
+    const termos = dobrar(consulta.trim())
+      .split(/\s+/)
+      .filter((termo) => termo.length > 0);
+
+    if (termos.length === 0 || consulta.trim().length < MIN_TERMO) {
+      limpar(status, lista, DICA);
+      return;
+    }
+
+    if (!indice) {
+      limpar(status, lista, 'Carregando o índice…');
+      carregar()
+        .then(() => {
+          // O campo pode ter mudado enquanto o arquivo baixava: vale o que
+          // está escrito agora, não o que disparou esta chamada.
+          const atual = partes();
+          if (atual) desenhar(atual.campo.value);
+        })
+        .catch(() => {
+          const atual = partes();
+          if (atual) {
+            limpar(
+              atual.status,
+              atual.lista,
+              'Não consegui carregar o índice da busca. Recarregue a página para tentar de novo.',
+            );
+          }
+        });
+      return;
+    }
+
+    const achados = indice
+      .map((item) => ({ item, pontos: pontuar(item, termos) }))
+      .filter((linha): linha is { item: Preparado; pontos: number } => linha.pontos !== null)
+      .sort(
+        (a, b) =>
+          b.pontos - a.pontos ||
+          PESO_TIPO[b.item.tipo] - PESO_TIPO[a.item.tipo] ||
+          a.item.titulo.localeCompare(b.item.titulo, 'pt-BR'),
+      );
+
+    if (achados.length === 0) {
+      // A dica de tirar palavra só faz sentido com mais de uma: como a busca é
+      // "E", é quase sempre a segunda palavra que zera o resultado.
+      const saida = termos.length > 1 ? ' Tente com menos palavras.' : '';
+      limpar(status, lista, `Nada encontrado para “${consulta.trim()}”.${saida}`);
+      return;
+    }
+
+    const fragmento = document.createDocumentFragment();
+
+    for (const { item } of achados) {
+      const linha = modelo.content.firstElementChild!.cloneNode(true) as HTMLElement;
+      const link = linha.querySelector<HTMLAnchorElement>('.resultado__link')!;
+
+      link.href = item.url;
+      linha.querySelector('.resultado__tipo')!.textContent = item.tipo;
+      realcar(linha.querySelector<HTMLElement>('.resultado__titulo')!, item.titulo, termos);
+      realcar(linha.querySelector<HTMLElement>('.resultado__trecho')!, trecho(item, termos), termos);
+
+      fragmento.append(linha);
+    }
+
+    status.textContent = `${achados.length} ${achados.length === 1 ? 'resultado' : 'resultados'} para “${consulta.trim()}”.`;
+    lista.replaceChildren(fragmento);
+    lista.hidden = false;
+  }
+
+  let agendado: number | undefined;
+
+  /** Deixa o `q` na URL para o resultado ser compartilhável e sobreviver ao
+   *  recarregamento. `replaceState` e não `push`: cada letra digitada viraria
+   *  uma entrada no histórico, e o botão "voltar" deixaria de voltar. */
+  function anotarUrl(consulta: string): void {
+    clearTimeout(agendado);
+    agendado = window.setTimeout(() => {
+      const url = new URL(window.location.href);
+      if (consulta.trim()) url.searchParams.set('q', consulta.trim());
+      else url.searchParams.delete('q');
+      history.replaceState(history.state, '', url);
+    }, 400);
+  }
+
+  function iniciar(): void {
+    const alvos = partes();
+    if (!alvos) return;
+
+    const inicial = new URL(window.location.href).searchParams.get('q') ?? '';
+    if (inicial && !alvos.campo.value) alvos.campo.value = inicial;
+
+    // Baixa o índice já na chegada: quando a primeira letra for digitada, ele
+    // costuma estar pronto e o resultado aparece sem estado intermediário.
+    carregar().catch(() => {});
+
+    // `preventScroll` porque o cabeçalho é fixo e o foco automático rolaria a
+    // página para posicionar o campo, escondendo o título.
+    alvos.campo.focus({ preventScroll: true });
+    desenhar(alvos.campo.value);
+  }
+
+  // Delegação no `document`, registrada uma vez: com View Transitions os
+  // elementos da página são destruídos a cada navegação, e um listener preso ao
+  // campo morreria junto. Ver a mesma trava em ThemeToggle.astro.
+  const w = window as typeof window & { __nlcBuscaBound?: boolean };
+
+  if (!w.__nlcBuscaBound) {
+    w.__nlcBuscaBound = true;
+
+    document.addEventListener('input', (evento) => {
+      const alvo = evento.target as HTMLElement | null;
+      if (!alvo?.matches('[data-busca-input]')) return;
+
+      const consulta = (alvo as HTMLInputElement).value;
+      desenhar(consulta);
+      anotarUrl(consulta);
+    });
+
+    document.addEventListener('submit', (evento) => {
+      const alvo = evento.target as HTMLElement | null;
+      if (!alvo?.matches('[data-busca]')) return;
+
+      // A lista já está na tela; recarregar a página só a apagaria e traria de
+      // volta. No celular, tirar o foco fecha o teclado e mostra o resultado.
+      evento.preventDefault();
+      (document.activeElement as HTMLElement | null)?.blur();
+    });
+
+    document.addEventListener('astro:page-load', iniciar);
+  }
+</script>
