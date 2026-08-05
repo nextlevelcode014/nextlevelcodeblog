@@ -70,6 +70,13 @@
       const next = root.dataset.theme === 'light' ? 'dark' : 'light';
       root.dataset.theme = next;
 
+      // A barra do navegador acompanha o tema (mesma cor que o Base.astro
+      // aplica no carregamento). Sem isto, a barra só se acertaria na próxima
+      // navegação.
+      document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute('content', next === 'light' ? '#ffffff' : '#020511');
+
       try {
         localStorage.setItem('theme', next);
       } catch {
