@@ -96,25 +96,16 @@ const curriculo = lerCurriculo();
             </ul>
           </div>
 
-          <div class="side__block">
-            <h2 class="eyebrow">Ferramentas do dia a dia</h2>
-            <ul class="tag-list">
-              {
-                [
-                  'Arch Linux',
-                  'Hyprland',
-                  'Proxmox',
-                  'Docker',
-                  'Nix',
-                  'Wireguard',
-                  'Astro',
-                  'TypeScript',
-                  'Bash',
-                  'Bitcoin Core',
-                ].map((t) => <li class="tag">{t}</li>)
-              }
-            </ul>
-          </div>
+          {/*
+            Havia aqui um segundo bloco da lateral, "Ferramentas do dia a dia":
+            dez pílulas com Arch Linux, Hyprland, Proxmox, Bitcoin Core e afins.
+            Saiu junto com as listas de ferramentas dos serviços, e pelo mesmo
+            motivo: nome solto de tecnologia prova pouco e envelhece sozinho.
+
+            O espaço está reservado para outra coisa, ainda por definir. Se ele
+            continuar vazio, a lateral funciona: Princípios e as duas ações já
+            enchem a coluna ao lado do texto.
+          */}
 
           <div class="side__actions">
             <a href="/contato/" class="btn">
@@ -194,10 +185,6 @@ const curriculo = lerCurriculo();
 
   .principles span {
     color: var(--text-muted);
-  }
-
-  .side .tag-list {
-    margin-block-start: var(--space-sm);
   }
 
   .side__actions {

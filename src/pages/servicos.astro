@@ -53,12 +53,21 @@ import { services } from '../site.config';
                   ))}
                 </ul>
 
-                <p class="service__label">Ferramentas</p>
-                <ul class="tools" aria-label={`Ferramentas de ${service.title}`}>
-                  {service.tools.map((tool) => (
-                    <li class="tag tag--tool">{tool}</li>
-                  ))}
-                </ul>
+                {/*
+                  Havia aqui uma lista de ferramentas por serviço, em pílulas
+                  monoespaçadas. Saiu do site inteiro, e não é pendência.
+
+                  O motivo é de quem lê: nome de ferramenta prova competência
+                  para quem já conhece a ferramenta, e este público descreve o
+                  problema como "tela azul". A lista também nunca fechava uma
+                  categoria só, misturando sistema operacional, software de
+                  diagnóstico e, se o lado físico entrasse, bancada.
+
+                  Ferramenta volta a aparecer no site pelo blog, onde ela vem
+                  com um caso em volta e o nome significa alguma coisa. Post
+                  demonstrando o uso é a versão que rende; pílula solta é
+                  currículo. Se for reintroduzir aqui, resolva antes esses dois.
+                */}
               </div>
             </article>
           ))
@@ -177,27 +186,6 @@ import { services } from '../site.config';
       break-inside: avoid;
       margin-block-end: var(--space-xs);
     }
-  }
-
-  /* Mesmo olho das outras seções, em escala menor: aqui ele rotula um bloco
-     dentro do serviço, não a seção inteira. */
-  .service__label {
-    margin-block-start: var(--space-md);
-    font-family: var(--font-heading);
-    font-size: var(--fs-2xs);
-    font-weight: 700;
-    letter-spacing: var(--tracking-eyebrow, 0.18em);
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-
-  .tools {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    margin-block-start: var(--space-xs);
-    padding: 0;
-    list-style: none;
   }
 
   .service__points li {

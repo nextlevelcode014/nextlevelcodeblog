@@ -420,16 +420,11 @@
       background-color var(--dur-fast) var(--ease-out);
   }
 
-  /* Nome de ferramenta é literal — `smartctl`, `rsync`, `restic` se escrevem
-     assim e não de outro jeito. Em Poppins com espaçamento de título eles
-     passam por marca; em mono, por comando, que é o que são. Herda todo o
-     resto da `.tag` para não virar uma segunda pílula no sistema. */
-  .tag--tool {
-    font-family: var(--font-mono);
-    font-weight: 400;
-    letter-spacing: 0;
-    text-transform: none;
-  }
+  /* Havia aqui uma `.tag--tool`, variante monoespaçada da pílula, usada só
+     pelas listas de ferramentas dos serviços. Saiu com elas: nome literal como
+     `smartctl` precisa de mono para não passar por marca, e essa era a regra
+     que fazia isso. Se voltar a existir nome de comando em pílula, ela é o
+     ponto de partida — está no git. */
 
   a.tag:hover {
     color: var(--accent);

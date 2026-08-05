@@ -55,7 +55,6 @@ export const services = [
       'Instalação e manutenção de servidores',
       'Compra e troca de peças',
     ],
-    tools: ['Linux', 'Windows', 'smartctl', 'MemTest86', 'rsync'],
   },
   {
     slug: 'seguranca',
@@ -78,7 +77,6 @@ export const services = [
       'Cuidados com links, anexos e downloads',
       'Procedimentos em caso de suspeita de invasão ou vazamento',
     ],
-    tools: ['Bitwarden', 'KeePassXC', 'Tailscale', 'WireGuard', 'Borg', 'restic', 'TOTP'],
   },
   {
     slug: 'web',
@@ -109,9 +107,16 @@ export const services = [
       'Coleta e organização de dados',
       'Deploy, domínio, TLS e monitoramento',
     ],
-    tools: ['Astro', 'Bun', 'TypeScript', 'Python', 'FastAPI', 'Docker', 'Vercel'],
   },
 ] as const;
+
+/*
+ * Cada serviço tinha aqui um `tools`, com os nomes de software que apareciam
+ * como pílulas na home e na /servicos/. O campo saiu inteiro junto com as duas
+ * listagens: sem ninguém que renderize, dado em config vira enfeite que um dia
+ * alguém volta a exibir só porque já estava aqui. O git guarda as listas; o
+ * comentário em `src/pages/servicos.astro` guarda o motivo de terem saído.
+ */
 
 /*
  * Havia aqui um `commitments`, renderizado como dobra própria na home. Ele

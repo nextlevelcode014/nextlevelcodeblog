@@ -84,17 +84,17 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
                 <h3 class="service__title">{service.title}</h3>
                 <p class="service__body">{service.summary}</p>
                 {/*
-                  As ferramentas fazem o que adjetivo nenhum faz: mostram o
-                  assunto sendo dominado, em vez de afirmar que é. Cabem aqui
-                  na home porque são curtas; a lista do que está incluso fica
-                  em /servicos/, senão o link "Detalhes de cada serviço" não
-                  levaria a nada que já não estivesse nesta página.
+                  Aqui havia a lista de ferramentas de cada serviço, as mesmas
+                  tags que a /servicos/ mostra. Saiu por causa de onde a home
+                  está na jornada: nesta dobra a pessoa ainda decide se o
+                  assunto é com ela, e oito nomes que ela não reconhece
+                  respondem uma pergunta que ela não fez. As tags continuam em
+                  /servicos/, depois dos oito pontos de cada serviço, onde quem
+                  chegou já quer prova e quem não quer passa por cima.
+
+                  Elas seguem no `site.config.ts` porque a /servicos/ e o índice
+                  da busca as consomem. Não é campo órfão.
                 */}
-                <ul class="tools" aria-label={`Ferramentas de ${service.title}`}>
-                  {service.tools.map((tool) => (
-                    <li class="tag tag--tool">{tool}</li>
-                  ))}
-                </ul>
               </div>
             </li>
           ))
@@ -399,15 +399,6 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
     margin-block-start: var(--space-2xs);
     color: var(--text-muted);
     max-inline-size: 60ch;
-  }
-
-  .tools {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-    margin-block-start: var(--space-sm);
-    padding: 0;
-    list-style: none;
   }
 
   /* ---------------- LISTAGENS ---------------- */

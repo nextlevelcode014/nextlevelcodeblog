@@ -78,7 +78,7 @@ const paginas: ItemBusca[] = [
     tipo: 'Página',
     url: '/servicos/',
     titulo: 'Serviços',
-    descricao: 'Os três serviços em detalhe: o que entra em cada um, as ferramentas e como eu atendo.',
+    descricao: 'Os três serviços em detalhe: o que entra em cada um e como eu atendo.',
     texto: 'atendimento presencial remoto orçamento preço valor contratar recolher equipamento agendamento',
     tags: [],
   },
@@ -87,7 +87,7 @@ const paginas: ItemBusca[] = [
     url: '/sobre/',
     titulo: 'Sobre',
     descricao: 'Quem está por trás da NextLevelCode e por que as três frentes se conectam.',
-    texto: 'currículo cv experiência formação como eu trabalho ferramentas do dia a dia',
+    texto: 'currículo cv experiência formação como eu trabalho princípios liberdade privacidade',
     tags: [],
   },
   {
@@ -140,7 +140,7 @@ export async function construirIndice(): Promise<ItemBusca[]> {
         // Separados por ponto médio, e não por espaço: o trecho do resultado
         // mostra um pedaço deste texto, e emendado ele vira uma frase que não
         // fecha ("...manutenção preventiva Configuração de redes...").
-        texto: [...service.points, ...service.tools].join(' · '),
+        texto: service.points.join(' · '),
         tags: [],
       }),
     ),
