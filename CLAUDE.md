@@ -133,9 +133,8 @@ requisição sai do domínio, e nada do que é pesquisado é registrado.
 - O índice guarda o corpo inteiro dos posts (é o que faz achar uma palavra no meio
   de um parágrafo), então ele cresce com o blog. Por isso é arquivo separado e não
   dado embutido na página: só quem abre a busca paga esse peso.
-- **Não crie `src/lib/`**: o `.gitignore` herdou `lib/` de um template Python e
-  ignora o diretório inteiro, em silêncio. Módulo compartilhado vai solto em `src/`,
-  ao lado de `site.config.ts`.
+- `src/busca.ts` fica solto em `src/`, ao lado de `site.config.ts` e
+  `content.config.ts`: módulo compartilhado é raro aqui e a árvore é plana.
 
 **Estilo** tem três camadas:
 1. `src/styles/tokens.css` — variáveis. Os dois temas saem de uma declaração só via
