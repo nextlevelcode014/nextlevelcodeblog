@@ -52,10 +52,31 @@ timeout 30 bash -c 'until curl -sf http://localhost:4321/ >/dev/null; do sleep 0
 ```
 
 Use `preview` (serve o `dist/`) e não `dev` quando for verificar o resultado
-final. Para parar:
+final.
+
+**Confirme a porta no log antes de fotografar.** `--port 4321` é preferência, não
+exigência: com a porta ocupada, o `astro preview` sobe na 4322, 4323… e imprime
+`Port 4321 is in use, trying another one...`. O driver continua apontando para a
+4321 (`SITE_URL` padrão), ou seja, para o **servidor antigo** — que responde
+normalmente e serve o `dist/` que ele carregou. O sintoma é uma captura com o
+HTML novo e o CSS velho, e a conclusão errada de que o estilo do componente não
+está sendo aplicado. Ou cheque o log:
+
+```bash
+grep -E 'Local|in use' /tmp/preview.log
+```
+
+Para parar:
 
 ```bash
 ss -lptnH 'sport = :4321' | grep -oE 'pid=[0-9]+' | cut -d= -f2 | sort -u | xargs -r kill
+```
+
+Isso mata só a 4321. Se já houver sobra de sessões anteriores, varra a faixa
+inteira antes de subir o próximo:
+
+```bash
+for p in 4321 4322 4323 4324; do ss -lptnH "sport = :$p" | grep -oE 'pid=[0-9]+' | cut -d= -f2; done | sort -u | xargs -r kill
 ```
 
 `lsof` não está instalado nesta máquina; `ss` (do `iproute2`) está e é o que

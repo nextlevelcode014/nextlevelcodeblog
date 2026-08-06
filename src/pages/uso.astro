@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import SectionHead from '../components/SectionHead.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
 import { categorias, maquinas, mudancas } from '../uso.config';
 
 /**
@@ -28,6 +29,15 @@ function formatar(iso: string) {
 >
   <section class="section">
     <div class="wrap">
+      {/*
+        A trilha aponta para a /sobre/ e não para a home: fora do menu, a
+        /sobre/ é o único caminho de entrada que existe aqui dentro do site, e
+        devolver a pessoa para a raiz a faria procurar de novo por uma página
+        que não está no menu. Como a /uso/ mora na raiz e não em /sobre/uso/, o
+        botão diz `cd ~/sobre` — `cd ..` sairia daqui para a home.
+      */}
+      <Breadcrumb parentHref="/sobre/" />
+
       <SectionHead as="h1" eyebrow="Uso" title="O que eu uso" />
 
       {/*
@@ -158,7 +168,12 @@ function formatar(iso: string) {
         da ferramenta que ela explica (campo `leitura` em `uso.config.ts`), onde
         ela chega no momento em que a pessoa está lendo sobre aquilo. No fim da
         página, o mesmo link apanha quem já terminou.
+
+        A trilha abaixo não é o mesmo caso: ela não recomenda leitura nenhuma,
+        devolve quem terminou de rolar uma lista longa para a página de onde
+        veio.
       */}
+      <Breadcrumb parentHref="/sobre/" bottom />
     </div>
   </section>
 </Base>

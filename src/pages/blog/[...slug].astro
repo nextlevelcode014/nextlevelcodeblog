@@ -3,6 +3,7 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
 import ShareLinks from '../../components/ShareLinks.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
@@ -44,7 +45,7 @@ const shareUrl = new URL(Astro.url.pathname, Astro.site).href;
   <article class="section">
     <div class="wrap">
       <header class="post-head">
-        <a href="/blog/" class="back">← Blog</a>
+        <Breadcrumb parentHref="/blog/" />
 
         <h1 class="post-head__title">{title}</h1>
         <p class="post-head__desc">{description}</p>
@@ -136,23 +137,13 @@ const shareUrl = new URL(Astro.url.pathname, Astro.site).href;
           </nav>
         )
       }
+
+      <Breadcrumb parentHref="/blog/" bottom />
     </div>
   </article>
 </Base>
 
 <style>
-  .back {
-    display: inline-block;
-    font-size: var(--fs-sm);
-    color: var(--text-muted);
-    text-decoration: none;
-    margin-block-end: var(--space-lg);
-  }
-
-  .back:hover {
-    color: var(--accent);
-  }
-
   .post-head__title {
     font-size: var(--fs-2xl);
     font-weight: 700;

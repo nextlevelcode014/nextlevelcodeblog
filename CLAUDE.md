@@ -153,6 +153,12 @@ são o motivo de ela existir depois que as listas de ferramentas saíram (#22):
 - **A página fica fora do `nav`.** O menu é caminho de cliente, e o público desta
   página é quem lê o blog. Ela é alcançada pela `/sobre/`, pela busca e por link
   direto. Pôr no menu ainda esbarra na issue #13 (nav não cabe a 390px).
+  Por isso a trilha (`Breadcrumb.astro`) dela aponta para a `/sobre/` e não para
+  a raiz: fora do menu, a `/sobre/` é a única entrada que existe aqui dentro, e
+  devolver a pessoa para a home a faria procurar de novo por uma página que o
+  menu não tem. Como a URL é `/uso/` e não `/sobre/uso/`, o botão sai como
+  `cd ~/sobre` em vez de `cd ..` — o componente compara a URL com o pai e só
+  escreve `cd ..` quando o pai é mesmo o diretório acima.
 
 O `texto` dela no índice da busca é gerado do próprio `uso.config.ts`, e não escrito
 à mão como o das outras páginas institucionais: quem procura digita `immich`, não
