@@ -32,34 +32,51 @@ const dica = 'Busca em posts, projetos, serviços e páginas do site.';
         <form class="campo" role="search" action="/busca/" method="get" data-busca>
           <label class="visually-hidden" for="busca-campo">Termo de busca</label>
 
-          <svg
-            class="campo__icone"
-            viewBox="0 0 24 24"
-            width="18"
-            height="18"
-            aria-hidden="true"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.6"
-            stroke-linecap="round"
-          >
-            <circle cx="11" cy="11" r="6.4"></circle>
-            <path d="M20 20l-4.3-4.3"></path>
-          </svg>
+          {/*
+            Linha de prompt no lugar da lupa, no mesmo desenho da trilha
+            (`Breadcrumb.astro`): o caminho é contexto e o que se digita é a
+            ação. O ícone dizia "isto é uma busca" para quem já está na página
+            de busca, com o título e o campo focado na frente — informação que
+            a página inteira já dá.
 
+            `aria-hidden` porque `~/busca $` viraria "til barra busca cifrão"
+            na leitura de tela. Quem ouve a página recebe o rótulo do <label>.
+          */}
+          <span class="campo__prompt" aria-hidden="true"><span class="campo__dir">~/busca</span> <span class="campo__cifrao">$</span></span>
+
+          {/*
+            Dois exemplos no `placeholder`, não três: a monoespaçada é mais
+            larga que a fonte de texto, e a 390px o terceiro era cortado no
+            meio da palavra.
+          */}
           <input
             id="busca-campo"
             class="campo__input"
             data-busca-input
             type="search"
             name="q"
-            placeholder="backup, tela azul, linux…"
+            placeholder="backup, tela azul…"
             autocomplete="off"
             autocapitalize="none"
             autocorrect="off"
             spellcheck="false"
             enterkeyhint="search"
           />
+
+          {/*
+            O cursor de bloco, desenhado à mão. `caret-shape: block` resolveria
+            isto em duas linhas de CSS, mas só existe em Chromium: no Firefox
+            (e no Zen, que é Firefox por baixo) o campo continuava com o traço
+            fino do navegador enquanto o botão da trilha mostrava um bloco.
+
+            São duas peças: o `eco` é uma cópia invisível do texto até o ponto
+            de inserção, e é a largura dela que diz onde o bloco vai. Medir o
+            texto já renderizado é o único jeito que acerta com qualquer fonte,
+            largura de tela ou acento — contar caracteres erraria no primeiro
+            "ç". Ambas ficam fora da árvore de acessibilidade: são desenho.
+          */}
+          <span class="campo__eco" aria-hidden="true" data-busca-eco></span>
+          <span class="campo__cursor" aria-hidden="true" data-busca-cursor hidden></span>
         </form>
 
         <p class="status" data-busca-status role="status">{dica}</p>
@@ -102,41 +119,132 @@ const dica = 'Busca em posts, projetos, serviços e páginas do site.';
     max-inline-size: 44rem;
   }
 
+  /* Linha de terminal, como o botão da trilha: monoespaçada, borda de 1px e
+     nada de relevo. O `box-shadow` de sheen que estava aqui é o vocabulário de
+     campo de formulário de sistema; o que esta página faz é digitar um comando.
+     A superfície continua sendo `--bg-raised` porque o campo precisa se
+     distinguir do fundo para dizer que se pode escrever nele — o botão da
+     trilha não precisa, já que ninguém escreve dentro dele. */
   .campo {
+    /* Âncora do cursor desenhado e do eco que o posiciona. */
+    position: relative;
     display: flex;
     align-items: center;
-    gap: var(--space-2xs);
+    gap: 0.5em;
     padding-inline: var(--space-sm);
+    font-family: var(--font-mono);
     background: var(--bg-raised);
     border: 1px solid var(--line);
     border-radius: var(--radius);
-    box-shadow:
-      inset 0 1px 0 var(--sheen),
-      0 1px 2px var(--sheen-deep);
-    transition: border-color var(--dur) var(--ease-out);
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out);
   }
 
   /* O anel de foco fica na caixa inteira, no mesmo desenho do `:focus-visible`
      global. O input por dentro perde o dele: dois anéis concêntricos leem como
-     defeito. */
+     defeito.
+
+     A borda e o fundo repetem o hover de `.crumb__cmd`: é o mesmo elemento em
+     dois lugares do site, e ele responde do mesmo jeito. */
   .campo:focus-within {
     outline: 2px solid var(--focus);
     outline-offset: 3px;
+    background: var(--accent-quiet);
     border-color: color-mix(in oklab, var(--brand-blue) 45%, transparent);
   }
 
-  .campo__icone {
+  .campo__prompt {
     flex: none;
+    font-size: var(--fs-sm);
     color: var(--text-faint);
   }
 
+  /* Só o `$` acende com o foco, e o caminho fica faint o tempo todo: é a mesma
+     divisão da trilha, onde o caminho é contexto e não pisca. Acender a linha
+     inteira dava um bloco azul do tamanho de `~/busca $` competindo com o
+     texto digitado logo ao lado.
+
+     Vale como sinal de foco no celular, onde o teclado cobre metade da tela e
+     o anel de foco costuma ficar fora de vista. */
+  .campo__cifrao {
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .campo:focus-within .campo__cifrao {
+    color: var(--accent);
+  }
+
+  /* `--fs-base` e não `--fs-md`: monoespaçada com a mesma medida em pontos
+     ocupa mais largura e pesa mais na página que a fonte de texto. O piso de
+     1rem é obrigatório — abaixo disso o Safari do iPhone dá zoom ao focar o
+     campo e a página fica deslocada depois. */
   .campo__input {
     flex: 1;
     min-inline-size: 0;
     padding-block: 0.85rem;
-    font-size: var(--fs-md);
+    font-family: inherit;
+    font-size: var(--fs-base);
     background: none;
     border: none;
+    /* Piso para quem não tem JavaScript: em Chromium isto já dá o bloco, e nos
+       outros navegadores fica o traço padrão, que continua sendo um cursor. */
+    caret-shape: block;
+    caret-color: var(--accent);
+  }
+
+  /* Enquanto o script desenha o bloco, o cursor do navegador sai de cena —
+     dois cursores na mesma linha leem como defeito. A classe é posta pelo
+     script e não escrita aqui de propósito: se o JS não rodar, esta regra não
+     existe e o campo fica com o cursor que o navegador já dava. */
+  .campo--cursor .campo__input {
+    caret-color: transparent;
+  }
+
+  /* A cópia do texto que dá a posição do bloco. `pre` porque espaço no fim
+     conta: sem ele o cursor voltaria uma casa a cada espaço digitado. Fonte e
+     corpo precisam bater com os do campo, senão a medida mente. */
+  .campo__eco {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    visibility: hidden;
+    white-space: pre;
+    font-size: var(--fs-base);
+    pointer-events: none;
+  }
+
+  /* Mesma proporção do bloco da trilha (`.crumb__cmd::after`): 0,5em por 1,1em
+     a 70% de opacidade. */
+  .campo__cursor {
+    position: absolute;
+    inset-block-start: 50%;
+    translate: 0 -50%;
+    inline-size: 0.5em;
+    block-size: 1.1em;
+    font-size: var(--fs-base);
+    background: var(--accent);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  /* O piscar é o que separa um cursor de um retângulo: é ele que diz "estou
+     esperando você digitar". Na trilha o bloco fica parado porque lá ninguém
+     digita, e um piscar permanente no topo de todo post puxaria o olho. */
+  @media (prefers-reduced-motion: no-preference) {
+    .campo__cursor {
+      animation: piscar 1.06s steps(1) infinite;
+    }
+  }
+
+  @keyframes piscar {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .campo__input::placeholder {
+    color: var(--text-faint);
   }
 
   .campo__input:focus {
@@ -492,6 +600,51 @@ const dica = 'Busca em posts, projetos, serviços e páginas do site.';
     }, 400);
   }
 
+  /**
+   * Põe o cursor de bloco onde está o ponto de inserção.
+   *
+   * O bloco só aparece quando ele *é* o cursor de verdade: campo focado e
+   * seleção vazia. Com texto selecionado, ou com o ponto de inserção rolado
+   * para fora da caixa (acontece com busca longa no celular), quem desenha
+   * volta a ser o navegador — a classe sai junto e o cursor nativo reaparece.
+   * Um bloco que fica no lugar errado é pior que um traço fino no lugar certo.
+   */
+  function cursor(): void {
+    const alvos = partes();
+    if (!alvos) return;
+
+    const { form, campo } = alvos;
+    const eco = form.querySelector<HTMLElement>('[data-busca-eco]');
+    const bloco = form.querySelector<HTMLElement>('[data-busca-cursor]');
+    if (!eco || !bloco) return;
+
+    const focado = document.activeElement === campo;
+    const semSelecao = campo.selectionStart === campo.selectionEnd;
+
+    let mostrar = focado && semSelecao;
+    let x = 0;
+
+    if (mostrar) {
+      eco.textContent = campo.value.slice(0, campo.selectionStart ?? 0);
+      x = campo.offsetLeft + eco.getBoundingClientRect().width - campo.scrollLeft;
+      mostrar = x >= campo.offsetLeft - 1 && x <= campo.offsetLeft + campo.clientWidth - 4;
+    }
+
+    bloco.hidden = !mostrar;
+    form.classList.toggle('campo--cursor', mostrar);
+    if (!mostrar) return;
+
+    bloco.style.insetInlineStart = `${x}px`;
+
+    // Reinicia o piscar a cada tecla: sem isto, digitar durante a metade
+    // apagada do ciclo deixa o cursor sumido justo quando ele é olhado. É o
+    // que o cursor nativo faz, e a razão de o `void` estar aqui — ler o layout
+    // força o navegador a aplicar o `none` antes de devolver a animação.
+    bloco.style.animation = 'none';
+    void bloco.offsetWidth;
+    bloco.style.animation = '';
+  }
+
   function iniciar(): void {
     const alvos = partes();
     if (!alvos) return;
@@ -507,6 +660,7 @@ const dica = 'Busca em posts, projetos, serviços e páginas do site.';
     // página para posicionar o campo, escondendo o título.
     alvos.campo.focus({ preventScroll: true });
     desenhar(alvos.campo.value);
+    cursor();
   }
 
   // Delegação no `document`, registrada uma vez: com View Transitions os
@@ -535,6 +689,25 @@ const dica = 'Busca em posts, projetos, serviços e páginas do site.';
       evento.preventDefault();
       (document.activeElement as HTMLElement | null)?.blur();
     });
+
+    // O cursor precisa se mexer com tudo que muda o ponto de inserção ou o
+    // desenho da linha: tecla, clique, seleção, foco, rolagem do próprio campo
+    // e mudança de largura da janela. `capture` porque `focus` e `scroll` não
+    // sobem a árvore, e `requestAnimationFrame` porque no `keydown` a tecla
+    // ainda não entrou no valor — medir ali erraria uma casa a cada letra.
+    for (const nome of ['keydown', 'keyup', 'input', 'click', 'select', 'focusin', 'focusout', 'scroll']) {
+      document.addEventListener(
+        nome,
+        (evento) => {
+          const alvo = evento.target as HTMLElement | null;
+          if (!alvo?.matches?.('[data-busca-input]')) return;
+          requestAnimationFrame(cursor);
+        },
+        true,
+      );
+    }
+
+    window.addEventListener('resize', () => requestAnimationFrame(cursor));
 
     document.addEventListener('astro:page-load', iniciar);
   }
