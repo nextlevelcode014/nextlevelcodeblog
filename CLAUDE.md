@@ -79,11 +79,9 @@ contato e e-mail. Editar um serviço lá atualiza a home e `/servicos/` ao mesmo
 Prefira mexer aqui a mexer no texto dentro dos `.astro`.
 
 **O `services` do `site.config.ts` é resumo, não a fonte.** A descrição completa de
-cada serviço vive no site Hugo que está sendo migrado:
-
-```
-/home/nextlevelcode/Work/dev/nextlevelcodeblog/content/services/<slug>/index.pt.md
-```
+cada serviço está em `docs/servicos/<slug>.md`, trazida do site Hugo que está
+sendo migrado (daí a frontmatter em TOML, que aqui não serve para nada e ficou
+por ser o texto original).
 
 Antes de escrever ou editar `summary`, `points` ou `tools`, **leia o arquivo
 correspondente**. O que está no `site.config.ts` é uma condensação, e mais de uma
@@ -313,18 +311,21 @@ ficam de fora desta regra.
 
 ## Navegador para verificação visual
 
-Esta máquina não tem Chrome nem Chromium — só Brave, ligado por symlink em
-`/opt/google/chrome/chrome`, que é onde os MCPs procuram.
+**O caminho que funciona em qualquer máquina é o driver de
+`.claude/skills/run-site/`**: ele fala CDP direto, roda headless e aceita
+`BROWSER_BIN=/caminho/do/binario`. Numa VM sem interface gráfica é a única
+opção, porque os MCPs de navegador procuram um caminho fixo de Chrome e não
+leem essa variável.
 
-Use o servidor **`playwright-sandboxed`**, definido no `.mcp.json` deste
-repositório. O plugin `playwright` está desabilitado aqui de propósito: ele
-lança o navegador com `--no-sandbox`, e o sandbox do Chromium funciona
-perfeitamente nesta máquina — o flag era desvantagem pura. Nos outros projetos
-do usuário o plugin segue habilitado.
+Onde houver ambiente gráfico e o binário estiver onde os MCPs esperam, o
+servidor **`playwright-sandboxed`** do `.mcp.json` deste repositório também
+serve. O plugin `playwright` está desabilitado aqui de propósito: ele lança o
+navegador com `--no-sandbox`, e o sandbox do Chromium funciona — o flag era
+desvantagem pura. Nos outros projetos do usuário o plugin segue habilitado.
 
-O `chrome-devtools-mcp` também funciona, mas **não consegue redimensionar** a
-janela (`Restore window to normal state`). Para testar breakpoints, use o
-Playwright, que lança instância própria com viewport controlável.
+O `chrome-devtools-mcp` funciona, mas **não consegue redimensionar** a janela
+(`Restore window to normal state`). Para testar breakpoints, use o Playwright ou
+o driver, que controlam a viewport.
 
 Vale rodar uma varredura antes de dar trabalho visual por concluído: navegar
 por todas as rotas em duas larguras e dois temas verificando rolagem

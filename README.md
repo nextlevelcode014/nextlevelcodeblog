@@ -16,6 +16,21 @@ bun run preview  # serve o ./dist para conferir antes de publicar
 bun run check    # checagem de tipos e de acessibilidade nos .astro
 ```
 
+## Em outra máquina
+
+Só o `bun` é obrigatório para desenvolver. O clone basta: o texto completo dos
+serviços mora em `docs/servicos/`, então não há nada para buscar fora daqui.
+
+Dois opcionais:
+
+- **Um binário Chromium**, para a verificação visual do
+  `.claude/skills/run-site/`. Ele roda headless e aceita `$BROWSER_BIN`, então
+  serve qualquer caminho, inclusive numa VM sem ambiente gráfico.
+- **`tea`** para issues e PRs: o remote é Forgejo, `gh` não funciona aqui.
+
+O passo a passo de uma máquina zerada, incluindo a configuração do Claude Code,
+está em `claude-config/docs/maquina-nova.md`.
+
 ## Antes de publicar
 
 Conferir e-mail e links em `src/site.config.ts`.
