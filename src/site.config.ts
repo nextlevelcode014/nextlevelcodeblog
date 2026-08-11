@@ -83,7 +83,7 @@ export const services = [
     number: '03',
     title: 'Desenvolvimento Web',
     summary:
-      'Precisa de um site rápido ou de um sistema feito para o seu caso? Eu construo, e o código fica com você.',
+      'Precisa de um site ou de um sistema feito para o seu caso? Eu construo, e o código fica com você.',
     // Mesma divisão em duas colunas do serviço 01: os quatro primeiros são o
     // que se constrói, os quatro últimos o que roda depois de pronto.
     // Automação é metade deste serviço, e não um extra — por isso "tarefas
