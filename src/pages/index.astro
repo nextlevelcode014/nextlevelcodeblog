@@ -5,7 +5,6 @@ import Logo from '../components/Logo.astro';
 import SectionHead from '../components/SectionHead.astro';
 import PostCard from '../components/PostCard.astro';
 import ProjectCard from '../components/ProjectCard.astro';
-import { services } from '../site.config';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
@@ -21,7 +20,12 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
   <section class="hero">
     <div class="wrap hero__inner">
       <div class="hero__content">
-        <p class="eyebrow">Suporte · Segurança · Web</p>
+        {/*
+          Antes era "Suporte · Segurança · Web", os três serviços. Agora nomeia
+          os assuntos do que está publicado: é a primeira coisa que responde
+          "isto aqui é sobre o quê" para quem chegou de um link.
+        */}
+        <p class="eyebrow">Linux · Homelab · Privacidade</p>
 
         {/*
           O `{' '}` não é decorativo: o compilador do Astro descarta a quebra de
@@ -29,30 +33,36 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
         */}
         {/*
           A quebra é escrita, não deixada para o `max-inline-size` resolver.
-          Com a largura mandando, "Sua" ficava sozinho na primeira linha e o
-          título caía em três degraus tortos. É o que o site de atendimento já
-          fazia — o `<br />` ali não é descuido, é a quebra sendo decidida por
-          quem escreveu a frase. O `min-width` da media query garante que só
-          vale onde cabe: abaixo dela o título volta a quebrar sozinho.
+          Com a largura mandando, "Minha" ficava sozinho na primeira linha e o
+          título caía em três degraus tortos. O `min-width` da media query
+          garante que só vale onde cabe: abaixo dela o título volta a quebrar
+          sozinho.
+        */}
+        {/*
+          Era "Sua infraestrutura". O "sua" falava com quem ia contratar, e não
+          há mais o que contratar aqui: a infraestrutura em questão é a minha,
+          que é justamente o assunto dos posts e dos projetos logo abaixo. O
+          trocadilho com o nome da marca continua de pé, e agora descreve o
+          que a página mostra em vez de prometer o que ela faria por alguém.
         */}
         <h1 class="hero__title">
-          Sua infraestrutura<br class="hero__break" /> no{' '}
+          Minha infraestrutura<br class="hero__break" /> no{' '}
           <span class="hero__accent">próximo nível</span><span class="hero__dot"
             aria-hidden="true">.</span>
         </h1>
 
         <p class="hero__lead">
-          Tecnologia construída sobre quatro princípios:{' '}
-          <strong>liberdade</strong>, <strong>transparência</strong>, <strong>privacidade</strong> e{' '}
-          <strong>segurança</strong>.
+          Escrevo o que aprendo montando e mantendo as minhas próprias máquinas,
+          sobre quatro princípios: <strong>liberdade</strong>, <strong>transparência</strong>,{' '}
+          <strong>privacidade</strong> e <strong>segurança</strong>.
         </p>
 
         <div class="hero__actions">
-          <a href="/contato/" class="btn">
-            Falar comigo
+          <a href="/blog/" class="btn">
+            Ler o blog
             <span class="btn__arrow" aria-hidden="true">↗</span>
           </a>
-          <a href="/servicos/" class="btn btn--ghost">Ver serviços</a>
+          <a href="/projetos/" class="btn btn--ghost">Ver projetos</a>
         </div>
       </div>
 
@@ -64,86 +74,18 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
     </div>
   </section>
 
-  <!-- ================= SERVIÇOS ================= -->
-  <section class="section" id="servicos">
-    <div class="wrap">
-      <SectionHead
-        eyebrow="Serviços"
-        title="O que eu resolvo"
-        link={{ href: '/servicos/', label: 'Detalhes de cada serviço' }}
-      />
+  <!-- Aqui ficava a dobra dos três serviços, e abaixo dela um CTA de contato
+       ("Quer conversar?"). As duas saíram junto com a /servicos/: o site
+       mostra o que eu escrevo e o que eu construo, e uma dobra vendendo
+       atendimento no meio disso responde uma pergunta que ninguém fez aqui.
 
-      <ul class="services">
-        {
-          services.map((service) => (
-            <li class="service reveal">
-              <span class="service__num" aria-hidden="true">
-                {service.number}
-              </span>
-              <div>
-                <h3 class="service__title">{service.title}</h3>
-                <p class="service__body">{service.summary}</p>
-                {/*
-                  Aqui havia a lista de ferramentas de cada serviço, as mesmas
-                  tags que a /servicos/ mostra. Saiu por causa de onde a home
-                  está na jornada: nesta dobra a pessoa ainda decide se o
-                  assunto é com ela, e oito nomes que ela não reconhece
-                  respondem uma pergunta que ela não fez. As tags continuam em
-                  /servicos/, depois dos oito pontos de cada serviço, onde quem
-                  chegou já quer prova e quem não quer passa por cima.
+       O contato não sumiu do site, mudou de peso: continua no rodapé e na
+       /sobre/, que é onde alguém vai depois de ler alguma coisa e querer
+       falar. Antes ele aparecia três vezes antes da primeira linha de texto.
 
-                  Elas seguem no `site.config.ts` porque a /servicos/ e o índice
-                  da busca as consomem. Não é campo órfão.
-                */}
-              </div>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
-
-  <!-- Aqui havia uma dobra de compromissos ("O que você pode cobrar de mim"),
-       com três promessas lado a lado. Saiu por três motivos, e não vale
-       recriar sem resolvê-los:
-
-       - "cobrar de mim" é ambíguo numa página que fala de preço: lê tanto como
-         "exigir de mim" quanto como "me faturar";
-       - três promessas empilhadas com o mesmo peso de Serviços e Projetos
-         viram desconto automático de quem não conhece o autor. Promessa ocupava
-         o espaço que rende para prova;
-       - nenhuma delas ficava perto de onde a decisão acontece.
-
-       Dois dos textos não sumiram, foram para onde respondem uma dúvida real:
-       preço antes do trabalho em /servicos/ (onde se calcula custo) e "digo
-       quando não compensa" no CTA logo abaixo (onde se hesita em escrever).
-
-       O terceiro era a portabilidade ("nada do que eu faço fica preso comigo"),
-       que ficava na /sobre/. Ele saiu do site na reescrita daquela página, por
-       decisão do autor. Não é pendência e não volta.
-
-       O dia em que existir caso real com resultado, esta dobra é o lugar
-       dele. -->
-
-  <!-- ================= PROJETOS ================= -->
-  {
-    projetos.length > 0 && (
-      <section class="section">
-        <div class="wrap">
-          <SectionHead
-            eyebrow="Trabalho"
-            title="Projetos"
-            link={{ href: '/projetos/', label: 'Todos os projetos' }}
-          />
-          <div class="projects-grid">
-            {projetos.map((project) => (
-              <ProjectCard project={project} />
-            ))}
-          </div>
-        </div>
-      </section>
-    )
-  }
+       A dobra de compromissos ("O que você pode cobrar de mim") já tinha saído
+       antes disto, e o motivo continua valendo: promessa empilhada com o mesmo
+       peso do conteúdo vira desconto automático de quem não conhece o autor. -->
 
   <!-- ================= BLOG ================= -->
   {
@@ -165,37 +107,25 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
     )
   }
 
-  <!-- ================= CTA ================= -->
-  <section class="section">
-    <div class="wrap">
-      <div class="cta">
-        <div>
-          {/*
-            Este bloco já repetiu, quase palavra por palavra, o compromisso
-            "Digo quando não compensa" que fica duas dobras acima — e a mesma
-            frase ainda aparecia no lead de /contato/. Três vezes a mesma
-            promessa na jornada de quem clica.
-
-            Divisão de trabalho atual: o compromisso promete, este CTA diz o
-            que a pessoa recebe de volta (prazo, escopo, preço) e o /contato/
-            diz como escrever. Se for mexer aqui, cheque os outros dois antes.
-
-            O título é afirmativo de propósito: os três resumos de serviço
-            acima são perguntas, e uma quarta pergunta aqui perderia o
-            contraste.
-          */}
-          <h2 class="cta__title">Quer conversar?</h2>
-          <p class="cta__body">
-            Entre em contato e me descreva o que você precisa, de uma conversa sobre tecnologia a um fechamento de negócio.
-          </p>
+  <!-- ================= PROJETOS ================= -->
+  {
+    projetos.length > 0 && (
+      <section class="section">
+        <div class="wrap">
+          <SectionHead
+            eyebrow="Trabalho"
+            title="Projetos"
+            link={{ href: '/projetos/', label: 'Todos os projetos' }}
+          />
+          <div class="projects-grid">
+            {projetos.map((project) => (
+              <ProjectCard project={project} />
+            ))}
+          </div>
         </div>
-        <a href="/contato/" class="btn">
-          Começar uma conversa
-          <span class="btn__arrow" aria-hidden="true">↗</span>
-        </a>
-      </div>
-    </div>
-  </section>
+      </section>
+    )
+  }
 </Base>
 
 <style>
@@ -244,7 +174,7 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
     /* `--fs-3xl` dava 72px e o título caía em três degraus tortos. O culpado
        não era o `max-inline-size` (ele calculava 1032px e nunca chegava a
        valer): quem limita é a coluna do hero, de 593px em 1280px de tela.
-       "Sua infraestrutura" a 72px não cabe ali de jeito nenhum.
+       "Minha infraestrutura" a 72px não cabe ali de jeito nenhum.
 
        54px é o teto do site de atendimento, que resolve a mesma frase em duas
        linhas na mesma largura. O `--fs-3xl` seguia sendo usado só aqui. */
@@ -349,59 +279,12 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
     }
   }
 
-  /* ---------------- SERVIÇOS ---------------- */
-  .services {
-    display: grid;
-    gap: 0;
-    list-style: none;
-    padding: 0;
-  }
-
-  .service {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: var(--space-md);
-    align-items: start;
-    padding-block: var(--space-md);
+  /* ---------------- LISTAGENS ---------------- */
+  .posts > :global(article:first-child) {
     border-block-start: 1px solid transparent;
     border-image: var(--hairline) 1;
   }
 
-  .service:last-child {
-    border-block-end: 1px solid transparent;
-    border-image: var(--hairline) 1;
-  }
-
-  @media (width >= 48rem) {
-    .service {
-      grid-template-columns: 5rem 1fr;
-      gap: var(--space-xl);
-    }
-  }
-
-  /* A numeração em laranja é o "acento pontual" que o guia de marca pede:
-     alto contraste, área minúscula. */
-  .service__num {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: var(--fs-lg);
-    line-height: 1;
-    color: var(--hot);
-    letter-spacing: var(--tracking-tight);
-  }
-
-  .service__title {
-    font-size: var(--fs-lg);
-    letter-spacing: var(--tracking-tight);
-  }
-
-  .service__body {
-    margin-block-start: var(--space-2xs);
-    color: var(--text-muted);
-    max-inline-size: 60ch;
-  }
-
-  /* ---------------- LISTAGENS ---------------- */
   .projects-grid {
     display: grid;
     gap: var(--space-md);
@@ -411,41 +294,5 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
     .projects-grid {
       grid-template-columns: repeat(2, 1fr);
     }
-  }
-
-  .posts > :global(article:first-child) {
-    border-block-start: 1px solid transparent;
-    border-image: var(--hairline) 1;
-  }
-
-  /* ---------------- CTA ---------------- */
-  .cta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-md);
-    padding: var(--space-lg);
-    background: var(--bg-raised);
-    border: 1px solid var(--line);
-    /* Traço de marca no topo, azul sólido — o mesmo da `.chamada` do site de
-       atendimento. Era um degradê azul→laranja, e ele competia com o laranja
-       do risco de 58°: dois acentos disputando a mesma caixa. O laranja rende
-       mais como ponto único (o `.` do hero, o risco da régua) do que diluído
-       ao longo de uma linha. */
-    border-block-start: 2px solid var(--accent);
-    border-radius: var(--radius-lg);
-  }
-
-  .cta__title {
-    font-size: var(--fs-lg);
-    letter-spacing: var(--tracking-tight);
-  }
-
-  .cta__body {
-    margin-block-start: var(--space-2xs);
-    color: var(--text-muted);
-    font-size: var(--fs-sm);
-    max-inline-size: 52ch;
   }
 </style>

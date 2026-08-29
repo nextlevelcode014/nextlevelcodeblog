@@ -1,7 +1,7 @@
 # site
 
-Site da **NextLevelCode** — estático, sem rastreadores e sem requisições para
-domínios de terceiros.
+Site da **NextLevelCode** — o blog e os projetos, estático, sem rastreadores e
+sem requisições para domínios de terceiros.
 
 Astro 7 + CSS puro, empacotado com **bun**. Tema escuro por padrão, com botão
 para alternar para o claro.
@@ -18,8 +18,8 @@ bun run check    # checagem de tipos e de acessibilidade nos .astro
 
 ## Em outra máquina
 
-Só o `bun` é obrigatório para desenvolver. O clone basta: o texto completo dos
-serviços mora em `docs/servicos/`, então não há nada para buscar fora daqui.
+Só o `bun` é obrigatório para desenvolver. O clone basta: nada do site é
+buscado fora daqui.
 
 Dois opcionais:
 
@@ -47,7 +47,7 @@ Cloudflare Pages, um `nginx` seu, um bucket). Não precisa de Node no servidor.
 |---|---|
 | Cores, tipografia, espaçamentos | `src/styles/tokens.css` |
 | Estilos compartilhados (botões, cards, tags, texto de artigo) | `src/styles/global.css` |
-| Menu, serviços, princípios, redes, e-mail | `src/site.config.ts` |
+| Menu, princípios, redes, e-mail | `src/site.config.ts` |
 | Posts do blog | `src/content/blog/*.md` |
 | Projetos | `src/content/projetos/*.md` |
 | Campos obrigatórios de cada tipo de conteúdo | `src/content.config.ts` |
@@ -119,6 +119,13 @@ compartilhar.
 - **O logo é polígono, não traço.** As pontas do original são cortes
   horizontais e inclinados, que `stroke-linecap` não reproduz. Ver o comentário
   em `src/components/Logo.astro`.
+
+## `docs/servicos/`
+
+Os três textos de serviço trazidos do site Hugo (suporte, segurança, web).
+**Nada em `src/` lê esses arquivos**: o site deixou de anunciar atendimento e a
+página `/servicos/` saiu. Eles ficam como registro do que já esteve publicado,
+com a frontmatter em TOML do original.
 
 ## Currículo
 

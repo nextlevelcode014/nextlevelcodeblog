@@ -2,7 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Site institucional estático da NextLevelCode. **Astro 7 + CSS puro, empacotado com bun.**
+Site estático da NextLevelCode: o blog e os projetos do autor. **Astro 7 + CSS
+puro, empacotado com bun.**
 O README cobre o fluxo de uso (escrever posts, publicar); este arquivo cobre o que
 não é óbvio ao ler o código.
 
@@ -74,40 +75,23 @@ Consequências, ambas já resolvidas mas fáceis de reintroduzir:
 
 ## Arquitetura
 
-**`src/site.config.ts` é a fonte única** de menu, serviços, princípios, canais de
-contato e e-mail. Editar um serviço lá atualiza a home e `/servicos/` ao mesmo tempo.
-Prefira mexer aqui a mexer no texto dentro dos `.astro`.
+**`src/site.config.ts` é a fonte única** de menu, princípios, canais de contato e
+e-mail. Prefira mexer aqui a mexer no texto dentro dos `.astro`.
 
-**O `services` do `site.config.ts` é resumo, não a fonte.** A descrição completa de
-cada serviço está em `docs/servicos/<slug>.md`, trazida do site Hugo que está
-sendo migrado (daí a frontmatter em TOML, que aqui não serve para nada e ficou
-por ser o texto original).
+**O site não vende nada.** Ele mostra o que o autor escreve (`/blog/`) e o que ele
+constrói (`/projetos/`). A `/servicos/`, o array `services`, a dobra de serviços da
+home, o CTA "Quer conversar?" e o botão de contato do cabeçalho saíram todos
+juntos (#32). O contato continua existindo, com outro peso: rodapé de toda página
+e barra lateral da `/sobre/`.
 
-Antes de escrever ou editar `summary`, `points` ou `tools`, **leia o arquivo
-correspondente**. O que está no `site.config.ts` é uma condensação, e mais de uma
-vez o resumo já prometeu coisa que o serviço real não faz. Os nomes lá são mais
-longos que os do site novo: "Suporte Técnico e Soluções em Tecnologia",
-"Segurança e Privacidade Digital", "Desenvolvimento Web e Soluções Sob Medida".
+Isso é decisão de posicionamento, não limpeza de código. **Não reintroduza oferta
+de serviço** — nem página, nem dobra, nem CTA, nem "o que eu faço" disfarçado de
+seção — sem o autor pedir com essas palavras.
 
-O que não se deduz do `site.config.ts` sozinho:
-
-- **O público é pessoa física e pequeno negócio.** Não é time de infraestrutura.
-  Todo texto de serviço se escreve para quem descreve o problema como "tela azul",
-  não como "falha de kernel".
-- **Segurança é educativo e preventivo, e o escopo é fechado por escrito.** O
-  arquivo exclui, com todas as letras, **teste de invasão, perícia digital,
-  recuperação de contas e investigação forense**. Nunca acrescente esses itens,
-  nem os deixe comentados esperando por um dia — comentário parece pendência e
-  alguém reativa.
-- **Suporte é centrado em notebook e inclui trabalho físico**: limpeza interna,
-  ventilação, pasta térmica, dobradiça. Também remoção de malware, upgrade de SSD
-  e RAM, e orientação de compra.
-- **Automação é metade do serviço de web**, não um extra: tarefa repetitiva,
-  integração entre sistemas, redução de retrabalho.
-- **O atendimento é presencial ou remoto**, e no suporte pode envolver recolher o
-  equipamento mediante agendamento, sempre autorizado antes. Isso está nos
-  arquivos do Hugo e **ainda não aparece em lugar nenhum do site novo** — é a
-  informação que falta para quem está com a máquina quebrada decidir chamar.
+**`docs/servicos/*.md` é registro, não fonte.** São os três textos do site Hugo
+(daí a frontmatter em TOML, que não serve para nada aqui). Nada em `src/` os lê.
+Se um dia o assunto voltar, o material está ali; enquanto não voltar, aqueles
+arquivos não descrevem nada do que está publicado.
 
 **Conteúdo** vive em `src/content/{blog,projetos}/*.md`, com schema em
 `src/content.config.ts` (loader `glob` da Content Layer). Duas regras:
@@ -122,9 +106,9 @@ peças: `src/busca.ts` monta o índice no build, `src/pages/busca.json.ts` o ser
 requisição sai do domínio, e nada do que é pesquisado é registrado.
 
 - **Conteúdo novo precisa entrar em `src/busca.ts`.** Post, projeto e tag entram
-  sozinhos, porque vêm das coleções. Serviço vem do `site.config.ts`. **Página
-  institucional é escrita à mão lá** — uma página nova não aparece na busca até
-  ganhar sua entrada. O filtro de rascunho vale aqui como em qualquer listagem.
+  sozinhos, porque vêm das coleções. **Página institucional é escrita à mão lá** —
+  uma página nova não aparece na busca até ganhar sua entrada. O filtro de rascunho
+  vale aqui como em qualquer listagem.
 - O texto das páginas institucionais no índice **não é cópia** da `<meta
   description>` delas: é a frase que se lê numa lista de resultados. As duas podem
   divergir sem que nada quebre.
@@ -236,11 +220,14 @@ dependência de runtime, verifique:
 grep -rhoE '<(script|link|img|iframe)[^>]*(src|href)="https?://[^"]*"' dist --include="*.html" | grep -v nextlevelcode.pro
 ```
 
-## Regras de escrita do texto de marketing
+## Regras de escrita do texto institucional
 
-Todas saíram de texto que já esteve publicado neste site e foi trocado. Valem para
-`site.config.ts`, para as páginas institucionais e para `<meta description>` — não
-para os posts do blog, que são voz do autor.
+Todas saíram de texto que já esteve publicado neste site e foi trocado. Boa parte
+nasceu do texto de serviço, que não existe mais; elas continuam valendo, porque o
+que elas corrigem (adjetivo grátis, frase sem dono, promessa repetida) aparece em
+qualquer texto que fale do autor. Valem para `site.config.ts`, para o hero da
+home, para as páginas institucionais e para `<meta description>` — não para os
+posts do blog, que são voz do autor.
 
 **Não pressuponha falta em quem lê.** "Não precisa saber o termo técnico certo"
 supõe que a pessoa não sabe; "descreva com suas palavras" supõe que as palavras
@@ -278,16 +265,19 @@ reatribuir os três problemas a um sujeito que só apareceu no fim.
 pedindo para acreditarem nele. "Diagnóstico honesto" virou "Digo quando não
 compensa": o corpo do texto já demonstrava, o título só afirmava.
 
-**Cada promessa aparece uma vez.** A mesma frase sobre diagnóstico honesto já
-esteve em três lugares na jornada de um clique. Divisão atual, e há comentário nos
-arquivos explicando cada uma:
+**Cada promessa aparece uma vez** — e hoje nenhuma aparece. A mesma frase sobre
+diagnóstico honesto já esteve em três lugares na jornada de um clique; as três
+saíram junto com os serviços, porque promessa de atendimento em site que não
+atende não tem o que prometer. Divisão atual:
 
 | onde | trabalho |
 |---|---|
-| CTA da home | diz o que a pessoa recebe de volta, e promete o diagnóstico honesto |
-| `/servicos/`, bloco `.closing` | promete orçamento fechado antes de começar |
-| `/contato/` | diz como escrever |
+| home | diz sobre o que eu escrevo, e mostra os últimos posts e projetos |
+| `/contato/` | diz como escrever, e para quê. O prazo de resposta fica na nota do canal de e-mail |
 | `/sobre/` | conta quem escreve e o que o move. **Não carrega promessa nenhuma.** |
+
+Se um texto novo começar a prometer entrega, prazo ou preço, ele está
+reconstruindo a página de serviços por dentro de outra.
 
 A `/sobre/` já prometeu portabilidade ("nada do que eu faço fica preso comigo").
 A frase saiu na reescrita da página, por decisão do autor, e **não volta**: não

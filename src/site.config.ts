@@ -6,8 +6,7 @@
 export const site = {
   name: 'NextLevelCode',
   tagline: 'Tecnologia com liberdade, privacidade e segurança.',
-  description:
-    'Suporte técnico, segurança da informação e desenvolvimento web.',
+  description: 'Blog e projetos sobre Linux, homelab, privacidade e segurança.',
   author: 'NextLevelCode',
   email: 'work@nextlevelcode.pro',
   locale: 'pt-BR',
@@ -28,110 +27,24 @@ export const quote = {
 
 export const nav = [
   { href: '/', label: 'Início' },
-  { href: '/servicos/', label: 'Serviços' },
   { href: '/projetos/', label: 'Projetos' },
   { href: '/blog/', label: 'Blog' },
   { href: '/sobre/', label: 'Sobre' },
 ] as const;
 
-export const services = [
-  {
-    slug: 'suporte',
-    number: '01',
-    title: 'Suporte Técnico',
-    summary:
-      'Está com o computador travando, dando tela azul ou com algum defeito? Eu conserto.',
-    // Oito itens, e a ordem importa: em /servicos/ a lista vira duas colunas
-    // preenchidas por coluna, então os quatro primeiros ficam à esquerda
-    // (sistema e desempenho) e os quatro últimos à direita (peça, rede e
-    // máquina ligada). Ao mexer aqui, mantenha o número par.
-    points: [
-      'Diagnóstico completo de hardware e software',
-      'Instalação e configuração de Windows e Linux',
-      'Recuperação e otimização de desempenho',
-      'Remoção de malware e programas indesejados',
-      'Limpeza interna e manutenção preventiva',
-      'Configuração de redes, periféricos e backups',
-      'Instalação e manutenção de servidores',
-      'Compra e troca de peças',
-    ],
-  },
-  {
-    slug: 'seguranca',
-    number: '02',
-    title: 'Segurança da Informação',
-    summary:
-      'Usa a mesma senha em vários sites e nunca fez backup? Eu organizo e te mostro como manter.',
-    // Todos os itens são sintagma nominal, como nos outros dois serviços. Os
-    // três últimos já foram oração ("Como identificar...", "O que fazer..."),
-    // o que separava o que eu configuro do que eu ensino — distinção que o
-    // `summary` já carrega e que a lista chapada da /servicos/ não mostrava.
-    // Teste de intrusão não entra aqui: o arquivo do Hugo exclui por escrito.
-    points: [
-      'Estratégia de backup 3-2-1, configurada e testada',
-      'Gerenciador de senhas e verificação em duas etapas',
-      'Ajuste das configurações de privacidade em redes sociais',
-      'Controle de permissões de aplicativos no celular',
-      'Redução de rastreamento em navegadores e serviços online',
-      'Identificação de phishing, golpe e engenharia social',
-      'Cuidados com links, anexos e downloads',
-      'Procedimentos em caso de suspeita de invasão ou vazamento',
-    ],
-  },
-  {
-    slug: 'web',
-    number: '03',
-    title: 'Desenvolvimento Web',
-    summary:
-      'Precisa de um site ou de um sistema feito para o seu caso? Eu construo, e o código fica com você.',
-    // Mesma divisão em duas colunas do serviço 01: os quatro primeiros são o
-    // que se constrói, os quatro últimos o que roda depois de pronto.
-    // Automação é metade deste serviço, e não um extra — por isso "tarefas
-    // repetitivas" tem item próprio, e o item de integração, que antes dizia
-    // "integrações e automações", ficou só com integração para não repetir.
-    //
-    // Havia aqui um "Analytics respeitoso, sem cookies de terceiros". Saiu por
-    // um motivo de página, não de princípio: o rodapé promete "sem analytics",
-    // e ler as duas frases no mesmo scroll obriga o leitor a escolher em qual
-    // acreditar. Medição e cookie não são ruins por natureza, e o serviço faz
-    // isso para cliente que precisar, com política respeitosa. Se voltar, o
-    // texto precisa deixar claro que é escolha do projeto do cliente, não o
-    // que roda aqui.
-    points: [
-      'Sites institucionais e landing pages',
-      'Blogs e documentação em Markdown',
-      'Painéis administrativos e áreas restritas',
-      'Formulários, cadastros e gestão de informações',
-      'Automação de tarefas repetitivas',
-      'Integrações entre sistemas e serviços',
-      'Coleta e organização de dados',
-      'Deploy, domínio, TLS e monitoramento',
-    ],
-  },
-] as const;
-
 /*
- * Cada serviço tinha aqui um `tools`, com os nomes de software que apareciam
- * como pílulas na home e na /servicos/. O campo saiu inteiro junto com as duas
- * listagens: sem ninguém que renderize, dado em config vira enfeite que um dia
- * alguém volta a exibir só porque já estava aqui. O git guarda as listas; o
- * comentário em `src/pages/servicos.astro` guarda o motivo de terem saído.
- */
-
-/*
- * Havia aqui um `commitments`, renderizado como dobra própria na home. Ele
- * saiu: três promessas com o mesmo peso de Serviços e Projetos viram desconto
- * automático de quem ainda não conhece o autor, e nenhuma ficava perto de onde
- * a decisão acontece. O comentário na home explica em detalhe.
+ * Aqui moravam os três serviços (suporte, segurança, web), lidos pela home,
+ * pela /servicos/ e pelo índice da busca. O site deixou de ser vitrine de
+ * atendimento e virou blog e projetos: a página saiu, o item do menu saiu e
+ * este array saiu junto.
  *
- * Os textos que sobraram moram cada um no contexto que ocupa, e por isso não
- * moram mais aqui: nenhum é compartilhado entre páginas.
+ * O texto completo de cada um continua em `docs/servicos/*.md`, trazido do
+ * site Hugo. Aqueles arquivos ficam no repositório como registro, fora do
+ * build: nada em `src/` os lê.
  *
- * - preço antes do trabalho ....... `src/pages/servicos.astro`, bloco .closing
- * - digo quando não compensa ...... `src/pages/index.astro`, .cta__body
- *
- * O terceiro, "nada fica preso comigo", saiu do site na reescrita da /sobre/,
- * por decisão do autor. Não é pendência e não volta.
+ * Junto foram embora dois campos que só existiam por causa deles: `tools`,
+ * com os nomes de software que viravam pílulas, e `commitments`, com as três
+ * promessas que a home exibia numa dobra própria. O git guarda os três.
  */
 
 export const principles = [

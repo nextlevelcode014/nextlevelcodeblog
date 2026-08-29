@@ -12,12 +12,12 @@ import SectionHead from '../components/SectionHead.astro';
  * enfeite sobre conteúdo que já estava na página. O <noscript> abaixo diz para
  * onde ir nesse caso, em vez de deixar um campo que não responde.
  */
-const dica = 'Busca em posts, projetos, serviços e páginas do site.';
+const dica = 'Busca em posts, projetos e páginas do site.';
 ---
 
 <Base
   title="Busca"
-  description="Procure por assunto em tudo que está publicado no site: posts, projetos, serviços e páginas."
+  description="Procure por assunto em tudo que está publicado no site: posts, projetos, tags e páginas."
 >
   <section class="section">
     <div class="wrap">
@@ -55,7 +55,7 @@ const dica = 'Busca em posts, projetos, serviços e páginas do site.';
             data-busca-input
             type="search"
             name="q"
-            placeholder="backup, tela azul…"
+            placeholder="backup, criptografia…"
             autocomplete="off"
             autocapitalize="none"
             autocorrect="off"
@@ -87,7 +87,7 @@ const dica = 'Busca em posts, projetos, serviços e páginas do site.';
             navegador. Sem ele, os caminhos continuam abertos:{' '}
             <a href="/blog/">todos os posts</a>,{' '}
             <a href="/tags/">todas as tags</a> e{' '}
-            <a href="/servicos/">os serviços</a>.
+            <a href="/projetos/">os projetos</a>.
           </p>
         </noscript>
 
@@ -348,17 +348,19 @@ const dica = 'Busca em posts, projetos, serviços e páginas do site.';
     dTags: string[];
   };
 
-  /** Desempate entre itens de mesma pontuação. Serviço primeiro: é a resposta
-   *  mais provável para quem está procurando o que eu faço. */
+  /** Desempate entre itens de mesma pontuação. Post primeiro: o site é o
+   *  blog, e empate acontece justamente quando o termo casou só no corpo de
+   *  cada item — aí quem responde é o texto, não a página institucional que
+   *  cita a palavra de passagem. Serviço encabeçava esta lista enquanto havia
+   *  /servicos/. */
   const PESO_TIPO: Record<ItemBusca['tipo'], number> = {
-    Serviço: 4,
-    Página: 3,
-    Post: 2,
-    Projeto: 1,
+    Post: 3,
+    Projeto: 2,
+    Página: 1,
     Tag: 0,
   };
 
-  const DICA = 'Busca em posts, projetos, serviços e páginas do site.';
+  const DICA = 'Busca em posts, projetos e páginas do site.';
   const MIN_TERMO = 2;
 
   /**

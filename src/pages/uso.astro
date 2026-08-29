@@ -5,10 +5,12 @@ import Breadcrumb from '../components/Breadcrumb.astro';
 import { categorias, maquinas, mudancas } from '../uso.config';
 
 /**
- * `/uso/` fica fora do menu de propósito. O menu é caminho de cliente, e o
- * cliente não veio saber qual gerenciador de janelas eu uso; quem quer isto é
- * quem lê o blog. A página é alcançada pela /sobre/, pela busca e pelo link
- * direto, que é o formato em que ela costuma circular.
+ * `/uso/` fica fora do menu. O argumento era que o menu é caminho de cliente
+ * e o cliente não veio saber qual gerenciador de janelas eu uso; com a saída
+ * da /servicos/ não há mais cliente no menu, e o motivo que sobra é o tamanho:
+ * a nav rola apertada nas telas estreitas (issue #13). A página continua sendo
+ * alcançada pela /sobre/, pela busca e pelo link direto, que é o formato em
+ * que ela costuma circular.
  *
  * A data mais recente do registro de mudanças vira o "atualizado em" do topo:
  * uma página de lista sem data não deixa o leitor saber se está diante de algo
@@ -189,8 +191,9 @@ function formatar(iso: string) {
     margin-block-start: var(--space-lg);
   }
 
-  /* Mesma anatomia dos blocos de /servicos/: filete direcional em cima e o
-     título logo abaixo. Mantém as duas páginas com o mesmo compasso vertical. */
+  /* Filete direcional em cima e o título logo abaixo. A anatomia vinha dos
+     blocos da /servicos/, que saiu do site; o compasso ficou, porque é o
+     mesmo das divisórias do resto das páginas. */
   .bloco {
     margin-block-start: var(--space-lg);
     padding-block-start: var(--space-lg);

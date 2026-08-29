@@ -40,7 +40,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     <div class="header__actions">
       {/* Fora do array `nav`: a busca é ferramenta, não destino de leitura.
           Como ícone ela cabe em qualquer largura, e a nav já rola apertada
-          a 390px com os cinco itens de texto. */}
+          a 390px com os itens de texto. */}
       <a
         href="/busca/"
         class="icon-btn"
@@ -55,8 +55,11 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
         </svg>
       </a>
 
+      {/* Aqui ficava um botão "Contato". Ele saiu junto com a /servicos/: era
+          o atalho para fechar negócio, e este site não vende mais nada. O
+          contato continua no rodapé de toda página e na /sobre/, que é onde
+          alguém chega depois de ler alguma coisa. */}
       <ThemeToggle />
-      <a href="/contato/" class="btn btn--sm">Contato</a>
     </div>
   </div>
 </header>
@@ -130,7 +133,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
   .nav {
     margin-inline-start: auto;
     /* Em telas estreitas a nav rola horizontalmente em vez de virar um menu
-       hambúrguer: menos JS, menos estado. A 390px os cinco itens já não cabem
+       hambúrguer: menos JS, menos estado. A 390px os itens já não cabem
        — daí a máscara abaixo, que é o que avisa que a lista continua. */
     overflow-x: auto;
     scrollbar-width: none;
@@ -231,20 +234,12 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     flex: none;
   }
 
-  .btn--sm {
-    padding: 0.45em 0.95em;
-    font-size: var(--fs-xs);
-  }
-
-  /* O CTA fica em todas as larguras. Ele já foi escondido abaixo de 62rem, com
-     a justificativa de que "a nav leva a tudo" — só que `/contato/` nunca
-     esteve no array `nav`, então no celular qualquer página fora da home ficava
-     sem nenhum caminho para a página que fecha negócio.
-
-     Quem cede espaço é o nome escrito da marca, que some a partir de 62rem em
-     vez de 34rem. É o mesmo argumento que já valia lá embaixo: o símbolo
-     sozinho é reconhecível, e o nome ainda aparece no rodapé de toda página. */
-  @media (width < 62rem) {
+  /* O nome escrito da marca voltou a aparecer até 34rem. Ele sumia a partir
+     de 62rem para caber o botão de contato ao lado da nav; sem esse botão, e
+     com um item a menos no menu, a barra tem folga de sobra numa tela de
+     tablet. Abaixo de 34rem o símbolo continua sozinho: ele é reconhecível, e
+     o nome ainda aparece no rodapé de toda página. */
+  @media (width < 34rem) {
     .brand__name {
       display: none;
     }

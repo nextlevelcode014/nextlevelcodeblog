@@ -34,27 +34,24 @@ const channels = socials
       <div class="layout">
         <div>
           {/*
-            Esta página faz a pessoa escrever; a promessa de diagnóstico e o
-            prazo de resposta vivem no CTA da home, e o prazo aparece de novo na
-            nota do canal de e-mail logo abaixo. Repetir os três aqui era a
-            terceira cópia da mesma frase na mesma jornada.
+            Esta página faz a pessoa escrever, e só isso: o prazo de resposta
+            está na nota do canal de e-mail logo abaixo, e não se repete aqui.
 
-            E o parágrafo não tranquiliza ninguém, de propósito. Duas versões
+            O parágrafo não tranquiliza ninguém, de propósito. Duas versões
             anteriores pressupunham alguma falta de quem lê: "não precisa saber
             o termo técnico certo" supõe que a pessoa não sabe, e "com suas
             palavras" supõe que as palavras dela não seriam as certas.
             Tranquilizar sobre algo que ninguém levantou avisa que você
-            esperava o pior. Quem ajuda quem está travado é o quadro ao lado,
-            que instrui em vez de pressupor.
+            esperava o pior.
 
-            Também não puxa para os serviços. Boa parte de quem abre esta
-            página chega de um post e não quer contratar nada; "papo sobre
-            homelab" existe para essa pessoa se sentir convidada, e é o que
-            diferencia este parágrafo de um convite genérico.
+            Quem abre esta página chega de um post ou de um projeto, então os
+            exemplos são esses. Antes eles abriam com "um trabalho", de quando
+            o site vendia atendimento; sem a /servicos/, um convite a contratar
+            aponta para uma página que não existe mais.
           */}
           <p class="lead">
-            Escreve aí. Pode ser um trabalho, um projeto, uma dúvida ou um papo
-            sobre homelab.
+            Escreve aí. Pode ser sobre um post, sobre um projeto, uma dúvida ou
+            um papo sobre homelab.
           </p>
 
           <ul class="channels">
@@ -74,20 +71,12 @@ const channels = socials
 
         <aside class="aside">
           {/*
-            Condicional de propósito. O convite ao lado inclui quem só quer
-            puxar assunto; um título absoluto ("O que incluir na mensagem")
-            transformava esta lista de chamado de suporte em requisito para
-            todo mundo, e quem chegava para outra coisa concluía que a página
-            não era para ele.
+            Aqui ficava um quadro "Se for um problema técnico", com o que
+            incluir na mensagem de um chamado de suporte. Ele saiu junto com a
+            /servicos/: era instrução para abrir chamado, e não se abre mais
+            chamado por aqui. O que sobra na lateral é o que vale para qualquer
+            mensagem, que é o que acontece com o que você escreve.
           */}
-          <h2 class="eyebrow">Se for um problema técnico</h2>
-          <ul class="checklist">
-            <li>O que está acontecendo, e desde quando</li>
-            <li>Que equipamento ou sistema está envolvido</li>
-            <li>O que você já tentou</li>
-            <li>Qual seria o resultado ideal para você</li>
-          </ul>
-
           <div class="privacy">
             <h2 class="eyebrow">Sobre seus dados</h2>
             <p>
@@ -161,32 +150,6 @@ const channels = socials
     display: grid;
     gap: var(--space-lg);
     align-content: start;
-  }
-
-  .checklist {
-    list-style: none;
-    padding: 0;
-    margin-block-start: var(--space-sm);
-    display: grid;
-    gap: var(--space-xs);
-    font-size: var(--fs-sm);
-    color: var(--text-muted);
-  }
-
-  .checklist li {
-    position: relative;
-    padding-inline-start: 1.6rem;
-  }
-
-  .checklist li::before {
-    content: '';
-    position: absolute;
-    inset-inline-start: 0;
-    inset-block-start: 0.65em;
-    inline-size: 0.85rem;
-    block-size: 1px;
-    background: var(--brand-blue);
-    transform: rotate(calc(var(--angle) * -1));
   }
 
   .privacy {

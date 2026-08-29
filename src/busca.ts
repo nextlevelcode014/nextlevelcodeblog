@@ -1,5 +1,5 @@
 import { getCollection } from 'astro:content';
-import { principles, services } from './site.config';
+import { principles } from './site.config';
 import { categorias } from './uso.config';
 
 /**
@@ -16,7 +16,7 @@ import { categorias } from './uso.config';
  * navegador o guarda em cache.
  */
 
-export type TipoItem = 'Serviço' | 'Página' | 'Post' | 'Projeto' | 'Tag';
+export type TipoItem = 'Página' | 'Post' | 'Projeto' | 'Tag';
 
 export interface ItemBusca {
   tipo: TipoItem;
@@ -24,7 +24,7 @@ export interface ItemBusca {
   titulo: string;
   /** Frase mostrada no resultado quando o termo não aparece no corpo. */
   descricao: string;
-  /** Casa mas não é exibido: corpo do post, pontos do serviço, sinônimos. */
+  /** Casa mas não é exibido: corpo do post, sinônimos do que a página cobre. */
   texto: string;
   tags: string[];
 }
@@ -63,7 +63,7 @@ function textoDoMarkdown(md: string): string {
  * qual link clicar. As duas podem divergir sem que nada quebre.
  *
  * O campo `texto` existe para o que a pessoa digita mas não está escrito na
- * página com essas palavras: "email" sem hífen, "orçamento", "cv". Sinônimo de
+ * página com essas palavras: "email" sem hífen, "cv", "dotfiles". Sinônimo de
  * busca, não texto de marketing.
  */
 const paginas: ItemBusca[] = [
@@ -71,23 +71,15 @@ const paginas: ItemBusca[] = [
     tipo: 'Página',
     url: '/',
     titulo: 'Início',
-    descricao: 'Os três serviços, os princípios que guiam o trabalho e os projetos em destaque.',
+    descricao: 'Os últimos posts, os projetos em destaque e os princípios que guiam o resto.',
     texto: principles.map((p) => `${p.title} ${p.body}`).join(' '),
-    tags: [],
-  },
-  {
-    tipo: 'Página',
-    url: '/servicos/',
-    titulo: 'Serviços',
-    descricao: 'Os três serviços em detalhe: o que entra em cada um e como eu atendo.',
-    texto: 'atendimento presencial remoto orçamento preço valor contratar recolher equipamento agendamento',
     tags: [],
   },
   {
     tipo: 'Página',
     url: '/sobre/',
     titulo: 'Sobre',
-    descricao: 'Quem está por trás da NextLevelCode e por que as três frentes se conectam.',
+    descricao: 'Quem está por trás da NextLevelCode, por que eu escrevo e o que me move.',
     texto: 'currículo cv experiência formação como eu trabalho princípios liberdade privacidade',
     tags: [],
   },
@@ -111,7 +103,7 @@ const paginas: ItemBusca[] = [
     url: '/contato/',
     titulo: 'Contato',
     descricao: 'Como falar comigo: e-mail direto, sem formulário e sem intermediário.',
-    texto: 'email endereço falar chamar orçamento forgejo github substack newsletter rss',
+    texto: 'email endereço falar chamar conversar forgejo github substack newsletter rss',
     tags: [],
   },
   {
@@ -147,19 +139,6 @@ export async function construirIndice(): Promise<ItemBusca[]> {
   const projetos = await getCollection('projetos', ({ data }) => !data.draft);
 
   const itens: ItemBusca[] = [
-    ...services.map(
-      (service): ItemBusca => ({
-        tipo: 'Serviço',
-        url: `/servicos/#${service.slug}`,
-        titulo: service.title,
-        descricao: service.summary,
-        // Separados por ponto médio, e não por espaço: o trecho do resultado
-        // mostra um pedaço deste texto, e emendado ele vira uma frase que não
-        // fecha ("...manutenção preventiva Configuração de redes...").
-        texto: service.points.join(' · '),
-        tags: [],
-      }),
-    ),
     ...paginas,
     ...posts.map(
       (post): ItemBusca => ({
