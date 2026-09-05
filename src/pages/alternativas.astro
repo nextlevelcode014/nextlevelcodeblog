@@ -158,6 +158,13 @@ const arquivoPara = 'o-que-eu-uso';
                     <span class="linha__nome">
                       <span class="visually-hidden">Saí de </span>
                       {saiu.nome}
+                      {saiu.nota && (
+                        <span class="linha__nota">
+                          {' '}
+                          <span class="visually-hidden">. </span>
+                          <span aria-hidden="true">#</span> {saiu.nota}
+                        </span>
+                      )}
                     </span>
                   </p>
                 ))}
@@ -177,6 +184,13 @@ const arquivoPara = 'o-que-eu-uso';
                     <span class="linha__nome">
                       <span class="visually-hidden">Ainda uso </span>
                       {mantido.nome}
+                      {mantido.nota && (
+                        <span class="linha__nota">
+                          {' '}
+                          <span class="visually-hidden">. </span>
+                          <span aria-hidden="true">#</span> {mantido.nota}
+                        </span>
+                      )}
                     </span>
                   </p>
                 ))}
@@ -204,6 +218,13 @@ const arquivoPara = 'o-que-eu-uso';
                       <a class="linha__link" href={alternativa.url} rel="noopener">
                         {alternativa.nome}
                       </a>
+                      {alternativa.nota && (
+                        <span class="linha__nota">
+                          {' '}
+                          <span class="visually-hidden">. </span>
+                          <span aria-hidden="true">#</span> {alternativa.nota}
+                        </span>
+                      )}
                     </span>
                   </p>
                 ))}
@@ -280,7 +301,9 @@ const arquivoPara = 'o-que-eu-uso';
     color: var(--text-muted);
   }
 
- azul permanente
+  /* O `$` fica no tom mais baixo do bloco, e não no acento que ele tem na
+     linha de prompt do topo: lá ele marca onde a pessoa está, aqui ele só abre
+     um comando que já rodou. Um azul permanente
      prometeria uma ação que não existe.
 
      Deixá-lo apagado também tira o azul das duas pontas do bloco e reserva a
@@ -344,12 +367,29 @@ const arquivoPara = 'o-que-eu-uso';
   .linha {
     display: grid;
     grid-template-columns: 1ch 1.15em 1fr;
-    align-items: center;
+    /* `start` e não `center`: quando a nota faz a linha quebrar em duas, o
+       sinal e a marca pertencem à primeira delas, como num diff de verdade.
+       Centrados, os dois flutuavam no meio do bloco de duas linhas, apontando
+       para o vão entre elas. Em linha de uma altura só o resultado é idêntico
+       ao de `center`, porque aí não há sobra para distribuir. */
+    align-items: start;
     column-gap: 1ch;
   }
 
   .linha__sinal {
     text-align: center;
+  }
+
+  /* A marca tem 1.15em numa linha de 1.75em, então com `align-items: start` ela
+     precisa da metade da sobra para voltar ao centro óptico da primeira linha.
+     A conta sai dos dois números que já existem (a altura de linha do bloco e a
+     caixa do ícone), e não de um valor escolhido a olho.
+
+     `:global` porque o `<svg>` vem de `IconeMarca.astro` e carrega o escopo
+     daquele componente, não o desta página: é alinhamento de quem posiciona,
+     não desenho de quem é posicionado, então a regra mora aqui. */
+  .linha > :global(.marca--linha) {
+    margin-block-start: calc((1.75em - 1.15em) / 2);
   }
 
   /* O `-` fica apagado e o `+` em azul cheio. A hierarquia diz qual lado está
@@ -387,6 +427,27 @@ const arquivoPara = 'o-que-eu-uso';
      (ela já é `--accent`), então quem confirma o alvo é o sublinhado fechando. */
   .linha__link {
     text-decoration-color: color-mix(in oklab, currentColor 25%, transparent);
+  }
+
+  /* Comentário de linha, na língua que o bloco já fala: `#` é o que um arquivo
+     de configuração usa para dizer "isto é observação, não conteúdo", e os dois
+     arquivos comparados aqui são exatamente isso. Não precisou inventar
+     símbolo — `-`, `+`, espaço e `@@` já estavam gastos, e o `#` sobrou com o
+     significado pronto para quem roda comando.
+
+     Tom único nas três faixas, sem peso e sem cor própria, inclusive na linha
+     `+` que é a única em negrito: num terminal de verdade o comentário não
+     muda de cor conforme o sinal da linha, e aqui a nota é rodapé do nome, não
+     concorrente dele. Na linha `-` ela sai na mesma cor do nome, e quem separa
+     os dois é o `#` — que é para isso que ele existe.
+
+     Mora dentro de `.linha__nome`, na terceira coluna, então quando não cabe
+     ela quebra e volta alinhada embaixo do nome, como um terminal indenta
+     continuação. O espaço antes do `#` é `{' '}` explícito: sem ele o
+     compilador cola `Android#` (ver o CLAUDE.md). */
+  .linha__nota {
+    color: var(--text-faint);
+    font-weight: 400;
   }
 
   .term__stat {

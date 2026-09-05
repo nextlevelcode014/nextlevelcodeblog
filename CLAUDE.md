@@ -219,6 +219,19 @@ como a saída de um `diff -u` num bloco de terminal.
   o contrário.
 - **Os números do diffstat saem dos dados**, nunca escritos à mão: legenda
   escrita à mão envelhece calada no dia em que entrar uma troca nova.
+- **Nota de linha é comentário de arquivo, e escreve-se `# texto`** (campo
+  `nota` de `Marca` e de `Ferramenta`). Serve para a linha que mente por
+  omissão sem uma frase ao lado e cuja correção não cabe no nome nem na
+  categoria: hoje é só o Android, que é contexto porque GrapheneOS e LineageOS
+  **são** Android. O `#` não foi inventado para isto — `-`, `+`, espaço e
+  `@@` já estavam gastos, e os dois arquivos comparados são arquivos de
+  configuração, que é onde `#` já quer dizer "observação, não conteúdo".
+  Frase curta, minúscula, sem ponto final. Ela sai no tom mais baixo e sem peso
+  nas três faixas, porque num terminal o comentário não muda de cor conforme o
+  sinal da linha, e não entra no diffstat, porque comentário não é linha
+  inserida nem removida. **Uma por linha, e só onde a página estaria errada sem
+  ela**: comentário em toda linha vira legenda, que é o que sumiu quando os
+  cards viraram `diff`.
 - **Só a alternativa ganha link.** Quem chega já conhece o serviço da esquerda, e
   mandar tráfego para ele não é o que esta página faz.
 - **Sem logo, a caixa fica vazia e tracejada** (`IconeMarca.astro`). Ela já

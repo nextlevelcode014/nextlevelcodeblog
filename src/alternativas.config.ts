@@ -30,6 +30,26 @@ export interface Ferramenta {
    * alinhamento das colunas não depende de todo item ter desenho.
    */
   icone?: string;
+  /**
+   * Comentário de uma linha só, colado no fim dela como `# texto`.
+   *
+   * Existe para a linha que mente por omissão sem uma frase ao lado, e cuja
+   * correção não cabe no nome nem na categoria: o Android é contexto porque
+   * GrapheneOS e LineageOS **são** Android, e sem isso escrito a linha parece
+   * incoerente com as outras. É o mesmo motivo pelo qual arquivo de
+   * configuração ganha comentário, e os dois arquivos que esta página compara
+   * (`o-que-eu-usava` e `o-que-eu-uso`) são isso: o `#` já vinha com o
+   * significado pronto, não precisou ser inventado.
+   *
+   * Use pouco, e só onde a página estaria errada sem a nota. Comentário em
+   * toda linha vira legenda, e legenda é justamente o que sumiu quando os
+   * cards viraram `diff`. Não entra no diffstat, porque comentário não é
+   * linha inserida nem removida.
+   *
+   * Frase curta, em minúscula e sem ponto final: é comentário de arquivo, não
+   * período de texto.
+   */
+  nota?: string;
 }
 
 /**
@@ -42,6 +62,8 @@ export interface Marca {
   nome: string;
   /** Slug da marca em `icones.ts`, com a mesma regra do `icone`. */
   icone?: string;
+  /** Comentário de linha, com a mesma regra do `nota` de `Ferramenta`. */
+  nota?: string;
 }
 
 export interface Alternativa {
@@ -274,7 +296,9 @@ export const alternativas: Alternativa[] = [
     categoria: 'Sistema do celular',
     // Contexto e não remoção porque os dois de baixo são Android: o que saiu
     // foi o Android do Google, não o sistema.
-    contexto: [{ nome: 'Android', icone: 'android' }],
+    contexto: [
+      { nome: 'Android', icone: 'android', nota: 'o que saiu foi o Android do Google' },
+    ],
     para: [
       { nome: 'GrapheneOS', url: 'https://grapheneos.org/', icone: 'grapheneos' },
       { nome: 'LineageOS', url: 'https://lineageos.org/', icone: 'lineageos' },
