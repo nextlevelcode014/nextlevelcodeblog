@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import SectionHead from '../../components/SectionHead.astro';
+import Prompt from '../../components/Prompt.astro';
 import PostCard from '../../components/PostCard.astro';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
@@ -27,9 +28,10 @@ const lead =
 >
   <section class="section">
     <div class="wrap">
+      <Prompt />
+
       <SectionHead
         as="h1"
-        eyebrow="Blog"
         title="O que eu ando estudando"
         link={{ href: '/rss.xml', label: 'Assinar RSS' }}
       />

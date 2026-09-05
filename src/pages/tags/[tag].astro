@@ -4,7 +4,7 @@ import Base from '../../layouts/Base.astro';
 import SectionHead from '../../components/SectionHead.astro';
 import PostCard from '../../components/PostCard.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
-import Breadcrumb from '../../components/Breadcrumb.astro';
+import Prompt from '../../components/Prompt.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
@@ -45,9 +45,9 @@ const total = posts.length + projetos.length;
 >
   <section class="section">
     <div class="wrap">
-      <Breadcrumb parentHref="/tags/" />
+      <Prompt parentHref="/tags/" />
 
-      <SectionHead as="h1" eyebrow="Tag" title={tag} />
+      <SectionHead as="h1" title={tag} />
 
       <p class="lead">
         {total} {total === 1 ? 'item marcado' : 'itens marcados'} com <strong>{tag}</strong>.
@@ -79,7 +79,7 @@ const total = posts.length + projetos.length;
         )
       }
 
-      <Breadcrumb parentHref="/tags/" bottom />
+      <Prompt parentHref="/tags/" bottom />
     </div>
   </section>
 </Base>

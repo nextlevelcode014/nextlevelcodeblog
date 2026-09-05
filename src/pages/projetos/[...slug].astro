@@ -2,7 +2,7 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import StatusMark from '../../components/StatusMark.astro';
-import Breadcrumb from '../../components/Breadcrumb.astro';
+import Prompt from '../../components/Prompt.astro';
 
 export async function getStaticPaths() {
   const projetos = await getCollection('projetos', ({ data }) => !data.draft);
@@ -25,7 +25,7 @@ const { title, description, year, status, tags, repo, demo } = project.data;
   <article class="section">
     <div class="wrap">
       <header class="head">
-        <Breadcrumb parentHref="/projetos/" />
+        <Prompt parentHref="/projetos/" />
 
         <h1 class="head__title">{title}</h1>
         <p class="head__desc">{description}</p>
@@ -85,7 +85,7 @@ const { title, description, year, status, tags, repo, demo } = project.data;
         <Content />
       </div>
 
-      <Breadcrumb parentHref="/projetos/" bottom />
+      <Prompt parentHref="/projetos/" bottom />
     </div>
   </article>
 </Base>

@@ -3,6 +3,7 @@ import { statSync } from 'node:fs';
 import { join } from 'node:path';
 import Base from '../layouts/Base.astro';
 import SectionHead from '../components/SectionHead.astro';
+import Prompt from '../components/Prompt.astro';
 import { principles } from '../site.config';
 
 /**
@@ -39,7 +40,9 @@ const curriculo = lerCurriculo();
 >
   <section class="section">
     <div class="wrap">
-      <SectionHead as="h1" eyebrow="Sobre" title="Quem está por trás disso" />
+      <Prompt />
+
+      <SectionHead as="h1" title="Quem está por trás disso" />
 
       <div class="layout">
         <div class="prose">
@@ -97,26 +100,17 @@ const curriculo = lerCurriculo();
           </div>
 
           {/*
-            Aqui ficavam as dez pílulas de "Ferramentas do dia a dia", que
-            saíram por nome solto de tecnologia provar pouco e envelhecer
-            sozinho. O espaço reservado virou este link.
+            Aqui ficavam as dez pílulas de "Ferramentas do dia a dia", e depois
+            delas um link para a /uso/, que era onde a lista tinha ido morar.
+            As duas saíram, nesta ordem e por motivos diferentes: as pílulas
+            porque nome solto de tecnologia prova pouco e envelhece sozinho, e
+            o link porque a página que ele abria não existe mais.
 
-            A lista não voltou para cá, e não deve voltar: na lateral cabiam
-            dez nomes e nenhuma explicação, que é exatamente o defeito que a
-            tirou. Em /uso/ cada item tem o motivo e a página tem registro de
-            mudanças, então ela envelhece por escrito em vez de em silêncio.
+            **A lista não volta para cá.** Na lateral cabiam dez nomes e
+            nenhuma explicação, que é exatamente o defeito que a tirou. Se o
+            assunto voltar, ele volta como página própria, com o motivo de cada
+            item e registro do que mudou, e não como pílula ao lado do texto.
           */}
-          <div class="side__block">
-            <h2 class="eyebrow">O que eu uso</h2>
-            <p class="side__nota">
-              O sistema, os programas e os serviços que rodam aqui todo dia, com o motivo de
-              cada escolha.
-            </p>
-            <a class="side__link" href="/uso/">
-              Ver a lista
-              <span class="side__arrow" aria-hidden="true">↗</span>
-            </a>
-          </div>
 
           <div class="side__actions">
             <a href="/contato/" class="btn">
@@ -198,34 +192,10 @@ const curriculo = lerCurriculo();
     color: var(--text-muted);
   }
 
-  .side__nota {
-    margin-block-start: var(--space-2xs);
-    font-size: var(--fs-sm);
-    color: var(--text-muted);
-  }
-
-  /* Mesmo degrau de hierarquia do currículo logo abaixo: texto com seta, não
-     botão. O único botão preenchido da página continua sendo "Falar comigo". */
-  .side__link {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 0.35em;
-    margin-block-start: var(--space-2xs);
-    font-family: var(--font-heading);
-    font-size: var(--fs-sm);
-    font-weight: 600;
-    color: var(--accent);
-    text-decoration: none;
-  }
-
-  .side__arrow {
-    display: inline-block;
-    transition: transform var(--dur) var(--ease-out);
-  }
-
-  .side__link:hover .side__arrow {
-    transform: translate(2px, -2px);
-  }
+  /* Aqui viviam `.side__nota`, `.side__link` e `.side__arrow`, o desenho do
+     link para a /uso/. Saíram com ele: regra de estilo sem elemento é a que
+     ninguém apaga depois, porque não dá erro em lugar nenhum. O currículo logo
+     abaixo continua sendo o único texto-com-seta desta lateral. */
 
   .side__actions {
     display: grid;

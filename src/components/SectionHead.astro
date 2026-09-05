@@ -1,10 +1,16 @@
 ---
 /**
- * Cabeçalho padrão de seção: numeração + etiqueta em caixa alta, título
- * grande e, opcionalmente, um link de "ver tudo" alinhado à direita.
+ * Cabeçalho padrão de seção: etiqueta em caixa alta, título grande e,
+ * opcionalmente, um link de "ver tudo" alinhado à direita.
  */
 interface Props {
-  eyebrow: string;
+  /**
+   * Etiqueta acima do título. **Opcional porque nem toda página tem o que pôr
+   * ali**: onde existe uma linha de prompt (`Prompt.astro`) logo acima, o
+   * caminho `~/blog` já diz a mesma palavra que a etiqueta diria, e as duas
+   * juntas empilham três rótulos antes do primeiro parágrafo.
+   */
+  eyebrow?: string;
   title: string;
   /** Nível do heading — para não quebrar a hierarquia da página. */
   as?: 'h1' | 'h2';
@@ -16,7 +22,7 @@ const { eyebrow, title, as: Tag = 'h2', link } = Astro.props;
 
 <div class="head">
   <div>
-    <p class="eyebrow">{eyebrow}</p>
+    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
     <Tag class="head__title">{title}</Tag>
   </div>
 
@@ -46,6 +52,12 @@ const { eyebrow, title, as: Tag = 'h2', link } = Astro.props;
     margin-block-start: var(--space-2xs);
     font-size: var(--fs-xl);
     letter-spacing: var(--tracking-tighter);
+  }
+
+  /* Sem etiqueta acima, o título é o primeiro elemento do bloco, e a folga que
+     o separava dela viraria um degrau solto abaixo da linha de prompt. */
+  .head__title:first-child {
+    margin-block-start: 0;
   }
 
   .head__link {

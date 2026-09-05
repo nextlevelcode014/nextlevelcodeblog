@@ -25,10 +25,30 @@ export const quote = {
   work: 'Duna',
 } as const;
 
+/*
+ * O menu do cabeçalho. O `label` é o nome acessível de cada item; o texto
+ * visível é o caminho, montado a partir do `href` no `Header.astro`.
+ *
+ * A `/alternativas/` está aqui porque é a página que responde a quem chega de
+ * fora: quem procura "alternativa ao Google Fotos" cai nela sem nunca ter lido
+ * um post, e o menu é a única entrada que serve a quem ainda não conhece o
+ * autor.
+ *
+ * A ordem é conteúdo primeiro, autor por último. `/alternativas/` fica depois
+ * do `/blog/` porque é a página que responde a uma pergunta trazida de fora;
+ * `/sobre/` fecha a lista porque é a única que só interessa depois que alguma
+ * das outras interessou.
+ *
+ * Cinco itens já ocupam a segunda linha inteira do cabeçalho de celular: a
+ * 390px o menu mede 350px numa largura útil de 350px (ver `Header.astro`).
+ * Antes de acrescentar o sexto, meça — ele vai transbordar, e aí a decisão
+ * volta a ser entre esconder destino atrás de um gesto ou tirar alguém daqui.
+ */
 export const nav = [
   { href: '/', label: 'Início' },
   { href: '/projetos/', label: 'Projetos' },
   { href: '/blog/', label: 'Blog' },
+  { href: '/alternativas/', label: 'Alternativas' },
   { href: '/sobre/', label: 'Sobre' },
 ] as const;
 

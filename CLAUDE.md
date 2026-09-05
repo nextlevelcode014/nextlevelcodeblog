@@ -100,6 +100,52 @@ arquivos não descrevem nada do que está publicado.
 - Tags não são cadastradas em lugar nenhum — `/tags/` e `/tags/<nome>/` são geradas do
   que existe nos arquivos. Use minúsculas sem acento: a tag vira URL.
 
+**A navegação é escrita como sessão de terminal.** São três peças da mesma
+língua, e elas se sustentam juntas:
+
+- o menu do cabeçalho é o `cd` — cada item é um caminho (`/home`, `/blog`), não
+  uma palavra. Com cinco itens ele não cabe numa linha de celular, então abaixo
+  de 34rem o cabeçalho vira **duas linhas**: marca e ações em cima, menu inteiro
+  embaixo. Duas linhas e não hambúrguer, porque hambúrguer custa JavaScript,
+  estado e um listener que as View Transitions matam a cada navegação, e porque
+  nenhum destino fica escondido atrás de um gesto. O texto sai do `href`, nunca digitado à mão. A home já foi `~`,
+  que é o que um prompt de verdade escreve: saiu porque um caractere só é alvo
+  de 6px de largura, abaixo do mínimo de 24px da WCAG 2.5.8. `/home` nomeia o
+  diretório errado num sistema de arquivos de verdade, e essa imprecisão foi o
+  preço aceito pelo alvo;
+- `Prompt.astro` é a linha seguinte, no topo de toda página que não é a home.
+  Com `parentHref` ela vira `~/blog/slug $ cd ..`, um `<nav>` com um link; sem
+  ele, `~/blog $ ls`, sem ação e inteira fora da árvore de acessibilidade — é a
+  mesma informação do `<h1>` e do `aria-current` do menu, escrita como desenho;
+- a `/404/` fecha o ciclo com a mensagem que o bash daria, e é a única página
+  onde o cursor pisca.
+
+Duas regras para não virar fantasia:
+
+**O terminal manda na estrutura; a trajetória manda no gráfico.** Caminho,
+comando, listagem e metadado falam terminal. Divisória, logo, `StatusMark` e o
+ângulo de 58° continuam sendo o vocabulário da marca. Se o terminal invadir o
+gráfico (arte ASCII no lugar do `.rule`, moldura de janela em volta do
+conteúdo), o 58° vira enfeite sem significado e a marca se perde para ganhar
+um tema.
+
+**Nada de prompt falso que aceita comando digitado para navegar.** Quebra
+teclado, leitor de tela e o site sem JavaScript, e é a metáfora emprestada que
+faz um elemento parecer templated: qualquer um cola um emulador de terminal
+numa home. O que existe aqui é link e texto, com desenho de terminal. Pelo
+mesmo motivo, nada de verde sobre preto, nada de mono no corpo do texto e
+cursor piscando num lugar só.
+
+**Onde a linha de prompt aparece, o `.eyebrow` sai.** O caminho `~/blog` já diz
+a palavra que a etiqueta dizia, e as duas juntas empilham três rótulos antes do
+primeiro parágrafo. Por isso o `eyebrow` de `SectionHead.astro` é opcional — nas
+seções da home, onde não há prompt, ele continua.
+
+**`/` leva à busca de qualquer página** (`Header.astro`), e `Esc` limpa o campo
+(`busca.astro`). É o atalho que faz o menu de caminhos ser mais que desenho.
+Ele é anunciado só no `title` do botão de lupa: a nav não tem folga para uma
+etiqueta de tecla a 390px.
+
 **Busca** (`/busca/`, ícone de lupa no cabeçalho) roda inteira no navegador. São três
 peças: `src/busca.ts` monta o índice no build, `src/pages/busca.json.ts` o serve como
 `/busca.json`, e `src/pages/busca.astro` baixa esse arquivo e filtra. Nenhuma
@@ -118,33 +164,92 @@ requisição sai do domínio, e nada do que é pesquisado é registrado.
 - `src/busca.ts` fica solto em `src/`, ao lado de `site.config.ts` e
   `content.config.ts`: módulo compartilhado é raro aqui e a árvore é plana.
 
-**`/uso/`** (dados em `src/uso.config.ts`) é a página de "o que eu uso": máquina,
-sistema, programas e os serviços que rodam no Raspberry Pi. Três regras, e as três
-são o motivo de ela existir depois que as listas de ferramentas saíram (#22):
+**`/alternativas/`** (dados em `src/alternativas.config.ts`, página em
+`src/pages/alternativas.astro`) é a página de "o que eu uso no lugar": cada linha
+é um serviço que o autor deixou de usar e o que entrou no lugar dele, desenhada
+como a saída de um `diff -u` num bloco de terminal.
 
-- **Item sem a linha `uso` não entra.** O campo não é descrição da ferramenta, é
-  por que ela está *nesta* máquina. Sem ele, volta a ser a pílula que foi removida.
-- **Mudança na lista pede linha em `mudancas`**, com data e motivo. É o que faz a
-  página envelhecer por escrito em vez de em silêncio, e o "atualizado em" do topo
-  sai da data mais recente. A data é string ISO formatada na mão: `new Date('…')`
-  lê meia-noite em UTC e volta um dia no fuso de Brasília.
-- **Referência a post ou projeto entra pelo campo `leitura` do item**, que vira link
-  no fim da linha de `uso`. Não crie bloco de "veja também" no fim da página: ele
-  serve a trinta itens e a nenhum, e chega depois que a pessoa terminou de ler.
-  O campo é opcional porque item com link é convite; se todos tivessem, nenhum seria.
-- **A página fica fora do `nav`.** O menu é caminho de cliente, e o público desta
-  página é quem lê o blog. Ela é alcançada pela `/sobre/`, pela busca e por link
-  direto. Pôr no menu ainda esbarra na issue #13 (nav não cabe a 390px).
-  Por isso a trilha (`Breadcrumb.astro`) dela aponta para a `/sobre/` e não para
-  a raiz: fora do menu, a `/sobre/` é a única entrada que existe aqui dentro, e
-  devolver a pessoa para a home a faria procurar de novo por uma página que o
-  menu não tem. Como a URL é `/uso/` e não `/sobre/uso/`, o botão sai como
-  `cd ~/sobre` em vez de `cd ..` — o componente compara a URL com o pai e só
-  escreve `cd ..` quando o pai é mesmo o diretório acima.
+- **Só entra troca que aconteceu.** Ferramenta que não substituiu nada fica de
+  fora. Forçar um par para encher categoria inventaria um adversário que não
+  existe, que é o defeito que as regras de escrita abaixo mandam evitar. É essa
+  regra que separa a página de um diretório de recomendação como o
+  privacypack.org: aqui tudo é primeira mão, e a página só cresce quando o autor
+  troca de ferramenta de verdade. **Não invente par** sem o autor pedir com
+  essas palavras.
+- **Linha sem `de` é trecho só de adição.** A categoria existe, mas o autor
+  nunca chegou a usar o serviço que quase todo mundo usa ali: entrou direto na
+  alternativa. Hoje são cinco (Senhas, Dois fatores, Escritório, VPN, DNS) de
+  vinte e oito. O `de` é opcional no `Alternativa`, a linha do `-` some
+  inteira e o diffstat conta só as remoções que houve. O teste não é a
+  quantidade, é a categoria: do outro lado dela precisa haver um serviço que o
+  leitor conhece e que a linha ocupa o lugar. Sem isso, a página vira lista de
+  ferramenta preferida, que é a `/uso/` que saiu do ar.
+- **As três faixas são listas**: `de` (saiu), `contexto` (ficou) e `para`
+  (entrou). As duas primeiras usam `Marca` (nome e ícone, sem `url`, porque
+  não ganham link); a última usa `Ferramenta`, que exige `url`. O `de` era um
+  texto só até a categoria Streaming, onde saíram Netflix e Prime Video:
+  generalizar para "serviços de streaming" trocaria dois nomes que o leitor
+  reconhece por uma categoria que não diz nada, que é o contrário do que as
+  regras de escrita mandam. O diffstat conta **linha**, não categoria.
+- **Linha sem sinal nenhum é contexto de `diff`**, e quer dizer que o autor
+  ainda usa aquilo: a alternativa entrou ao lado, não no lugar. São nove hoje
+  (Gmail, WhatsApp, Claude, Instagram, Reddit, Substack, Android, GitHub,
+  Cloudflare), no campo `contexto` do `Alternativa`, que é lista porque numa
+  categoria pode sobrar mais de um. Num `diff -u` de verdade, linha de contexto
+  é a que existe nos dois arquivos, e os arquivos aqui se chamam
+  `o-que-eu-usava` e `o-que-eu-uso`: o sinal já existia no formato e não foi
+  inventado. Não use o `!` do `diff -c` para isso, que é misturar dois
+  dialetos na mesma saída. O tom da linha é `--text` (nem apagado como quem
+  saiu, nem acento como quem entrou), ela não ganha link (só a alternativa
+  ganha) e o diffstat não a conta nem como inserção nem como remoção.
+  **Escrever `-` num serviço que continua instalado é a página mentindo**, e é
+  exatamente o que este campo existe para evitar. O Android é contexto por um
+  motivo diferente dos outros oito: GrapheneOS e LineageOS **são** Android, e
+  um `-` ali diria que saiu o sistema, quando o que saiu foi o Android do
+  Google.
+- **Categoria pode ter `para` vazio.** É o Domínio: o autor depende da
+  Cloudflare e não achou registrador para pôr no lugar, então a categoria é uma
+  linha de contexto sozinha. Ela não some da página porque a dependência existe
+  mesmo sem resposta, e é isso que separa esta página de uma vitrine. Se um dia
+  entrar alternativa, ela entra como `para` e o contexto some ou vira remoção.
+- **Rede social é a categoria sem nenhuma remoção**: três mantidos e uma
+  alternativa. Ela já esteve comentada no config e voltou com essa forma. Se
+  parecer desequilibrada ao lado das outras, é porque é: o que prende ali não é
+  o aplicativo, são as pessoas que estão nele, e a página diz isso não fingindo
+  o contrário.
+- **Os números do diffstat saem dos dados**, nunca escritos à mão: legenda
+  escrita à mão envelhece calada no dia em que entrar uma troca nova.
+- **Só a alternativa ganha link.** Quem chega já conhece o serviço da esquerda, e
+  mandar tráfego para ele não é o que esta página faz.
+- **Sem logo, a caixa fica vazia e tracejada** (`IconeMarca.astro`). Ela já
+  escreveu a inicial do nome e isso foi trocado: em "Localizar aparelho" saíam
+  duas caixas com a mesma letra (`F` de Find Hub, `F` de FMD), e letra em caixa
+  com borda é o desenho de várias marcas de verdade, então a reserva competia
+  com os logos em vez de se afastar deles. Produto de dono que não publica vetor
+  usa a marca do dono quando ela existe: Gboard e Find Hub levam o `G` do
+  Google. O Simple Icons **removeu do projeto as marcas da Microsoft e da
+  Amazon**, então Windows foi desenhado aqui (quatro quadrados, geometria reta)
+  e Prime Video ficou sem.
+- Os ícones de marca são caminho SVG embutido (`src/icones.ts`,
+  `IconeMarca.astro`), monocromáticos: é o que respeita a promessa de nenhum
+  recurso de terceiro e deixa o assunto ser a troca, não a marca.
 
-O `texto` dela no índice da busca é gerado do próprio `uso.config.ts`, e não escrito
-à mão como o das outras páginas institucionais: quem procura digita `immich`, não
-"uso". Item novo entra na busca junto com a página.
+**A `/uso/` não existe mais.** Ela era a lista de "o que eu uso" (máquina,
+sistema, programas e os serviços do Raspberry Pi), com o motivo de cada item e
+um registro de mudanças. Saiu por decisão do autor junto com o link para ela na
+lateral da `/sobre/` e a menção no fim da lead da `/alternativas/`. A página, os
+dados (`src/uso.config.ts`) e as regras de escrita dela estão no git, no commit
+anterior a esta remoção, caso o assunto volte como página de setup.
+
+Duas coisas que a saída dela deixou de pé, e que continuam valendo:
+
+- **As pílulas de "Ferramentas do dia a dia" não voltam para a `/sobre/`.** Elas
+  saíram em #22 porque nome solto de tecnologia prova pouco e envelhece sozinho,
+  e a lateral cabia dez nomes e nenhuma explicação. A `/uso/` existiu justamente
+  para dar motivo a cada item; sem ela, o defeito das pílulas não some.
+- **Se o assunto voltar, volta como página própria** — com o motivo de cada item
+  e registro do que mudou — e não como lista dentro da `/alternativas/`, que tem
+  outra regra (só troca que aconteceu) e outro público.
 
 **Estilo** tem três camadas:
 1. `src/styles/tokens.css` — variáveis. Os dois temas saem de uma declaração só via

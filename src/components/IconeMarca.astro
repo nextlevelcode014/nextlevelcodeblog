@@ -1,0 +1,121 @@
+---
+import { marcas } from '../icones';
+
+/**
+ * A marca de uma ferramenta na linha de diff da página `/alternativas/`.
+ *
+ * Nem toda ponta do par tem marca: "DNS do provedor" não é empresa nenhuma, e
+ * Prime Video, Gboard e Find Hub são de donos que não publicam vetor (o Simple
+ * Icons tirou as marcas da Microsoft e da Amazon do projeto). Sem desenho, o
+ * componente põe uma **caixa vazia de borda tracejada**, do mesmo tamanho.
+ *
+ * Ela já escreveu a inicial do nome, e a inicial era pior por dois motivos. Em
+ * "Localizar aparelho" saíam duas caixas com a mesma letra, `F` de Find Hub e
+ * `F` de FMD, e duas letras iguais numa troca leem como repetição em vez de
+ * ausência. E letra em caixa com borda é exatamente o desenho de várias marcas
+ * de verdade, então a reserva competia com os logos ao lado em vez de se
+ * afastar deles. Tracejado é a convenção de lugar vazio, e não afirma nada
+ * sobre a ferramenta.
+ *
+ * O `aria-hidden` vale para os dois casos: o nome da ferramenta está escrito
+ * ao lado, e a caixa não acrescenta informação nenhuma a quem ouve.
+ *
+ * **A cor é prop e não classe de fora.** O estilo escopado do Astro só marca
+ * os elementos escritos no próprio componente, então uma regra na página não
+ * alcança este `<svg>`: a primeira versão passava `class="troca__icone--para"`
+ * e a cor simplesmente não pegava, com os dois ícones saindo na cor do texto.
+ * Quem decide o tom continua sendo a página, mas por um valor que o componente
+ * sabe interpretar.
+ */
+interface Props {
+  /** Slug em `icones.ts`. Ausente ou desconhecido: cai na caixa vazia. */
+  slug?: string;
+
+  /**
+   * `apagado` para o que saiu, `acento` para o que entrou e `neutro` para o
+   * que continua em uso (a linha de contexto do diff, que não é nem uma coisa
+   * nem outra).
+   */
+  tom?: 'apagado' | 'acento' | 'neutro';
+  /**
+   * `bloco` é a caixa de 28px. `linha` encolhe a marca para a altura de uma
+   * linha de texto, para ela caber no meio de uma linha de diff sem estourar o
+   * passo vertical das outras — o que quebraria a grade da saída de terminal.
+   * A medida sai em `em` de propósito: ali a fonte é fluida, e um valor em px
+   * descolaria do texto ao lado conforme a viewport.
+   */
+  tamanho?: 'bloco' | 'linha';
+  class?: string;
+}
+
+const { slug, tom = 'apagado', tamanho = 'bloco', class: className } = Astro.props;
+const caminho = slug ? marcas[slug] : undefined;
+const classes = ['marca', `marca--${tom}`, `marca--${tamanho}`, className];
+---
+
+{
+  caminho ? (
+    <svg
+      class:list={classes}
+      viewBox="0 0 24 24"
+      width="28"
+      height="28"
+      aria-hidden="true"
+      fill="currentColor"
+    >
+      <path d={caminho} />
+    </svg>
+  ) : (
+    <span class:list={[...classes, 'marca--vazio']} aria-hidden="true" />
+  )
+}
+
+<style>
+  .marca {
+    flex: none;
+  }
+
+  .marca--bloco {
+    inline-size: 28px;
+    block-size: 28px;
+  }
+
+  /* 1.15em e não 1em: o desenho do Simple Icons preenche a caixa inteira,
+     enquanto a letra ao lado só ocupa a altura de x. Caixas iguais fariam a
+     marca parecer maior que o nome. */
+  .marca--linha {
+    inline-size: 1.15em;
+    block-size: 1.15em;
+  }
+
+  .marca--apagado {
+    color: var(--text-faint);
+  }
+
+  /* O que está na máquina hoje é o único elemento colorido do bloco. Azul e
+     não laranja: são oito linhas `+`, e laranja repetido oito vezes deixa de
+     ser acento (ver o CLAUDE.md). */
+  .marca--acento {
+    color: var(--accent);
+  }
+
+  /* Cor de corpo: nem apagada como quem saiu, nem em acento como quem entrou.
+     É a linha que continua igual nos dois arquivos, e o tom diz isso sozinho
+     antes de o leitor reparar que falta o sinal. */
+  .marca--neutro {
+    color: var(--text);
+  }
+
+  /* A reserva ocupa exatamente a caixa do ícone. Borda tracejada e miolo vazio:
+     é a convenção de lugar sem conteúdo, e é o que separa a ausência de um logo
+     de verdade. Sem preenchimento também para ela não pesar mais que os
+     desenhos ao lado, que são vazados.
+
+     Meio tom de opacidade porque ela não é informação, é a falta dela: cheia,
+     puxava mais o olho que as marcas que a linha quer mostrar. */
+  .marca--vazio {
+    border: 1px dashed currentColor;
+    border-radius: var(--radius-sm);
+    opacity: 0.5;
+  }
+</style>

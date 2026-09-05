@@ -1,0 +1,411 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Prompt from '../components/Prompt.astro';
+import IconeMarca from '../components/IconeMarca.astro';
+import { alternativas } from '../alternativas.config';
+
+/**
+ * `/alternativas/` responde "o que eu ponho no lugar do que você já usa", para
+ * quem chegou procurando alternativa a um serviço.
+ *
+ * Ela nasceu como dobra dentro da `/uso/`, virou página própria e ficou sendo a
+ * única das duas: a `/uso/` respondia "o que eu uso" para quem já lia o site, e
+ * saiu por decisão do autor. Se o assunto voltar, volta como página própria e
+ * não como lista dentro desta.
+ *
+ * Por estar no `nav`, a linha de prompt do topo é a forma sem ação
+ * (`~/alternativas $ ls`) e não a trilha com `cd`: o menu já é o caminho de
+ * volta, e um botão de subir um nível no topo diria que se entrou por outra
+ * página.
+ *
+ * ## Por que a página é uma saída de `diff`
+ *
+ * A grade de sete cards (um par por card, com seta no meio) foi trocada por um
+ * bloco único de terminal com a saída de um `diff -u`. Quatro motivos:
+ *
+ * - **O `-` e o `+` são a explicação inteira.** O card precisava de uma seta
+ *   desenhada para dizer "isto virou aquilo", e a seta é um símbolo que a
+ *   página tinha que ensinar. Já os dois sinais do diff chegam com o
+ *   significado pronto para o público desta página, que é quem roda comando.
+ * - **A troca de duas alternativas deixa de ser exceção.** No card, o segundo
+ *   nome ficava empilhado embaixo e parecia nota de rodapé. Num diff, uma
+ *   remoção com duas adições é saída normal, e não precisa de desenho especial.
+ * - **A comparação passa a ser vertical.** Sete cards lado a lado comparam
+ *   card com card; o que interessa comparar é a coluna de quem saiu com a
+ *   coluna de quem entrou, e isso só acontece com tudo alinhado no mesmo eixo.
+ * - **Some a rolagem lateral a 390px.** A grade dependia de `minmax` e de dois
+ *   nomes caberem lado a lado dentro de uma coluna; uma linha de texto não tem
+ *   esse problema.
+ *
+ * Não há moldura de janela com três bolinhas: esse é o vocabulário do macOS,
+ * não o do terminal, e metáfora emprestada é o que faz um elemento parecer
+ * templated (ver o CLAUDE.md). O que veste isto de terminal é o que o site já
+ * usa na trilha e na busca — monoespaçada, `$`, bloco de cursor e uma hairline
+ * de 1px.
+ */
+
+/**
+ * O `diff` da saída é de verdade: os números saem dos dados, não do texto.
+ * Escrever "7 remoções, 8 adições" à mão seria o tipo de legenda que envelhece
+ * calada no dia em que uma troca entrar no `alternativas.config.ts`.
+ */
+const categorias = alternativas.length;
+/**
+ * Linha de contexto não entra em nenhuma das duas contas: o serviço está nos
+ * dois arquivos comparados, então não foi inserido nem removido. Contá-la seria
+ * a mesma mentira que pôr um sinal na frente dela.
+ *
+ * Conta linha e não categoria, como o `diffstat` de verdade: Streaming sozinha
+ * tem duas remoções. Enquanto toda categoria tinha um `de` só, os dois jeitos
+ * davam o mesmo número, e foi o dia em que dois serviços saíram da mesma
+ * categoria que separou um do outro.
+ */
+const remocoes = alternativas.reduce((total, t) => total + (t.de?.length ?? 0), 0);
+const adicoes = alternativas.reduce((total, t) => total + t.para.length, 0);
+
+/**
+ * Os nomes dos dois arquivos comparados fazem o trabalho de legenda sem serem
+ * uma legenda: quem lê `--- o-que-eu-usava` / `+++ o-que-eu-uso` já sabe o que
+ * cada sinal quer dizer antes de chegar na primeira linha. O segundo nome é o
+ * da página irmã de propósito — o `+` desta página é a lista daquela.
+ */
+const arquivoDe = 'o-que-eu-usava';
+const arquivoPara = 'o-que-eu-uso';
+---
+
+<Base
+  title="Alternativas"
+  description="O serviço que eu deixei de usar e o que entrou no lugar dele. Só entra troca que aconteceu: são as ferramentas que eu uso hoje."
+>
+  <section class="section">
+    <div class="wrap">
+      <Prompt />
+
+      <SectionHead as="h1" title="O que eu uso no lugar" />
+
+      {/*
+        A lead diz o critério, que é a única coisa que a saída sozinha não diz.
+        Ela terminava mandando quem procurava o resto para a /uso/; sem aquela
+        página, o critério passou a se sustentar sozinho, em vez de virar um
+        link quebrado ou uma promessa de lista que não existe.
+      */}
+      <p class="lead">
+        Cada par abaixo é um serviço que eu deixei de usar e o que entrou no lugar
+        dele. Só entra troca que aconteceu de verdade, não ferramenta que eu
+        simplesmente gosto. Onde não há linha de menos, eu nunca cheguei a usar o
+        serviço daquela categoria: entrei direto na alternativa. E linha sem sinal
+        nenhum é o que eu ainda uso e não consegui deixar.
+      </p>
+
+      {/*
+        A sessão de shell é uma só na página inteira: a linha do topo abre com
+        `~/alternativas $ ls`, este bloco continua nela e por isso o prompt aqui
+        é só `$`, sem repetir o caminho. Repetir `~/alternativas` duas telas
+        abaixo do primeiro seria dizer que a pessoa mudou de diretório e voltou.
+
+        Todo o cabeçalho do diff é `aria-hidden`: lido em voz alta, `--- o-que-
+        eu-usava` vira "traço traço traço" e o `@@` vira "arroba arroba". Quem
+        ouve a página recebe a mesma informação pelo texto invisível de cada
+        linha ("Saí de …", "para …"), que diz em palavra o que o sinal diz em
+        símbolo. Isso também é o que impede o desenho de virar decoração sem
+        conteúdo: tirando os sinais, as linhas continuam completas.
+      */}
+      <div class="term">
+        <p class="term__linha term__cmd" aria-hidden="true">
+          <span class="term__cifrao">$</span>{' '}
+          <span class="term__arg">diff -u {arquivoDe} {arquivoPara}</span>
+        </p>
+
+        <p class="term__linha term__arquivo term__arquivo--de" aria-hidden="true">
+          --- {arquivoDe}
+        </p>
+        <p class="term__linha term__arquivo term__arquivo--para" aria-hidden="true">
+          +++ {arquivoPara}
+        </p>
+
+        <ul class="term__hunks">
+          {
+            alternativas.map((t) => (
+              <li class="hunk">
+                {/*
+                  O `@@ … @@` é o cabeçalho de trecho do diff, e é onde a
+                  categoria cabe sem precisar de um título com peso de seção: no
+                  card ela era uma etiqueta centralizada, aqui ela é a única
+                  linha que não começa com sinal, e isso já a separa das outras.
+                */}
+                <p class="hunk__cab">
+                  <span class="hunk__arroba" aria-hidden="true">
+                    @@
+                  </span>
+                  <span class="hunk__categoria">{t.categoria}</span>
+                  <span class="hunk__arroba" aria-hidden="true">
+                    @@
+                  </span>
+                </p>
+
+                {/*
+                  Sem `de`, o trecho é só de adição: eu nunca usei o serviço
+                  daquela categoria. Some a linha inteira, e não só o nome, para
+                  o `-` não sobrar sozinho apontando para lugar nenhum.
+                */}
+                {t.de?.map((saiu) => (
+                  <p class="linha linha--de">
+                    <span class="linha__sinal" aria-hidden="true">
+                      -
+                    </span>
+                    <IconeMarca slug={saiu.icone} tom="apagado" tamanho="linha" />
+                    <span class="linha__nome">
+                      <span class="visually-hidden">Saí de </span>
+                      {saiu.nome}
+                    </span>
+                  </p>
+                ))}
+
+                {/*
+                  Contexto do `diff -u`: existe nos dois arquivos, então entra
+                  sem sinal. O `<span>` do sinal fica, vazio, para a coluna de
+                  1ch não sumir e os nomes continuarem alinhados com os das
+                  outras linhas. Vem depois do `-` e antes do `+` porque é a
+                  ordem em que a categoria se lê: o que saiu, o que ficou, o que
+                  entrou.
+                */}
+                {t.contexto?.map((mantido) => (
+                  <p class="linha linha--contexto">
+                    <span class="linha__sinal" aria-hidden="true" />
+                    <IconeMarca slug={mantido.icone} tom="neutro" tamanho="linha" />
+                    <span class="linha__nome">
+                      <span class="visually-hidden">Ainda uso </span>
+                      {mantido.nome}
+                    </span>
+                  </p>
+                ))}
+
+                {t.para.map((alternativa, i) => (
+                  <p class="linha linha--para">
+                    <span class="linha__sinal" aria-hidden="true">
+                      +
+                    </span>
+                    <IconeMarca slug={alternativa.icone} tom="acento" tamanho="linha" />
+                    {/*
+                      A preposição vai só na primeira e fica FORA do <a>:
+                      dentro, o nome acessível do link viraria "para Nextcloud
+                      AIO", e quem navega por lista de links ouviria rótulos
+                      todos começando na mesma palavra. Repetida em cada
+                      alternativa, ela viraria "para X, para Y" no meio de uma
+                      frase que já disse "saí de".
+                    */}
+                    <span class="linha__nome">
+                      {i === 0 && (
+                        <span class="visually-hidden">
+                          {t.de ? 'para ' : t.contexto ? 'e uso ' : 'Uso '}
+                        </span>
+                      )}
+                      <a class="linha__link" href={alternativa.url} rel="noopener">
+                        {alternativa.nome}
+                      </a>
+                    </span>
+                  </p>
+                ))}
+              </li>
+            ))
+          }
+        </ul>
+
+        {/*
+          O rodapé do `diffstat` fecha a saída com o total, e o prompt vazio
+          logo abaixo diz que o comando terminou — é o que faz o bloco ter fim
+          em vez de simplesmente acabar. O cursor é um bloco parado: piscando,
+          ele puxaria o olho para o fim da página a cada carregamento (a mesma
+          razão pela qual o da trilha só aparece no hover).
+        */}
+        <p class="term__linha term__stat" aria-hidden="true">
+          {categorias} categorias, {adicoes} inserções(+), {remocoes} remoções(-)
+        </p>
+
+        <p class="term__linha term__fim" aria-hidden="true">
+          <span class="term__cifrao">$</span>
+          <span class="term__cursor"></span>
+        </p>
+      </div>
+
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Largura de leitura, e a mesma do campo da busca: um bloco de terminal
+     esticado nos 68rem da página fica com 15 caracteres de texto e 50rem de
+     fundo vazio, que é como uma saída curta vira um painel.
+
+     `overflow-x: auto` é rede de segurança, não o desenho pretendido: os nomes
+     são curtos e as linhas quebram sozinhas (ver `.linha`). Ele existe para o
+     dia em que uma alternativa tiver nome longo e a página estiver a 320px. */
+  .term {
+    max-inline-size: 44rem;
+    margin-block-start: var(--space-lg);
+    padding-block: var(--space-md);
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    /* `--fs-sm` e não `--fs-base`: monoespaçada com a mesma medida em pontos
+       ocupa mais largura e pesa mais na página que a fonte de texto. Aqui não
+       vale o piso de 1rem que o campo da busca tem, porque não se digita
+       dentro deste bloco e o Safari do iPhone não dá zoom em texto. */
+    font-size: var(--fs-sm);
+    line-height: 1.75;
+    /* Sem caixa. `--bg-raised` é a superfície de "dá para escrever aqui" — é o
+       que o campo da busca usa, e pelo motivo escrito lá. Ninguém digita
+       dentro desta saída, então o fundo levantado prometia o que a página não
+       cumpre, e um retângulo azul de 900px de altura virava o elemento mais
+       forte da tela.
+
+       Sem ele, a página inteira passa a ser uma sessão só: a linha do topo
+       (`~/alternativas $ ls`) já é texto solto no fundo da página, e esta saída
+       continua nela em vez de citar um terminal de dentro de um quadro.
+
+       O que separa o bloco do texto ao redor são as duas hairlines, que é a
+       divisória padrão do site. `border-image` anula `border-radius`, então
+       aqui não pode haver canto arredondado — o que é justamente o ponto. */
+    border-block: 1px solid transparent;
+    border-image: var(--hairline) 1;
+  }
+
+  /* A saída inteira é texto do terminal, então nada aqui herda peso de título
+     nem tamanho de corpo — só o tom muda de linha para linha. */
+  .term__linha {
+    color: var(--text-faint);
+  }
+
+  .term__cmd {
+    color: var(--text-muted);
+  }
+
+ azul permanente
+     prometeria uma ação que não existe.
+
+     Deixá-lo apagado também tira o azul das duas pontas do bloco e reserva a
+     cor inteira para a coluna de `+`, que é a informação da página. */
+  .term__cifrao {
+    color: var(--text-faint);
+  }
+
+  .term__arg {
+    color: var(--text-muted);
+  }
+
+  /* Os dois nomes de arquivo são a legenda do bloco sem serem uma legenda: já
+     saem nas cores que os sinais vão usar dali para baixo, então quando o
+     primeiro `-` aparece a associação já foi feita. */
+  .term__arquivo--de {
+    color: var(--text-faint);
+  }
+
+  .term__arquivo--para {
+    color: var(--accent);
+  }
+
+  .term__hunks {
+    list-style: none;
+    padding: 0;
+  }
+
+  /* Uma linha em branco antes de cada trecho, que é o que separa um par do
+     seguinte sem precisar de borda. A margem fica no cabeçalho e não no `<li>`
+     porque as duas colapsariam entre si: o espaço sairia certo por acidente, e
+     mudar uma das duas depois não teria efeito nenhum.
+
+     1.75em é a altura de linha do bloco, então o vão é exatamente uma linha em
+     branco de terminal e não um respiro escolhido a olho. */
+  .hunk__cab {
+    display: flex;
+    gap: 0.5ch;
+    margin-block-start: 1.75em;
+  }
+
+  /* O `@@` é pontuação de máquina e fica no tom mais baixo; a categoria é a
+     única palavra da linha que a pessoa lê. Sem isto, o cabeçalho compete com
+     os nomes logo abaixo, que são a informação. */
+  .hunk__arroba {
+    color: color-mix(in oklab, var(--text-faint) 55%, transparent);
+  }
+
+  .hunk__categoria {
+    color: var(--text-muted);
+  }
+
+  /* Três colunas: o sinal, a marca e o nome. Grade e não `inline`, para o nome
+     que quebra em duas linhas alinhar embaixo de si mesmo em vez de voltar
+     para debaixo do `-` — que é como um terminal indenta continuação e como o
+     olho encontra a coluna de nomes.
+
+     `1ch` fixo no sinal porque `-` e `+` têm larguras diferentes em algumas
+     monoespaçadas de sistema, e a coluna de marcas precisa começar no mesmo
+     lugar nas duas. */
+  .linha {
+    display: grid;
+    grid-template-columns: 1ch 1.15em 1fr;
+    align-items: center;
+    column-gap: 1ch;
+  }
+
+  .linha__sinal {
+    text-align: center;
+  }
+
+  /* O `-` fica apagado e o `+` em azul cheio. A hierarquia diz qual lado está
+     na máquina hoje mesmo para quem não separa os matizes, porque o sinal já
+     carrega o significado sozinho — é a regra do CLAUDE.md de estado que se
+     mostra pela forma, e aqui a forma vem de graça com o formato.
+
+     Azul e não vermelho/verde do diff clássico: as duas cores não existem na
+     paleta, e são justamente o par que mais gente não distingue. Azul e não
+     laranja porque são oito linhas `+`, e laranja repetido oito vezes deixa de
+     ser acento (ver o CLAUDE.md). */
+  .linha--de {
+    color: var(--text-faint);
+  }
+
+  .linha--para {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Contexto do diff: cor de corpo, sem sinal e sem peso. Ficam três tons na
+     coluna, e cada um responde uma pergunta diferente: apagado saiu, cheio
+     entrou, corpo continua onde estava. Nenhum deles depende só de matiz para
+     ser lido, porque o sinal (ou a falta dele) já separa os três. */
+  .linha--contexto {
+    color: var(--text);
+  }
+
+  .linha__nome {
+    min-inline-size: 0;
+  }
+
+  /* Sublinhado discreto no nome da ferramenta: numa
+     coluna de oito links, sublinhado cheio vira listra. O hover não muda a cor
+     (ela já é `--accent`), então quem confirma o alvo é o sublinhado fechando. */
+  .linha__link {
+    text-decoration-color: color-mix(in oklab, currentColor 25%, transparent);
+  }
+
+  .term__stat {
+    margin-block-start: 1.75em;
+  }
+
+  .term__fim {
+    display: flex;
+    align-items: center;
+    gap: 0.5ch;
+  }
+
+  /* Bloco parado, sem piscar: o cursor diz "o comando terminou e o prompt
+     voltou", e essa informação não precisa de movimento. Um bloco piscando no
+     fim de toda visita seria a única animação em repouso do site. */
+  .term__cursor {
+    inline-size: 1ch;
+    block-size: 1.1em;
+    background: currentColor;
+    opacity: 0.35;
+  }
+</style>

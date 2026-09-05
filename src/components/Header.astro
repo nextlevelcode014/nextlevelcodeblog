@@ -8,6 +8,24 @@ const path = Astro.url.pathname;
 /** Marca o item ativo. A home só casa exata; as outras casam com subrotas
  *  (assim /blog/meu-post continua acendendo "Blog"). */
 const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+
+/*
+ * O menu é escrito como caminho: `~`, `/projetos`, `/blog`, `/sobre`. É a
+ * mesma língua da linha de prompt que abre cada página (`Prompt.astro`) — o
+ * menu é o `cd`, a linha logo abaixo é o que se vê depois de entrar. Sem isto
+ * o terminal ficava sendo duas telas soltas em vez de uma sessão.
+ *
+ * O texto sai do `href` e não do `label`: caminho digitado à mão vira ficção
+ * no dia em que a rota mudar, e aqui existiriam quatro deles. A home é a única
+ * exceção, porque `/` não tem segmento nenhum de onde tirar uma palavra.
+ *
+ * Ela já foi `~`, que é o que um prompt de verdade escreve. Saiu porque um
+ * caractere só, ao lado de três palavras, é alvo de 6px de largura — abaixo do
+ * mínimo de 24px da WCAG 2.5.8, e pequeno demais no dedo muito antes disso.
+ * `/home` custa a imprecisão de nomear o diretório que contém as pastas dos
+ * usuários em vez da sua, e paga com um alvo do tamanho dos outros itens.
+ */
+const rota = (href: string) => (href === '/' ? 'home' : href.replace(/\/$/, '').slice(1));
 ---
 
 <a class="skip" href="#conteudo">Pular para o conteúdo</a>
@@ -24,12 +42,20 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
         {
           nav.map((item) => (
             <li>
+              {/*
+                A `/` fica `aria-hidden`, então o nome acessível do link é a
+                palavra que sobra (`blog`) — o rótulo visível menos a decoração,
+                como manda a WCAG 2.5.3. Nenhum item leva `aria-label`: um nome
+                escrito à mão que não contenha o texto visível quebraria
+                justamente essa regra, e é por isso que o `label` do
+                `site.config.ts` não vem para cá.
+              */}
               <a
                 href={item.href}
                 class="nav__link"
                 aria-current={isActive(item.href) ? 'page' : undefined}
               >
-                {item.label}
+                <span class="nav__sign" aria-hidden="true">/</span>{rota(item.href)}
               </a>
             </li>
           ))
@@ -40,12 +66,13 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     <div class="header__actions">
       {/* Fora do array `nav`: a busca é ferramenta, não destino de leitura.
           Como ícone ela cabe em qualquer largura, e a nav já rola apertada
-          a 390px com os itens de texto. */}
+          a 390px com os itens de texto — que é também por que o atalho de
+          teclado é anunciado no `title` e não numa etiqueta ao lado. */}
       <a
         href="/busca/"
         class="icon-btn"
         aria-label="Buscar no site"
-        title="Buscar"
+        title="Buscar — tecla /"
         aria-current={path === '/busca/' ? 'page' : undefined}
       >
         <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none"
@@ -181,10 +208,13 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     display: none;
   }
 
+  /* O respiro entre itens é `gap` + o `padding-inline` de cada link. Somados
+     dão os mesmos 1,5rem de antes; o que mudou é que parte disso agora é área
+     clicável em vez de vão morto entre dois alvos. */
   .nav__list {
     display: flex;
     align-items: center;
-    gap: var(--space-md);
+    gap: var(--space-sm);
     list-style: none;
     padding: 0;
   }
@@ -193,7 +223,13 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     position: relative;
     display: block;
     padding-block: 0.4rem;
-    font-size: var(--fs-sm);
+    /* Mono, e no mesmo corpo da linha de prompt (`--fs-xs`): é o que faz o
+       menu e o prompt lerem como a mesma linha de comando em dois lugares.
+       A monoespaçada do sistema é mais larga por caractere, então o corpo
+       menor também é o que devolve a folga que a `/` de cada item tomou. */
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    padding-inline: var(--space-3xs);
     color: var(--text-muted);
     text-decoration: none;
     white-space: nowrap;
@@ -202,11 +238,14 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
 
   /* Sublinhado que cresce da esquerda. Laranja: é o acento de "onde você
      está", o único lugar da navegação onde ele aparece. */
+  /* O sublinhado começa e termina no texto, não na borda do alvo: ele marca a
+     palavra, e sobrando 4px de cada lado leria como caixa mal alinhada. Daí o
+     recuo aqui e o desconto dos dois lados na largura final. */
   .nav__link::after {
     content: '';
     position: absolute;
     inset-block-end: 0;
-    inset-inline-start: 0;
+    inset-inline-start: var(--space-3xs);
     inline-size: 0;
     block-size: 1px;
     background: var(--brand-orange);
@@ -219,11 +258,17 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
 
   .nav__link:hover::after,
   .nav__link[aria-current='page']::after {
-    inline-size: 100%;
+    inline-size: calc(100% - var(--space-2xs));
   }
 
   .nav__link[aria-current='page'] {
     color: var(--text);
+  }
+
+  /* A barra é prefixo, não palavra: fica apagada como o `~/blog/` da linha de
+     prompt, onde o caminho é contexto e só o fim é informação. */
+  .nav__sign {
+    color: var(--text-faint);
   }
 
   /* ---- Ações ---- */
@@ -239,13 +284,97 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
      com um item a menos no menu, a barra tem folga de sobra numa tela de
      tablet. Abaixo de 34rem o símbolo continua sozinho: ele é reconhecível, e
      o nome ainda aparece no rodapé de toda página. */
+  /* Abaixo de 34rem o cabeçalho vira duas linhas: marca e ações em cima, menu
+     inteiro embaixo.
+
+     Cinco caminhos ocupam 306px, e numa tela de 390px sobram 218px ao lado da
+     marca e dos dois botões. Em uma linha só, dois itens e meio apareciam e o
+     resto ficava atrás da rolagem lateral — que é exatamente a issue #13. Numa
+     linha própria o menu tem os 350px da largura útil e cabe inteiro.
+
+     Duas linhas e não um menu de hambúrguer: aquele custa JavaScript, estado
+     aberto/fechado e, com View Transitions, um listener que morre a cada
+     navegação. Aqui não há nada disso, e nenhum item fica escondido atrás de
+     um gesto — o que importa num menu de cinco itens curtos.
+
+     O preço é altura: o cabeçalho é grudento, então ele come ~36px a mais do
+     alto da tela no celular. Vale, porque a alternativa era um menu em que a
+     metade dos destinos não aparecia.
+
+     A máscara de esmaecimento continua de pé para o que ainda não couber:
+     abaixo de ~320px os cinco itens voltam a transbordar, agora por poucos
+     pixels. */
   @media (width < 34rem) {
     .brand__name {
       display: none;
     }
 
+    .header__inner {
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      padding-block: var(--space-2xs);
+    }
+
+    /* A marca empurra as ações para a direita, e o menu desce inteiro. */
+    .header__actions {
+      margin-inline-start: auto;
+    }
+
+    .nav {
+      order: 3;
+      flex-basis: 100%;
+      /* Some o `auto` que encostava a nav à direita na linha única: numa linha
+         própria ela começa onde o texto da página começa. */
+      margin-inline-start: 0;
+    }
+
     .nav__list {
-      gap: var(--space-sm);
+      gap: var(--space-2xs);
     }
   }
 </style>
+
+<script>
+  /**
+   * `/` leva à busca de qualquer página, como em qualquer coisa que se navega
+   * pelo teclado — do `less` ao Vim. É o atalho que faz o menu de caminhos ser
+   * mais que desenho: quem lê o site como terminal já tem o dedo nessa tecla.
+   *
+   * Estando na `/busca/`, foca o campo em vez de recarregar a página; fora
+   * dela, navega. O `preventDefault` só acontece depois de decidir que a tecla
+   * é nossa — sem isso, `/` deixaria de funcionar dentro de campo de texto,
+   * que é onde ela é um caractere e não um comando.
+   *
+   * Delegação no `document` com trava de idempotência, como em
+   * `ThemeToggle.astro`: com View Transitions os elementos morrem a cada
+   * navegação, e um listener preso ao cabeçalho morreria junto.
+   */
+  const w = window as typeof window & { __nlcAtalhoBuscaBound?: boolean };
+
+  if (!w.__nlcAtalhoBuscaBound) {
+    w.__nlcAtalhoBuscaBound = true;
+
+    document.addEventListener('keydown', (evento) => {
+      // `shiftKey` não entra na conta: em teclado ABNT2 a barra sai com Shift,
+      // e filtrá-la deixaria o atalho sem funcionar justamente aqui.
+      if (evento.key !== '/' || evento.ctrlKey || evento.metaKey || evento.altKey) return;
+
+      const alvo = evento.target as HTMLElement | null;
+      if (alvo?.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"]')) {
+        return;
+      }
+
+      evento.preventDefault();
+
+      const campo = document.querySelector<HTMLInputElement>('[data-busca-input]');
+      if (campo) {
+        // `preventScroll` porque o cabeçalho é fixo e rolar até o campo
+        // esconderia o título — mesma razão do foco automático da página.
+        campo.focus({ preventScroll: true });
+        return;
+      }
+
+      window.location.href = '/busca/';
+    });
+  }
+</script>

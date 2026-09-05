@@ -3,7 +3,7 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
 import ShareLinks from '../../components/ShareLinks.astro';
-import Breadcrumb from '../../components/Breadcrumb.astro';
+import Prompt from '../../components/Prompt.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
@@ -45,7 +45,7 @@ const shareUrl = new URL(Astro.url.pathname, Astro.site).href;
   <article class="section">
     <div class="wrap">
       <header class="post-head">
-        <Breadcrumb parentHref="/blog/" />
+        <Prompt parentHref="/blog/" />
 
         <h1 class="post-head__title">{title}</h1>
         <p class="post-head__desc">{description}</p>
@@ -138,7 +138,7 @@ const shareUrl = new URL(Astro.url.pathname, Astro.site).href;
         )
       }
 
-      <Breadcrumb parentHref="/blog/" bottom />
+      <Prompt parentHref="/blog/" bottom />
     </div>
   </article>
 </Base>

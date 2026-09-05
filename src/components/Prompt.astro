@@ -1,0 +1,261 @@
+---
+/**
+ * A linha de prompt do site. Aparece no topo de toda página que não é a home,
+ * e é ela que faz a navegação inteira ler como uma sessão de terminal: o menu
+ * é o `cd`, esta linha é o que se vê depois de entrar no diretório.
+ *
+ *     ~/blog $ ls                          (listagem: o que está abaixo é a saída)
+ *     ~/blog/identidade-auto-soberana $ [cd ..]   (detalhe: o comando é a volta)
+ *
+ * Nasceu como `Breadcrumb.astro`, só com a segunda forma. O nome mudou quando
+ * a primeira chegou: uma linha sem link não é trilha de navegação, e um nome
+ * que descreve metade do componente manda a próxima pessoa desenhar a outra
+ * metade em outro arquivo — que é exatamente o CSS copiado em três lugares que
+ * este componente veio resolver.
+ *
+ * Três decisões da forma com link, todas anteriores a esta divisão:
+ *
+ * - **O caminho mostra onde a pessoa está.** Só a seta e o nome do pai diziam
+ *   para onde se volta, não de onde. Quem chega por busca ou link direto não
+ *   passou pela listagem e não tem esse contexto.
+ * - **O caminho é derivado da URL, não recebido por prop.** É o que garante que
+ *   ele não minta: um caminho digitado à mão vira ficção no dia em que a rota
+ *   mudar. Por isso o último segmento é o slug e não o título — o título por
+ *   extenso está no `<h1>` logo abaixo.
+ * - **Só o comando é clicável.** A caixa inteira como link seria alvo maior,
+ *   mas um botão rotulado com o caminho de onde a pessoa já está sugere que
+ *   clicar leva para lá. Aqui o caminho é contexto e o comando é a ação, que é
+ *   como a linha se lê num terminal de verdade.
+ *
+ * O `~` e o `$` são decoração de prompt: ficam `aria-hidden` para não virarem
+ * "til" e "cifrão" na leitura de tela.
+ */
+interface Props {
+  /**
+   * Para onde se volta. A URL da página, sozinha, não sabe disto.
+   *
+   * **Ausente é a outra forma do componente**: sem destino não há ação, e a
+   * linha passa a ser só o eco do comando que produziu a página. Não invente
+   * um destino para uma listagem — o pai dela é a home, que o `~` do menu já
+   * oferece, e um `cd ..` ali seria um segundo botão para o mesmo lugar.
+   */
+  parentHref?: string;
+  /**
+   * O comando ecoado na forma sem link. `ls` é o padrão porque é o que se
+   * digita ao entrar num diretório, e porque descreve honestamente o que vem
+   * abaixo em toda página que usa esta forma: uma lista do que existe ali.
+   */
+  command?: string;
+  /**
+   * Repetição no fim da página. Quem terminou de ler está a uma tela de
+   * distância do topo, e rolar de volta só para sair é trabalho que a página
+   * cria. A linha é a mesma: a sessão abre e fecha no mesmo prompt.
+   *
+   * Só faz sentido com `parentHref`: sem ação, repetir a linha no rodapé
+   * ecoaria um comando que já rodou.
+   */
+  bottom?: boolean;
+}
+
+const { parentHref, command = 'ls', bottom = false } = Astro.props;
+
+const partes = (segmento: string) => segmento.split('/').filter(Boolean);
+
+const atual = partes(Astro.url.pathname);
+
+// O prefixo carrega a barra final para o caminho sair sem emenda visível, e
+// `dir` + `here` são montados aqui e não no markup porque o compilador do Astro
+// descarta a quebra de linha antes de tag inline: um caminho quebrado em vários
+// elementos dependeria desse descarte para não ganhar espaço entre as barras.
+// Depender disso é a armadilha que já colou palavras seis vezes neste
+// repositório — string pronta não tem como quebrar.
+const dir = `~/${atual.slice(0, -1).map((s) => `${s}/`).join('')}`;
+const here = atual.at(-1) ?? '';
+
+/**
+ * O comando nomeia o destino de verdade.
+ *
+ * Em post, projeto e tag o pai é o diretório acima na própria URL, e `cd ..`
+ * descreve exatamente isso. Hoje **todas** as páginas com trilha caem nesse
+ * caso, mas o componente não assume isso: quem for alcançado por uma página
+ * que não é o diretório acima ganha o caminho por extenso (`cd ~/sobre`), e
+ * não um `cd ..` que diz uma coisa e faz outra. A `/uso/` era esse caso e não
+ * existe mais; a comparação fica porque o custo dela é uma linha e o erro que
+ * ela evita é um botão que mente para quem sabe o que `cd ..` faz.
+ */
+const pai = partes(parentHref ?? '');
+const sobeUmNivel = atual.slice(0, -1).join('/') === pai.join('/');
+const acao = sobeUmNivel ? 'cd ..' : `cd ~/${pai.join('/')}`;
+
+/** Nome do destino em palavra, para quem ouve a página em vez de vê-la. */
+const destino = pai.at(-1) ?? 'início';
+---
+
+{
+  parentHref ? (
+    /*
+      `aria-label` no <nav> porque uma página pode ter mais de uma navegação (o
+      menu, a trilha, a paginação entre posts) e o leitor de tela as lista pelo
+      nome. Sem nome, saem três "navegação" indistinguíveis — e com as duas
+      trilhas usando o mesmo nome, o problema volta pela porta dos fundos: quem
+      navega por landmarks veria duas entradas idênticas sem saber que uma delas
+      é o fim da página. Daí o nome do rodapé ser diferente.
+
+      O `aria-current="page"` fica só na trilha do topo. Ele marca "esta é a
+      página atual" dentro de um conjunto de links; repetido, vira eco sem
+      informação nova.
+    */
+    <nav
+      class:list={['prompt', bottom && 'prompt--bottom']}
+      aria-label={bottom ? 'Trilha de navegação, fim da página' : 'Trilha de navegação'}
+    >
+      <span class="prompt__path"><span class="prompt__dir">{dir}</span><span class="prompt__here" aria-current={bottom ? undefined : 'page'}>{here}</span></span>
+
+      <span class="prompt__sign" aria-hidden="true">$</span>
+
+      {/*
+        O nome acessível começa pelo texto visível: a WCAG 2.5.3 (Label in Name)
+        exige que quem navega por voz consiga dizer o rótulo que enxerga, e
+        ninguém adivinha "voltar para sobre" olhando para `cd ..`. O resto do
+        nome existe porque o comando sozinho não diz para onde se vai.
+      */}
+      <a class="prompt__cmd" href={parentHref} aria-label={`${acao} — voltar para ${destino}`}>
+        {acao}
+      </a>
+    </nav>
+  ) : (
+    /*
+      Sem link, a linha inteira sai da árvore de acessibilidade. Ela não guarda
+      nenhuma informação exclusiva: o lugar onde a pessoa está já é dito pelo
+      `aria-current` do menu e pelo `<h1>` logo abaixo, e ler "til barra blog
+      cifrão ele esse" antes de cada página seria ruído em toda navegação. O
+      que ela faz é visual — dizer que esta página é a continuação da anterior.
+    */
+    <p class="prompt prompt--eco" aria-hidden="true">
+      <span class="prompt__path"><span class="prompt__dir">{dir}</span><span class="prompt__here">{here}</span></span>
+
+      <span class="prompt__sign">$</span>
+
+      <span class="prompt__echo">{command}</span>
+    </p>
+  )
+}
+
+<style>
+  .prompt {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    margin-block-end: var(--space-lg);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    /* A pilha de monoespaçadas é a do sistema (`--font-mono`), sem download.
+       Fonte de terceiro aqui quebraria a promessa do rodapé por um detalhe. */
+  }
+
+  /* Só folga, sem divisória: no fim do post já vêm a linha do bloco de
+     compartilhamento e os dois cartões de anterior/próximo, e uma terceira
+     linha empilhada vira ruído. O espaço em branco separa o suficiente. */
+  .prompt--bottom {
+    margin-block-start: var(--space-xl);
+    margin-block-end: 0;
+  }
+
+  /* A linha sem ação encosta mais no título: ela não é um controle com alvo de
+     toque, é a etiqueta do bloco que vem logo abaixo — e era esse o papel do
+     `.eyebrow` que ela substituiu nessas páginas. */
+  .prompt--eco {
+    margin-block-end: var(--space-2xs);
+  }
+
+  /* O caminho encolhe e o comando nunca: sem isto, um slug longo empurraria o
+     botão para fora da viewport no celular. */
+  .prompt__path {
+    display: flex;
+    min-inline-size: 0;
+  }
+
+  /* O prefixo `~/blog/` não encolhe. Truncar o caminho inteiro pelo fim comia
+     justamente o slug, que é a informação; o prefixo é curto e de tamanho
+     conhecido, então quem cede espaço é só o segmento atual. */
+  .prompt__dir {
+    flex-shrink: 0;
+    color: var(--text-faint);
+  }
+
+  /* O segmento atual é o único do caminho com destaque: é a informação, o
+     resto é prefixo.
+
+     As reticências ficam aqui e não no `.prompt__path` porque `overflow` no pai
+     só recorta o desenho: a caixa do filho continua com a largura do texto
+     inteiro e ultrapassa a viewport, invisível. A auditoria pegou isso a 390px
+     num slug longo, e nenhuma captura de tela mostraria. */
+  .prompt__here {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-muted);
+  }
+
+  .prompt__sign {
+    flex-shrink: 0;
+    color: var(--text-faint);
+  }
+
+  /* O comando já digitado é a coisa mais clara da linha, como num terminal de
+     verdade: o prompt é impresso pela máquina e apaga, o que a pessoa escreveu
+     fica em primeiro plano. É também o que separa este `ls` de um link — ele
+     não tem borda, não tem hover e não tem cursor piscando. */
+  .prompt__echo {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .prompt__cmd {
+    display: inline-flex;
+    align-items: center;
+    /* 2.5rem = 40px de altura de alvo. A recomendação AAA da WCAG (2.5.5) é
+       44px; aqui ele fica logo abaixo porque um botão de 44px no topo de todo
+       post competia em peso com o próprio título. Os 40px passam com folga do
+       mínimo AA de 24px e são o dobro do alvo que existia antes. */
+    min-block-size: 2.5rem;
+    padding-inline: var(--space-xs);
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-decoration: none;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out);
+  }
+
+  .prompt__cmd:hover,
+  .prompt__cmd:focus-visible {
+    color: var(--accent);
+    background: var(--accent-quiet);
+    border-color: color-mix(in oklab, var(--brand-blue) 45%, transparent);
+  }
+
+  /* Cursor de terminal, que aparece só no hover: um bloco piscando parado na
+     página puxaria o olho para o canto superior a cada carregamento, e o
+     comando ainda não foi digitado até alguém apontar para ele. */
+  .prompt__cmd::after {
+    content: '';
+    inline-size: 0.5em;
+    block-size: 1.1em;
+    margin-inline-start: 0.35em;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity var(--dur-fast) var(--ease-out);
+  }
+
+  .prompt__cmd:hover::after,
+  .prompt__cmd:focus-visible::after {
+    opacity: 0.7;
+  }
+</style>

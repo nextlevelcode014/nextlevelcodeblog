@@ -1,20 +1,60 @@
 ---
 import Base from '../layouts/Base.astro';
-import Logo from '../components/Logo.astro';
+
+/*
+ * A 404 é a única página do site que sabe de um caminho que não existe, e é
+ * por isso que ela leva o bloco de terminal em vez de só uma frase: a mensagem
+ * do shell diz, com o endereço que a pessoa pediu, exatamente o que aconteceu.
+ *
+ * O logo de 72px que ficava aqui saiu. Ele preenchia uma página que não tinha
+ * o que mostrar; agora tem, e o símbolo continua no cabeçalho e no rodapé.
+ *
+ * O caminho pedido não existe no build: este arquivo vira um `/404.html`
+ * estático servido para qualquer endereço. Só o navegador sabe qual foi, então
+ * o bloco nasce escondido e o script abaixo o revela depois de preencher. Sem
+ * JavaScript ele não aparece — o que se perde é a decoração, e o título, o
+ * parágrafo e as duas saídas continuam de pé.
+ */
 ---
 
 <Base title="Página não encontrada" noindex>
   <section class="section notfound">
     <div class="wrap notfound__inner">
-      <Logo size={72} />
-      <p class="eyebrow">Erro 404</p>
+      {/*
+        Fora da árvore de acessibilidade: é a mesma informação do `<h1>` e do
+        parágrafo, escrita como saída de terminal. Lida em voz alta, viraria
+        "til cifrão cê dê barra" antes da frase que já diz tudo.
+
+        Três blocos, e não um `<pre>` com quebras de linha: o compilador do
+        Astro descarta a quebra que precede uma tag inline, e dentro de um
+        `<pre>` isso empilharia as três linhas numa só. Cada linha é um
+        elemento de bloco, então o desenho não depende de espaço em branco
+        nenhum sobreviver à compilação.
+      */}
+      <div class="term" data-erro hidden aria-hidden="true">
+        <p class="term__line"><span class="term__sign">~ $</span> cd <span data-erro-caminho></span></p>
+        <p class="term__line term__err">bash: cd: <span data-erro-caminho></span>: No such file or directory</p>
+        <p class="term__line"><span class="term__sign">~ $</span> <span class="term__cursor"></span></p>
+      </div>
+
       <h1 class="notfound__title">Esta rota não existe</h1>
+
       <p class="notfound__body">
         O endereço mudou, o link veio quebrado, ou a página nunca esteve aqui.
       </p>
+
+      {/*
+        As duas saídas são escritas como comando porque é o que a linha acima
+        pede em seguida. O nome acessível começa pelo texto visível (WCAG
+        2.5.3): quem navega por voz precisa poder dizer o rótulo que enxerga,
+        e `cd ~` sozinho não diz para onde leva. Mesmo desenho do botão da
+        linha de prompt em `Prompt.astro`.
+      */}
       <div class="notfound__actions">
-        <a href="/" class="btn">Voltar ao início</a>
-        <a href="/blog/" class="btn btn--ghost">Ir para o blog</a>
+        <a href="/" class="btn cmd" aria-label="cd ~ — voltar ao início">cd ~</a>
+        <a href="/blog/" class="btn btn--ghost cmd" aria-label="ls ~/blog — ir para o blog">
+          ls ~/blog
+        </a>
       </div>
     </div>
   </section>
@@ -23,18 +63,101 @@ import Logo from '../components/Logo.astro';
 <style>
   .notfound {
     display: grid;
-    place-items: center;
+    /* Alinhado à esquerda, e não centralizado como antes: saída de terminal
+       centralizada não existe em lugar nenhum, e o bloco perde a leitura de
+       linha de comando no instante em que as linhas deixam de começar no
+       mesmo ponto. */
+    align-content: center;
     min-block-size: 60svh;
   }
 
+  /* Sem `max-inline-size` aqui: o `.wrap` centraliza a caixa que recebe uma,
+     e a página inteira descolava da margem em que todas as outras começam. A
+     largura de leitura fica em cada bloco, que é onde ela é sobre o texto e
+     não sobre a página. */
   .notfound__inner {
     display: grid;
-    justify-items: center;
-    text-align: center;
+    justify-items: start;
     gap: var(--space-sm);
   }
 
+  /* ---- Bloco de terminal ---- */
+  .term {
+    /* Borda sólida e não `--hairline`: `border-image` anula `border-radius`,
+       e uma caixa é o único desenho que faz este bloco parecer um painel de
+       console em vez de mais um parágrafo. */
+    inline-size: 100%;
+    max-inline-size: 44rem;
+    margin: 0;
+    padding: var(--space-sm);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    line-height: var(--leading-snug);
+    /* O comando digitado é o texto normal do bloco, como na linha de prompt:
+       o que a pessoa escreveu fica em primeiro plano e o prompt apaga. */
+    color: var(--text);
+    background: var(--bg-inset);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    /* O endereço vem da barra do navegador e pode ter qualquer comprimento,
+       sem um espaço onde quebrar. Sem isto ele atravessa a caixa e leva a
+       página inteira para a rolagem horizontal. */
+    overflow-wrap: anywhere;
+  }
+
+  .term__line {
+    margin: 0;
+  }
+
+  /* Cinto de segurança: se um dia este bloco ganhar `display` próprio, ele
+     venceria o `[hidden]` que o navegador aplica sozinho e a caixa apareceria
+     vazia antes de o script preencher. */
+  .term[hidden] {
+    display: none;
+  }
+
+  /* `--text-muted` e não `--text-faint`: o faint é calibrado para o fundo da
+     página, e sobre `--bg-inset` no tema claro ele cai para 4,29:1 — abaixo do
+     mínimo. O bloco está `aria-hidden`, mas quem enxerga continua lendo. */
+  .term__sign {
+    color: var(--text-muted);
+  }
+
+  /* A mensagem de erro é a linha que importa, e é a única com a cor de alerta
+     do site. Laranja aqui não gasta a raridade dele: a 404 é justamente um
+     fim de bloco, que é o que o laranja marca no resto do site. */
+  .term__err {
+    color: var(--hot);
+  }
+
+  /* Cursor parado à espera do próximo comando — que são os dois botões logo
+     abaixo. Ele pisca aqui, ao contrário do bloco da linha de prompt: lá ele
+     apareceria no topo de todo post e puxaria o olho a cada carregamento;
+     aqui existe uma vez, numa página que não tem mais nada acontecendo. */
+  .term__cursor {
+    display: inline-block;
+    inline-size: 0.5em;
+    block-size: 1.1em;
+    vertical-align: text-bottom;
+    background: var(--accent);
+    opacity: 0.7;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .term__cursor {
+      animation: piscar 1.06s steps(1) infinite;
+    }
+  }
+
+  @keyframes piscar {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  /* ---- Texto ---- */
   .notfound__title {
+    max-inline-size: 20ch;
     font-size: var(--fs-2xl);
     letter-spacing: var(--tracking-tighter);
   }
@@ -47,8 +170,52 @@ import Logo from '../components/Logo.astro';
   .notfound__actions {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
     gap: var(--space-xs);
     margin-block-start: var(--space-sm);
   }
+
+  /* O botão fala a mesma língua do bloco acima. `--fs-xs` porque a
+     monoespaçada do sistema é mais larga por caractere e, no corpo do botão,
+     `ls ~/blog` ficava do tamanho de uma frase. */
+  .cmd {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+  }
 </style>
+
+<script>
+  /**
+   * Escreve o endereço pedido no bloco de terminal e o revela.
+   *
+   * `location.pathname` e não `href`: o domínio já está na barra do navegador,
+   * e uma URL inteira dentro do bloco quebraria a linha em qualquer celular.
+   * A query e o fragmento ficam de fora pelo mesmo motivo — o que não foi
+   * encontrado é o caminho.
+   *
+   * `textContent` e nunca `innerHTML`: o endereço vem de fora e é atacante em
+   * potencial. Escrito como texto, `/<img onerror=...>` aparece como o
+   * disparate que é, que é exatamente o que um terminal faria.
+   */
+  const w = window as typeof window & { __nlcErroBound?: boolean };
+
+  const pintar = () => {
+    const bloco = document.querySelector<HTMLElement>('[data-erro]');
+    if (!bloco) return;
+
+    const caminho = window.location.pathname;
+    for (const alvo of document.querySelectorAll<HTMLElement>('[data-erro-caminho]')) {
+      alvo.textContent = caminho;
+    }
+
+    bloco.hidden = false;
+  };
+
+  pintar();
+
+  // Com View Transitions a página nova é montada sem recarregar, e um script
+  // já executado não roda de novo. Ver a mesma trava em ThemeToggle.astro.
+  if (!w.__nlcErroBound) {
+    w.__nlcErroBound = true;
+    document.addEventListener('astro:page-load', pintar);
+  }
+</script>

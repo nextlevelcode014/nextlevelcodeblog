@@ -21,7 +21,7 @@ const dica = 'Busca em posts, projetos e páginas do site.';
 >
   <section class="section">
     <div class="wrap">
-      <SectionHead as="h1" eyebrow="Busca" title="Procurar no site" />
+      <SectionHead as="h1" title="Procurar no site" />
 
       <div class="busca">
         {/*
@@ -34,7 +34,7 @@ const dica = 'Busca em posts, projetos e páginas do site.';
 
           {/*
             Linha de prompt no lugar da lupa, no mesmo desenho da trilha
-            (`Breadcrumb.astro`): o caminho é contexto e o que se digita é a
+            (`Prompt.astro`): o caminho é contexto e o que se digita é a
             ação. O ícone dizia "isto é uma busca" para quem já está na página
             de busca, com o título e o campo focado na frente — informação que
             a página inteira já dá.
@@ -145,7 +145,7 @@ const dica = 'Busca em posts, projetos e páginas do site.';
      global. O input por dentro perde o dele: dois anéis concêntricos leem como
      defeito.
 
-     A borda e o fundo repetem o hover de `.crumb__cmd`: é o mesmo elemento em
+     A borda e o fundo repetem o hover de `.prompt__cmd`: é o mesmo elemento em
      dois lugares do site, e ele responde do mesmo jeito. */
   .campo:focus-within {
     outline: 2px solid var(--focus);
@@ -214,7 +214,7 @@ const dica = 'Busca em posts, projetos e páginas do site.';
     pointer-events: none;
   }
 
-  /* Mesma proporção do bloco da trilha (`.crumb__cmd::after`): 0,5em por 1,1em
+  /* Mesma proporção do bloco da trilha (`.prompt__cmd::after`): 0,5em por 1,1em
      a 70% de opacidade. */
   .campo__cursor {
     position: absolute;
@@ -710,6 +710,30 @@ const dica = 'Busca em posts, projetos e páginas do site.';
     }
 
     window.addEventListener('resize', () => requestAnimationFrame(cursor));
+
+    /**
+     * Esc esvazia o campo; num campo já vazio, devolve o foco à página. É o
+     * par do `/` do cabeçalho: uma tecla traz para cá, a outra sai.
+     *
+     * O evento de `input` é disparado à mão porque mudar `value` por script
+     * não dispara nenhum — sem ele a lista continuaria mostrando o resultado
+     * de um termo que não está mais escrito em lugar nenhum.
+     */
+    document.addEventListener('keydown', (evento) => {
+      if (evento.key !== 'Escape') return;
+
+      const alvo = evento.target as HTMLElement | null;
+      if (!alvo?.matches('[data-busca-input]')) return;
+
+      const campo = alvo as HTMLInputElement;
+      if (campo.value === '') {
+        campo.blur();
+        return;
+      }
+
+      campo.value = '';
+      campo.dispatchEvent(new Event('input', { bubbles: true }));
+    });
 
     document.addEventListener('astro:page-load', iniciar);
   }

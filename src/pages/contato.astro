@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import SectionHead from '../components/SectionHead.astro';
+import Prompt from '../components/Prompt.astro';
 import { socials } from '../site.config';
 
 // Sem formulário: um <form> exigiria um backend ou um serviço de terceiros
@@ -29,7 +30,9 @@ const channels = socials
 >
   <section class="section">
     <div class="wrap">
-      <SectionHead as="h1" eyebrow="Contato" title="Vamos conversar" />
+      <Prompt />
+
+      <SectionHead as="h1" title="Vamos conversar" />
 
       <div class="layout">
         <div>

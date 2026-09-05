@@ -1,6 +1,6 @@
 import { getCollection } from 'astro:content';
 import { principles } from './site.config';
-import { categorias } from './uso.config';
+import { alternativas } from './alternativas.config';
 
 /**
  * Índice de busca do site, montado no build e servido como JSON estático por
@@ -85,16 +85,29 @@ const paginas: ItemBusca[] = [
   },
   {
     tipo: 'Página',
-    url: '/uso/',
-    titulo: 'O que eu uso',
-    descricao: 'O sistema, os programas e os serviços que eu rodo todo dia, e por que cada um.',
-    // O `texto` sai do próprio `uso.config.ts`, e não escrito à mão: quem
-    // procura "immich" ou "hyprland" digita o nome da ferramenta, não a
-    // palavra "uso". Ficando ligado aos dados, item novo entra na busca junto
-    // com a página, sem depender de alguém lembrar de vir aqui.
+    url: '/alternativas/',
+    titulo: 'Alternativas',
+    descricao: 'O serviço que eu deixei de usar e o que entrou no lugar dele.',
+    // O `texto` sai dos dados e não é escrito à mão: quem digita "google
+    // drive" na busca está procurando o que pôr no lugar, e é esta página que
+    // responde. Ficando ligado ao `alternativas.config.ts`, troca nova entra na
+    // busca junto com a linha, sem depender de alguém lembrar de vir aqui.
     texto: [
-      'ferramentas setup máquina notebook servidor homelab dotfiles',
-      ...categorias.flatMap((c) => [c.titulo, ...c.itens.map((i) => `${i.nome} ${i.uso}`)]),
+      'alternativa alternativas migrar migração substituir sair de big tech',
+      ...alternativas.map((t) =>
+        [
+          t.categoria,
+          ...(t.de ?? []).map((m) => m.nome),
+          // O que ficou entra no índice como o resto: quem digita "whatsapp"
+          // está fazendo a mesma pergunta de quem digita "google drive", e é
+          // esta página que responde, inclusive quando a resposta é "esse eu
+          // não consegui trocar".
+          ...(t.contexto ?? []).map((m) => m.nome),
+          ...t.para.map((p) => p.nome),
+        ]
+          .filter(Boolean)
+          .join(' '),
+      ),
     ].join(' · '),
     tags: [],
   },
