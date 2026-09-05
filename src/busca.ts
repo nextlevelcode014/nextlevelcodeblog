@@ -80,7 +80,11 @@ const paginas: ItemBusca[] = [
     url: '/sobre/',
     titulo: 'Sobre',
     descricao: 'Quem está por trás da NextLevelCode, por que eu escrevo e o que me move.',
-    texto: 'currículo cv experiência formação como eu trabalho princípios liberdade privacidade',
+    // Sem "princípios" aqui: eles saíram da lateral desta página e quem
+    // procura a palavra tem a home, cujo texto de busca sai do array. O que
+    // ficou é sinônimo do que a /sobre/ não escreve com essas palavras. O
+    // último post e o projeto que a lateral mostra já têm entrada própria.
+    texto: 'currículo cv experiência formação quem sou como eu trabalho trajetória',
     tags: [],
   },
   {

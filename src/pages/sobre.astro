@@ -1,10 +1,39 @@
 ---
 import { statSync } from 'node:fs';
 import { join } from 'node:path';
+import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import SectionHead from '../components/SectionHead.astro';
 import Prompt from '../components/Prompt.astro';
-import { principles } from '../site.config';
+import FormattedDate from '../components/FormattedDate.astro';
+import StatusMark from '../components/StatusMark.astro';
+
+/**
+ * O post mais recente e o projeto em andamento, para a lateral.
+ *
+ * Esta página dizia "o que você me vê postando é o mesmo que ofereço" e não
+ * mostrava nada do que eu posto: fora cabeçalho e rodapé, a /sobre/ tinha um
+ * link só, o /contato/. Quem lia e se convencia só tinha a saída de mandar
+ * e-mail, que é um salto grande para quem acabou de ler uma bio.
+ *
+ * Um de cada, e não uma lista: aqui o trabalho é ponte, não catálogo — as
+ * listagens completas já existem em /blog/ e /projetos/.
+ *
+ * Sai das coleções e não de config à mão, então post novo entra sozinho e
+ * nada aqui envelhece calado. O filtro de rascunho vale como em toda listagem.
+ */
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime(),
+);
+const ultimoPost = posts[0];
+
+/* Ordenado por `order` como na /projetos/, e então o primeiro em andamento —
+   é o que responde "no que ele está agora". Sem nenhum ativo, cai no primeiro
+   da lista, que continua sendo trabalho publicado. */
+const projetos = (await getCollection('projetos', ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const projeto = projetos.find((p) => p.data.status === 'ativo') ?? projetos[0];
 
 /**
  * O botão de currículo só é renderizado se o PDF existir em `public/`.
@@ -85,19 +114,45 @@ const curriculo = lerCurriculo();
         </div>
 
         <aside class="side">
-          <div class="side__block">
-            <h2 class="eyebrow">Princípios</h2>
-            <ul class="principles">
-              {
-                principles.map((p) => (
-                  <li>
-                    <strong>{p.title}</strong>
-                    <span>{p.body}</span>
-                  </li>
-                ))
-              }
-            </ul>
-          </div>
+          {/*
+            Aqui ficavam os quatro princípios. Eles não sumiram do site: o hero
+            da home os nomeia e a busca da home usa o texto deles. Saíram
+            *daqui* porque esta página já os dizia duas vezes antes — o hero, e
+            a prosa ao lado ("hoje é isso que orienta o que eu faço"). A
+            lateral era a terceira, e a única das três que só afirmava.
+
+            No lugar entra o trabalho em si. Não é descrição do que eu faço
+            (isso seria a /servicos/ reconstruída por dentro de outra página):
+            é o último post e o projeto em andamento, com link. A prosa promete
+            "o que você me vê postando é o mesmo que ofereço" e agora a página
+            entrega em vez de repetir.
+
+            Cada bloco segue a forma do `.channel` da /contato/ — etiqueta,
+            valor, nota — que já é como este site apresenta um destino.
+          */}
+          {
+            ultimoPost && (
+              <div class="side__block">
+                <h2 class="eyebrow">Último post</h2>
+                <a class="peca" href={`/blog/${ultimoPost.id}/`}>
+                  <span class="peca__titulo">{ultimoPost.data.title}</span>
+                  <FormattedDate date={ultimoPost.data.pubDate} class="peca__meta" />
+                </a>
+              </div>
+            )
+          }
+
+          {
+            projeto && (
+              <div class="side__block">
+                <h2 class="eyebrow">Projeto</h2>
+                <a class="peca" href={`/projetos/${projeto.id}/`}>
+                  <span class="peca__titulo">{projeto.data.title}</span>
+                  <StatusMark status={projeto.data.status} />
+                </a>
+              </div>
+            )
+          }
 
           {/*
             Aqui ficavam as dez pílulas de "Ferramentas do dia a dia", e depois
@@ -169,27 +224,53 @@ const curriculo = lerCurriculo();
     border-image: var(--hairline) 1;
   }
 
-  .principles {
-    list-style: none;
-    padding: 0;
-    margin-block-start: var(--space-sm);
+  /* Mesmo gesto do `.channel` da /contato/: o destino desliza para a direita
+     no hover, em vez de sublinhar. Sem laranja e sem moldura — o acento tem
+     lugares contados, e o `StatusMark` do projeto ativo já traz o dele. */
+  .peca {
     display: grid;
-    gap: var(--space-sm);
-  }
-
-  .principles li {
-    display: grid;
+    /* `justify-items` e não `justify-self` em cada filho: um deles é o
+       StatusMark, componente próprio, e alinhar pelo pai evita ter que
+       alcançar para dentro dele. */
+    justify-items: start;
     gap: var(--space-3xs);
-    font-size: var(--fs-sm);
+    margin-block-start: var(--space-2xs);
+    text-decoration: none;
+    transition: padding-inline-start var(--dur) var(--ease-out);
   }
 
-  .principles strong {
+  .peca:hover {
+    padding-inline-start: var(--space-2xs);
+  }
+
+  .peca__titulo {
     font-family: var(--font-heading);
     font-weight: 600;
+    font-size: var(--fs-sm);
+    color: var(--text);
+    text-wrap: balance;
   }
 
-  .principles span {
-    color: var(--text-muted);
+  .peca:hover .peca__titulo {
+    color: var(--accent);
+  }
+
+  /* Data é metadado, e metadado fala terminal aqui.
+
+     O `:global` não é preguiça: a classe desce para o `<time>` dentro do
+     `FormattedDate`, mas o atributo de escopo do Astro **não** atravessa para
+     dentro de componente filho. Sem isto o seletor vira
+     `.peca__meta[data-astro-cid-…]`, que não casa com nada, e a regra morre
+     calada — nem o build nem o `astro check` acusam. A âncora em `.peca`
+     mantém o escopo real: o global vale só dentro deste bloco.
+
+     O `StatusMark` do projeto de propósito não leva esta classe. Ele tem
+     tipografia própria (versalete em `--font-heading`), que é o vocabulário
+     de estado do site; trocar a fonte dele daqui de fora seria intromissão. */
+  .peca > :global(.peca__meta) {
+    font-family: var(--font-mono);
+    font-size: var(--fs-2xs);
+    color: var(--text-faint);
   }
 
   /* Aqui viviam `.side__nota`, `.side__link` e `.side__arrow`, o desenho do
