@@ -100,9 +100,23 @@
     font-size: var(--fs-base);
     line-height: var(--leading-normal);
     font-synthesis-weight: none;
-    /* Textura de grão sutil, herdada do fundo do logo. Só aparece no tema
-       escuro, onde ela evita que o navy pareça um vazio digital chapado. */
-    background-image: var(--grain);
+
+    /* Duas camadas atrás de todo o conteúdo. Na ordem em que estão escritas,
+       que é de cima para baixo:
+
+       o grão é textura, herdada do fundo do logo, e evita que o navy pareça um
+       vazio digital chapado. Ele só existe no tema escuro (ver a regra abaixo),
+       e por isso precisa de um valor neutro aqui: custom property indefinida
+       invalida a declaração INTEIRA, então sem este `none` o tema claro perderia
+       também a grade, que não tem nada a ver com o grão;
+
+       a grade é estrutura, e vem definida em `tokens.css` (`--grid`). Ela fica
+       embaixo porque o grão é película sobre tudo, inclusive sobre ela.
+
+       `fixed` vale para as duas camadas: grade parada enquanto o texto rola é
+       fundo; rolando junto com o texto ela vira elemento e disputa a leitura. */
+    --grain: none;
+    background-image: var(--grain), var(--grid);
     background-attachment: fixed;
   }
 

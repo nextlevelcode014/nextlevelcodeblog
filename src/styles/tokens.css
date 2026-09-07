@@ -70,6 +70,40 @@
       color-mix(in oklab, var(--line) 15%, transparent)
     );
 
+    /* Grade de fundo — o papel milimetrado da marca, atrás de toda página.
+       Uma família só de linhas paralelas subindo no ângulo do logo. Quatro
+       decisões que não se leem no valor:
+
+       O ângulo é o de `--angle`, não o do eixo cartesiano. Grade quadriculada
+       de 40px é o fundo padrão de site de tecnologia, e metáfora emprestada é
+       o que faz um elemento parecer templated: quadriculada, ela deixaria o
+       58° do `.rule` e do logo parecendo enfeite em vez de sistema. Inclinada,
+       o fundo repete o gesto que o resto do site já faz.
+
+       É uma família e não duas cruzadas. Duas dariam losango, que é textura de
+       papel de parede e chama atenção para si; uma é trajetória repetida.
+
+       O ângulo do `repeating-linear-gradient` é o do EIXO do degradê, e as
+       faixas saem perpendiculares a ele — por isso o eixo é `-58deg` para as
+       linhas subirem a 58°, e não `var(--angle)` direto. Trocar o sinal
+       inverte o desenho para `\`, que é o gesto ao contrário.
+
+       A opacidade é a parte frágil. A grade é fundo: ela existe para o papel
+       não ser liso, não para ser lida. A 0,035 as linhas ficavam nítidas e
+       cruzavam o texto do corpo, disputando a leitura — foi o que o autor
+       recusou na primeira versão. 0,018 no claro e 0,02 no escuro é o teto:
+       perto o suficiente para ver, longe o suficiente para não competir. O
+       espaçamento acompanha, 72px em vez de 56px, porque metade do incômodo
+       era densidade e não contraste. */
+    --grid-gap: 72px;
+    --grid-line: light-dark(rgba(2, 5, 17, 0.018), rgba(255, 255, 255, 0.02));
+    --grid: repeating-linear-gradient(
+      calc(-1 * var(--angle)),
+      transparent 0,
+      var(--grid-line) 0.5px 1.5px,
+      transparent 2px var(--grid-gap)
+    );
+
     /* ---------- Acentos (versões com contraste de texto garantido) ---------- */
     --accent: light-dark(#1565c0, #2196f3);
 
