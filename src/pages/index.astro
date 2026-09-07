@@ -210,10 +210,30 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
 
      Some junto a dependência de `background-clip: text` — que exigia um
      `@supports` e um fallback só para o texto não sumir onde não há suporte. */
+  /* Sem `white-space: nowrap`. Ele veio do commit inicial, quando o destaque
+     era "próximo nível": duas palavras curtas que cabem em qualquer largura,
+     e por isso a regra nunca cobrou. Mas frase de destaque é conteúdo, e a
+     conta anda com ela — um destaque de 23 caracteres mede 413px a 36px,
+     contra os 350px que o `.wrap` tem numa tela de 390px.
+
+     O estrago é maior do que parece porque o `nowrap` não corta nem encolhe:
+     ele ESTICA. O item de grid cresce até caber a linha inteira, e sobem
+     junto a lead e os botões, que não têm defeito nenhum e mesmo assim saem
+     da tela. O sintoma chega como "o hero inteiro não é responsivo" em vez de
+     "uma frase não cabe", e é isso que atrasa achar a causa.
+
+     No desktop ele erra sem chegar à borda: a coluna do hero tem 593px, e um
+     destaque que peça mais transborda para o espaço vazio antes da marca,
+     onde ninguém vê. Quem decide a quebra deste título é o texto ou o
+     `<br class="hero__break">`, que some sozinho abaixo de 40rem — não o
+     `nowrap`, que só esconde a conta.
+
+     O ponto laranja não precisa do `nowrap` para ficar colado no fim da
+     frase: não há espaço entre o `</span>` do destaque e o do ponto, e sem
+     espaço o navegador não tem onde quebrar. */
   .hero__accent {
     color: var(--accent);
     position: relative;
-    white-space: nowrap;
   }
 
   /* aria-hidden no markup: leitores de tela já pausam na pontuação da frase;
