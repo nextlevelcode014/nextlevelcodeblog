@@ -6,7 +6,7 @@
 export const site = {
   name: 'NextLevelCode',
   tagline: 'Tecnologia com liberdade, privacidade e segurança.',
-  description: 'Blog e projetos sobre Linux, homelab, privacidade e segurança.',
+  description: 'Blog pessoal para pesquisas, projetos e guias.',
   author: 'NextLevelCode',
   email: 'work@nextlevelcode.pro',
   locale: 'pt-BR',

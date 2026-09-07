@@ -25,7 +25,7 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
           os assuntos do que está publicado: é a primeira coisa que responde
           "isto aqui é sobre o quê" para quem chegou de um link.
         */}
-        <p class="eyebrow">Linux · Homelab · Privacidade</p>
+        <p class="eyebrow">Linux · Bitcoin · Criptografia</p>
 
         {/*
           O `{' '}` não é decorativo: o compilador do Astro descarta a quebra de
@@ -45,16 +45,20 @@ const projetos = (await getCollection('projetos', ({ data }) => !data.draft))
           trocadilho com o nome da marca continua de pé, e agora descreve o
           que a página mostra em vez de prometer o que ela faria por alguém.
         */}
+        <!-- <h1 class="hero__title"> -->
+        <!--   Minha infraestrutura<br class="hero__break" /> no{' '} -->
+        <!--   <span class="hero__accent">próximo nível</span><span class="hero__dot" -->
+        <!--     aria-hidden="true">.</span> -->
+        <!-- </h1> -->
+
         <h1 class="hero__title">
-          Minha infraestrutura<br class="hero__break" /> no{' '}
-          <span class="hero__accent">próximo nível</span><span class="hero__dot"
+          Elevando o nível de{' '}
+          <span class="hero__accent">liberdade e privacidade</span><span class="hero__dot"
             aria-hidden="true">.</span>
         </h1>
 
         <p class="hero__lead">
-          Escrevo o que aprendo montando e mantendo as minhas próprias máquinas,
-          sobre quatro princípios: <strong>liberdade</strong>, <strong>transparência</strong>,{' '}
-          <strong>privacidade</strong> e <strong>segurança</strong>.
+          Uma sociedade não se mede por como trata os obedientes.
         </p>
 
         <div class="hero__actions">

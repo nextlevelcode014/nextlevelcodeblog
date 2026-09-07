@@ -136,7 +136,7 @@ export interface Alternativa {
 export const alternativas: Alternativa[] = [
   {
     categoria: 'E-mail',
-    contexto: [{ nome: 'Gmail', icone: 'gmail' }],
+    contexto: [{ nome: 'Gmail', icone: 'gmail', nota: 'Tuta Mail é outra boa opção' }],
     para: [{ nome: 'Proton Mail', url: 'https://proton.me/mail', icone: 'protonmail' }],
   },
   {
@@ -151,9 +151,9 @@ export const alternativas: Alternativa[] = [
     categoria: 'Navegador',
     de: [{ nome: 'Chrome', icone: 'googlechrome' }],
     para: [
-      { nome: 'Zen Browser', url: 'https://zen-browser.app/', icone: 'zenbrowser' },
-      { nome: 'Brave Origin', url: 'https://brave.com/origin/', icone: 'brave' },
-      { nome: 'DuckDuckGo', url: 'https://duckduckgo.com/browser', icone: 'duckduckgo' },
+      { nome: 'Zen Browser', url: 'https://zen-browser.app/', icone: 'zenbrowser', nota: 'goat' },
+      { nome: 'Brave Origin', url: 'https://brave.com/origin/', icone: 'brave', nota: 'no caso de precisar de alguma funcionalidade do Chrome' },
+      { nome: 'DuckDuckGo', url: 'https://duckduckgo.com/browser', icone: 'duckduckgo', nota: 'recomendo para usar no Windows' },
     ],
   },
   {
@@ -172,7 +172,7 @@ export const alternativas: Alternativa[] = [
   {
     categoria: 'Armazenamento',
     de: [{ nome: 'Google Drive', icone: 'googledrive' }],
-    para: [{ nome: 'Nextcloud AIO', url: 'https://nextcloud.com/', icone: 'nextcloud' }],
+    para: [{ nome: 'Nextcloud AIO', url: 'https://nextcloud.com/', icone: 'nextcloud', nota: 'simplesmente incrível' }],
   },
   {
     categoria: 'Fotos',
@@ -309,7 +309,7 @@ export const alternativas: Alternativa[] = [
     de: [{ nome: 'Windows', icone: 'windows' }],
     para: [
       { nome: 'Arch Linux', url: 'https://archlinux.org/', icone: 'archlinux' },
-      { nome: 'NixOS', url: 'https://nixos.org/', icone: 'nixos' },
+      { nome: 'NixOS', url: 'https://nixos.org/', icone: 'nixos', nota: 'meu favorito' },
       { nome: 'Tails', url: 'https://tails.net/', icone: 'tails' },
       { nome: 'Ubuntu Server', url: 'https://ubuntu.com/server', icone: 'ubuntu' },
       // Sem marca no Simple Icons e sem vetor publicado: cai na caixa vazia.
@@ -320,9 +320,9 @@ export const alternativas: Alternativa[] = [
     categoria: 'Loja de aplicativos',
     de: [{ nome: 'Play Store', icone: 'googleplay' }],
     para: [
-      { nome: 'Obtainium', url: 'https://obtainium.imranr.dev/', icone: 'obtainium' },
+      { nome: 'Obtainium', url: 'https://obtainium.imranr.dev/', icone: 'obtainium', nota: 'para baixar APKs de repositórios (ex.: GitHub Releases)' },
       { nome: 'F-Droid', url: 'https://f-droid.org/', icone: 'fdroid' },
-      { nome: 'Aurora Store', url: 'https://auroraoss.com/', icone: 'aurorastore' },
+      { nome: 'Aurora Store', url: 'https://auroraoss.com/', icone: 'aurorastore', nota: 'cliente que se conecta à API do Google e baixa os APKs' },
     ],
   },
   {
