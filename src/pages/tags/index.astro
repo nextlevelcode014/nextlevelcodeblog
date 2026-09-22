@@ -1,11 +1,11 @@
 ---
-import { getCollection } from 'astro:content';
+import { publicados } from '../../conteudo';
 import Base from '../../layouts/Base.astro';
 import SectionHead from '../../components/SectionHead.astro';
 import Prompt from '../../components/Prompt.astro';
 
-const posts = await getCollection('blog', ({ data }) => !data.draft);
-const projetos = await getCollection('projetos', ({ data }) => !data.draft);
+const posts = await publicados('blog');
+const projetos = await publicados('projetos');
 
 // Uma tag pode aparecer nos dois lugares, então contamos as duas origens
 // separadamente — útil para o visitante saber o que vai encontrar.

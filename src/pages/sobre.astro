@@ -1,7 +1,7 @@
 ---
 import { statSync } from 'node:fs';
 import { join } from 'node:path';
-import { getCollection } from 'astro:content';
+import { publicados } from '../conteudo';
 import Base from '../layouts/Base.astro';
 import SectionHead from '../components/SectionHead.astro';
 import Prompt from '../components/Prompt.astro';
@@ -20,9 +20,9 @@ import StatusMark from '../components/StatusMark.astro';
  * listagens completas já existem em /blog/ e /projetos/.
  *
  * Sai das coleções e não de config à mão, então post novo entra sozinho e
- * nada aqui envelhece calado. O filtro de rascunho vale como em toda listagem.
+ * nada aqui envelhece calado.
  */
-const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+const posts = (await publicados('blog')).sort(
   (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime(),
 );
 const ultimoPost = posts[0];
@@ -30,7 +30,7 @@ const ultimoPost = posts[0];
 /* Ordenado por `order` como na /projetos/, e então o primeiro em andamento —
    é o que responde "no que ele está agora". Sem nenhum ativo, cai no primeiro
    da lista, que continua sendo trabalho publicado. */
-const projetos = (await getCollection('projetos', ({ data }) => !data.draft)).sort(
+const projetos = (await publicados('projetos')).sort(
   (a, b) => a.data.order - b.data.order,
 );
 const projeto = projetos.find((p) => p.data.status === 'ativo') ?? projetos[0];

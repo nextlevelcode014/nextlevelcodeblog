@@ -1,4 +1,4 @@
-import { getCollection } from 'astro:content';
+import { publicados } from './conteudo';
 import { principles } from './site.config';
 import { alternativas } from './alternativas.config';
 
@@ -150,10 +150,10 @@ const paginas: ItemBusca[] = [
 ];
 
 export async function construirIndice(): Promise<ItemBusca[]> {
-  // O filtro de rascunho vale aqui como vale em toda listagem: sem ele, um
-  // post não publicado apareceria na busca com título, trecho e link.
-  const posts = await getCollection('blog', ({ data }) => !data.draft);
-  const projetos = await getCollection('projetos', ({ data }) => !data.draft);
+  // `publicados` e não `getCollection`: sem o filtro, um post não publicado
+  // apareceria na busca com título, trecho e link.
+  const posts = await publicados('blog');
+  const projetos = await publicados('projetos');
 
   const itens: ItemBusca[] = [
     ...paginas,

@@ -1,11 +1,11 @@
 ---
-import { getCollection } from 'astro:content';
+import { publicados } from '../../conteudo';
 import Base from '../../layouts/Base.astro';
 import SectionHead from '../../components/SectionHead.astro';
 import Prompt from '../../components/Prompt.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 
-const projetos = (await getCollection('projetos', ({ data }) => !data.draft)).sort(
+const projetos = (await publicados('projetos')).sort(
   (a, b) => a.data.order - b.data.order,
 );
 ---

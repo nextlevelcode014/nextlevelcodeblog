@@ -94,9 +94,16 @@ Se um dia o assunto voltar, o material está ali; enquanto não voltar, aqueles
 arquivos não descrevem nada do que está publicado.
 
 **Conteúdo** vive em `src/content/{blog,projetos}/*.md`, com schema em
-`src/content.config.ts` (loader `glob` da Content Layer). Duas regras:
-- Toda consulta a coleção **precisa** filtrar rascunho: `getCollection('blog', ({ data }) => !data.draft)`.
-  Esquecer isso vaza rascunho para listagem, tags, RSS ou sitemap.
+`src/content.config.ts` (loader `glob` da Content Layer). Três regras:
+- Leia coleção com **`publicados('blog')`** (`src/conteudo.ts`), nunca com
+  `getCollection` direto: o filtro de rascunho mora lá. `draft` é campo do schema
+  deste site, não do Astro — o `markdown.drafts` saiu junto com a API de conteúdo
+  legada, e a Content Layer não sabe que o booleano quer dizer "não publique".
+  Esquecer o filtro vaza rascunho para listagem, tags, RSS, busca ou sitemap, e
+  nem o build nem o `astro check` reclamam.
+- **Em `astro dev` o rascunho aparece**, por `import.meta.env.DEV` dentro do
+  `publicados`; em `astro build` ele some. Como o `bun run preview` serve o
+  `dist/`, é lá que se confere o site como ele vai ao ar.
 - Tags não são cadastradas em lugar nenhum — `/tags/` e `/tags/<nome>/` são geradas do
   que existe nos arquivos. Use minúsculas sem acento: a tag vira URL.
 

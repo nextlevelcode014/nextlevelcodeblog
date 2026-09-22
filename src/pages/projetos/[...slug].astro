@@ -1,11 +1,12 @@
 ---
-import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { render, type CollectionEntry } from 'astro:content';
+import { publicados } from '../../conteudo';
 import Base from '../../layouts/Base.astro';
 import StatusMark from '../../components/StatusMark.astro';
 import Prompt from '../../components/Prompt.astro';
 
 export async function getStaticPaths() {
-  const projetos = await getCollection('projetos', ({ data }) => !data.draft);
+  const projetos = await publicados('projetos');
   return projetos.map((project) => ({
     params: { slug: project.id },
     props: { project },
