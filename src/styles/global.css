@@ -555,11 +555,25 @@
     }
   }
 
-  /* Shiki gera dois temas; alternamos por variável CSS conforme o data-theme. */
-  :root[data-theme='light'] .astro-code,
-  :root[data-theme='light'] .astro-code span {
-    color: var(--shiki-light) !important;
-    background-color: var(--shiki-light-bg) !important;
+  /* Bloco de código.
+     O fundo é o do site, não o do tema do Shiki: o #0d1117 do GitHub é cinza
+     ao lado do navy da marca. `--bg-raised` (a superfície do card) e
+     não `--bg-inset` por contraste: sobre o inset o comentário do tema
+     claro (#6e7781) cai para 4,04:1; sobre o raised fica em 4,55:1. No
+     escuro o pior token passa de 6:1 nos dois.
+
+     A cor dos tokens vem das variáveis que o Shiki escreve (`defaultColor:
+     false` no astro.config), e `light-dark()` escolhe pelo
+     `color-scheme` que o data-theme define. Antes o inline trazia o tema
+     claro e só o claro era trocado aqui: o escuro, que é o padrão, ficava
+     com o bloco branco. */
+  .astro-code {
+    background-color: var(--bg-raised);
+  }
+
+  .astro-code,
+  .astro-code span {
+    color: light-dark(var(--shiki-light), var(--shiki-dark));
   }
 }
 

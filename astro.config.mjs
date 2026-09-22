@@ -48,7 +48,12 @@ export default defineConfig({
     // GFM (tabelas, listas de tarefas, autolink) já vem ligado por padrão no
     // processador Sätteri — não precisa declarar.
     shikiConfig: {
-      themes: { light: 'github-light', dark: 'github-dark-default' },
+      // Os dois `-default` são da mesma família (Primer), e o claro tem
+      // contraste melhor que o `github-light`: o laranja deste dava 3,49:1.
+      themes: { light: 'github-light-default', dark: 'github-dark-default' },
+      // Sem tema padrão o Shiki não escreve cor nenhuma inline, só as
+      // variáveis dos dois temas. Quem escolhe entre elas é o global.css.
+      defaultColor: false,
       wrap: true,
     },
   },
