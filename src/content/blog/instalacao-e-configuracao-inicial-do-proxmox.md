@@ -31,10 +31,9 @@ Cada VM recebe uma interface virtual de rede que é conectada à bridge `vmbr0`,
 fala com a NIC física que está conectada via cabo ao roteador. Com isso, o roteador entrega os
 IPs com DHCP e gerencia o NAT das VMs como se fossem máquinas físicas conectadas ao roteador.
 
-A solução para contornar é o host fazer NAT, ou seja, virar o roteador. Mas isso é gambiarra;
-o certo nesse caso é comprar um adaptador ethernet. Entretanto, eu usei a configuração com
-Wi-Fi por algumas semanas e funcionou muito bem. Se por algum motivo você não puder usar um
-adaptador ethernet, essa solução se mostrou sólida -- graças ao Tailscale.
+A solução para contornar é o host fazer NAT, ou seja, virar o roteador. O certo nesse caso é comprar um adaptador
+ethernet. Entretanto, eu usei a configuração com Wi-Fi por algumas semanas e funcionou muito bem. Se por algum
+motivo você não puder usar um adaptador ethernet, essa solução se mostrou sólida -- graças ao Tailscale.
 
 ![Notebook desmontado](../../assets/blog/instalacao-e-configuracao-inicial-do-proxmox/ideapad3-15alc6-interno.jpg)
 
@@ -104,7 +103,7 @@ na pós-instalação, menos o FQDN.
 ![Tela de rede do instalador com a lista de interfaces aberta: nic1 (rndis_host, o celular) selecionada e nic0 (rtw88_8822ce, a placa Wi-Fi)](../../assets/blog/instalacao-e-configuracao-inicial-do-proxmox/proxmox_redes.jpg)
 
 - `nic0`: placa Wi-Fi do notebook;
-- `nic1`: interface do meu celular; pluguei um cabo USB com tethering.
+- `nic1`: interface do meu celular;
 
 A `nic1` é necessária para fazer a instalação dos pacotes para configuração de rede na pós-instalação.
 Entretanto, essa parte é irrelevante, pois a interface muda a cada replug, então o reboot de instalação
@@ -266,7 +265,7 @@ EOF
 systemctl restart dnsmasq
 ```
 
-`port=0` desliga o servidor DNS do dnsmasq, que aqui só faz DHCP; a resolução das VMs fica
+`port=0` desliga o servidor DNS do dnsmasq, que aqui só faz DHCP. A resolução das VMs fica
 com os servidores passados em `dhcp-option=option:dns-server`.
 
 Se quiser fixar o IP de uma VM acrescente no mesmo arquivo algo assim:
@@ -311,7 +310,7 @@ Meu notebook:
 
 ## Conclusão
 Esse post mostrou uma forma de contornar a falta de uma entrada ethernet para poder expor o
-Proxmox e acessar as máquinas a partir de outros dispositivos com Tailscale.
+Proxmox e acessar as VMs a partir de outros dispositivos com Tailscale.
 
 Vou fazer um segundo post em complemento a esse da migração dessa configuração para o
 adaptador ethernet -- que é bem mais simples. Com isso vamos tirar esse duplo NAT da VM
