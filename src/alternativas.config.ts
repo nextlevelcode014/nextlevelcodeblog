@@ -143,7 +143,8 @@ export const alternativas: Alternativa[] = [
     categoria: 'Mensagens',
     contexto: [{ nome: 'WhatsApp', icone: 'whatsapp' }],
     para: [
-      { nome: 'Signal', url: 'https://signal.org/', icone: 'signal' },
+      { nome: 'Element (Matrix)', url: 'https://element.io', icone: 'element' },
+      // { nome: 'Signal', url: 'https://signal.org/', icone: 'signal' },
       { nome: 'Nextcloud Talk', url: 'https://nextcloud.com/talk/', icone: 'nextcloud' },
     ],
   },
