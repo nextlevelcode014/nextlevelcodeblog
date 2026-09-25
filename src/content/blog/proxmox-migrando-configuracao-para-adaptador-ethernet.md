@@ -6,12 +6,15 @@ tags: ['proxmox', 'homelab', 'rede', 'linux']
 draft: false
 ---
 
+
 ## Introdução
 Vindo do post [Instalação e configuração inicial do Proxmox](https://www.nextlevelcode.pro/blog/instalacao-e-configuracao-inicial-do-proxmox/).
 
 Nesse post vou mostrar como fazer a migração para o adaptador.
 
 Comprei esse: [Adaptador Rede Ethernet Gigabit Usb 3.0 Lan Tp Link Ue300](https://www.mercadolivre.com.br/up/MLBU4009974614?pdp_filters=item_id:MLB4709030211&matt_tool=38524122#origin=share&sid=share&wid=MLB4709030211&action=copy)
+![Adaptador plugado no notebook](../../assets/blog/proxmox-migrando-configuracao-para-adaptador-ethernet/adaptador.jpg)
+
 ## Duas opções
 Você altera os `bridge-ports` da `vmbr0` para a nova interface ethernet ao invés
 da `wlp1s0`. Que na prática só muda de onde a internet está vindo.
