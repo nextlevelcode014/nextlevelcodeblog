@@ -3,7 +3,7 @@ title: 'Proxmox: migrando configuração para adaptador ethernet'
 description: 'Migrando a configuração de rede do Proxmox de Wi-Fi NAT para adaptador ethernet com bridge direta ao roteador'
 pubDate: 2026-09-25
 tags: ['proxmox', 'homelab', 'rede', 'linux']
-draft: true
+draft: false
 ---
 
 ## Introdução
