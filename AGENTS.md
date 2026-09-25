@@ -48,6 +48,10 @@ bunx astro dev stop|status|logs  # o dev do Astro 7 roda em segundo plano
   ```
 - **`docs/servicos/*.md` é registro**, nada em `src/` lê. O site não vende e não
   anuncia atendimento; não reintroduza oferta de serviço sem o autor pedir.
+- **Toda imagem nova deve passar por `bun run otimiza:img <caminho>` antes do commit.**
+  O script remove metadados EXIF/GPS/XMP (via sharp) e otimiza o tamanho.
+  Nunca commitar fotos diretamente do celular/câmera sem processar — metadados
+  de localização e equipamento vazam para a produção.
 
 ## Armadilhas de renderização (o CSS/HTML quebra calado)
 
